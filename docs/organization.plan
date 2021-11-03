@@ -45,7 +45,8 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Ideas for the functionalities and deployment features the app should have"
+              "description": "Ideas for the functionalities and deployment features the app should have",
+              "filepath": ""
             }
           },
           {
@@ -856,7 +857,8 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Shared with me captures are read only"
+              "description": "Shared with me captures are read only",
+              "filepath": ""
             }
           },
           {
@@ -1514,7 +1516,8 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Shared with me captures are read only"
+              "description": "Shared with me captures are read only",
+              "filepath": ""
             }
           },
           {
@@ -2519,6 +2522,156 @@
             "properties": {
               "checked": false,
               "description": "Scatter plot of consumed network bandwidth",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 159,
+            "rect": {
+              "X": -1600,
+              "Y": 1728,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "ToDo",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 160,
+            "rect": {
+              "X": -1184,
+              "Y": 1728,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Doing",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 162,
+            "rect": {
+              "X": -768,
+              "Y": 1728,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Testing",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 161,
+            "rect": {
+              "X": -352,
+              "Y": 1728,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Review",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 163,
+            "rect": {
+              "X": 96,
+              "Y": 1728,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Completed",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 164,
+            "rect": {
+              "X": -1600,
+              "Y": 1760,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Design the system",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 165,
+            "rect": {
+              "X": -1568,
+              "Y": 1792,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Database model",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 166,
+            "rect": {
+              "X": -1568,
+              "Y": 1824,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Use case diagram",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 167,
+            "rect": {
+              "X": -1568,
+              "Y": 1856,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Package diagrama",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 168,
+            "rect": {
+              "X": -1568,
+              "Y": 1888,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Timing diagram",
               "filepath": ""
             }
           }
