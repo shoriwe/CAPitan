@@ -32,6 +32,11 @@
                 "start": 0,
                 "end": 98,
                 "joints": []
+              },
+              {
+                "start": 0,
+                "end": 169,
+                "joints": []
               }
             ]
           },
@@ -351,6 +356,21 @@
             }
           },
           {
+            "id": 169,
+            "rect": {
+              "X": 3456,
+              "Y": -288,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Deplyment",
+              "filepath": ""
+            }
+          },
+          {
             "id": 2,
             "rect": {
               "X": -128,
@@ -428,6 +448,21 @@
             }
           },
           {
+            "id": 170,
+            "rect": {
+              "X": 3488,
+              "Y": -256,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Docker container",
+              "filepath": ""
+            }
+          },
+          {
             "id": 53,
             "rect": {
               "X": 416,
@@ -469,6 +504,20 @@
             "properties": {
               "checked": false,
               "description": "Administrative operations",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 172,
+            "rect": {
+              "X": 3520,
+              "Y": -224,
+              "W": 256,
+              "H": 224
+            },
+            "contents": "Note",
+            "properties": {
+              "description": "This one should be powered by mariadb and the network interfaces are configured for the container it self",
               "filepath": ""
             }
           },
@@ -668,6 +717,21 @@
             }
           },
           {
+            "id": 173,
+            "rect": {
+              "X": 3488,
+              "Y": 0,
+              "W": 288,
+              "H": 64
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Standalone executable",
+              "filepath": ""
+            }
+          },
+          {
             "id": 111,
             "rect": {
               "X": 1472,
@@ -709,6 +773,20 @@
             "properties": {
               "checked": false,
               "description": "Active session manipulation",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 174,
+            "rect": {
+              "X": 3520,
+              "Y": 64,
+              "W": 256,
+              "H": 128
+            },
+            "contents": "Note",
+            "properties": {
+              "description": "This one is powered a by a custom JSON database",
               "filepath": ""
             }
           },
@@ -2601,25 +2679,10 @@
             }
           },
           {
-            "id": 164,
-            "rect": {
-              "X": -1600,
-              "Y": 1760,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Design the system",
-              "filepath": ""
-            }
-          },
-          {
             "id": 165,
             "rect": {
               "X": -1568,
-              "Y": 1792,
+              "Y": 1760,
               "W": 288,
               "H": 32
             },
@@ -2634,7 +2697,7 @@
             "id": 166,
             "rect": {
               "X": -1568,
-              "Y": 1824,
+              "Y": 1792,
               "W": 288,
               "H": 32
             },
@@ -2649,7 +2712,7 @@
             "id": 167,
             "rect": {
               "X": -1568,
-              "Y": 1856,
+              "Y": 1824,
               "W": 288,
               "H": 32
             },
@@ -2664,7 +2727,7 @@
             "id": 168,
             "rect": {
               "X": -1568,
-              "Y": 1888,
+              "Y": 1856,
               "W": 288,
               "H": 32
             },
@@ -2672,6 +2735,21 @@
             "properties": {
               "checked": false,
               "description": "Timing diagram",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 176,
+            "rect": {
+              "X": -1568,
+              "Y": 1888,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "UI design",
               "filepath": ""
             }
           }
