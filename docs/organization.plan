@@ -50,8 +50,7 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Ideas for the functionalities and deployment features the app should have",
-              "filepath": ""
+              "description": "Ideas for the functionalities and deployment features the app should have"
             }
           },
           {
@@ -517,8 +516,7 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "This one should be powered by mariadb and the network interfaces are configured for the container it self",
-              "filepath": ""
+              "description": "This one should be powered by mariadb and the network interfaces are configured for the container it self"
             }
           },
           {
@@ -786,8 +784,7 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "This one is powered a by a custom JSON database",
-              "filepath": ""
+              "description": "This one is powered a by a custom JSON database"
             }
           },
           {
@@ -935,8 +932,7 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Shared with me captures are read only",
-              "filepath": ""
+              "description": "Shared with me captures are read only"
             }
           },
           {
@@ -1594,8 +1590,7 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Shared with me captures are read only",
-              "filepath": ""
+              "description": "Shared with me captures are read only"
             }
           },
           {
@@ -2679,9 +2674,24 @@
             }
           },
           {
-            "id": 165,
+            "id": 166,
             "rect": {
               "X": -1568,
+              "Y": 1760,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Use case diagram",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 165,
+            "rect": {
+              "X": -288,
               "Y": 1760,
               "W": 288,
               "H": 32
@@ -2694,25 +2704,10 @@
             }
           },
           {
-            "id": 166,
-            "rect": {
-              "X": -1568,
-              "Y": 1792,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Use case diagram",
-              "filepath": ""
-            }
-          },
-          {
             "id": 167,
             "rect": {
               "X": -1568,
-              "Y": 1824,
+              "Y": 1792,
               "W": 288,
               "H": 32
             },
@@ -2727,7 +2722,7 @@
             "id": 168,
             "rect": {
               "X": -1568,
-              "Y": 1856,
+              "Y": 1824,
               "W": 288,
               "H": 32
             },
@@ -2742,7 +2737,7 @@
             "id": 176,
             "rect": {
               "X": -1568,
-              "Y": 1888,
+              "Y": 1856,
               "W": 288,
               "H": 32
             },
