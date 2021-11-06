@@ -50,7 +50,8 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Ideas for the functionalities and deployment features the app should have"
+              "description": "Ideas for the functionalities and deployment features the app should have",
+              "filepath": ""
             }
           },
           {
@@ -516,7 +517,8 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "This one should be powered by mariadb and the network interfaces are configured for the container it self"
+              "description": "This one should be powered by mariadb and the network interfaces are configured for the container it self",
+              "filepath": ""
             }
           },
           {
@@ -784,7 +786,8 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "This one is powered a by a custom JSON database"
+              "description": "This one is powered a by a custom JSON database",
+              "filepath": ""
             }
           },
           {
@@ -932,7 +935,8 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Shared with me captures are read only"
+              "description": "Shared with me captures are read only",
+              "filepath": ""
             }
           },
           {
@@ -1590,7 +1594,8 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Shared with me captures are read only"
+              "description": "Shared with me captures are read only",
+              "filepath": ""
             }
           },
           {
@@ -2374,6 +2379,21 @@
             }
           },
           {
+            "id": 174,
+            "rect": {
+              "X": 256,
+              "Y": 800,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Plots",
+              "filepath": ""
+            }
+          },
+          {
             "id": 157,
             "rect": {
               "X": 2528,
@@ -2404,6 +2424,21 @@
             }
           },
           {
+            "id": 175,
+            "rect": {
+              "X": 288,
+              "Y": 832,
+              "W": 288,
+              "H": 64
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Network topology graph",
+              "filepath": ""
+            }
+          },
+          {
             "id": 43,
             "rect": {
               "X": -96,
@@ -2419,17 +2454,17 @@
             }
           },
           {
-            "id": 90,
+            "id": 176,
             "rect": {
               "X": 288,
               "Y": 896,
               "W": 288,
-              "H": 32
+              "H": 96
             },
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "ARP spoof",
+              "description": "Bar graph of number of packet sent by host",
               "filepath": ""
             }
           },
@@ -2449,32 +2484,17 @@
             }
           },
           {
-            "id": 94,
+            "id": 177,
             "rect": {
-              "X": 320,
-              "Y": 928,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Packet session controls",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 91,
-            "rect": {
-              "X": 352,
+              "X": 288,
               "Y": 992,
               "W": 288,
-              "H": 32
+              "H": 96
             },
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Pause",
+              "description": "Pie graph of number of packets by layer 4 protocol sent",
               "filepath": ""
             }
           },
@@ -2494,47 +2514,17 @@
             }
           },
           {
-            "id": 92,
+            "id": 178,
             "rect": {
-              "X": 352,
-              "Y": 1024,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Resume",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 93,
-            "rect": {
-              "X": 352,
-              "Y": 1056,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Stop",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 95,
-            "rect": {
-              "X": 320,
+              "X": 288,
               "Y": 1088,
               "W": 288,
-              "H": 32
+              "H": 96
             },
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Spoof",
+              "description": "Pie graph of number of packets by layer 7 protocol sent",
               "filepath": ""
             }
           },
@@ -2554,32 +2544,17 @@
             }
           },
           {
-            "id": 96,
+            "id": 179,
             "rect": {
-              "X": 352,
-              "Y": 1120,
+              "X": 288,
+              "Y": 1184,
               "W": 288,
-              "H": 32
+              "H": 96
             },
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Range of IPs",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 97,
-            "rect": {
-              "X": 352,
-              "Y": 1152,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Specific IPs",
+              "description": "Scatter plot of consumed network bandwidth",
               "filepath": ""
             }
           },
@@ -2595,6 +2570,126 @@
             "properties": {
               "checked": false,
               "description": "Scatter plot of consumed network bandwidth",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 90,
+            "rect": {
+              "X": 320,
+              "Y": 1344,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "ARP spoof",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 94,
+            "rect": {
+              "X": 352,
+              "Y": 1376,
+              "W": 288,
+              "H": 64
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Packet session controls",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 91,
+            "rect": {
+              "X": 384,
+              "Y": 1440,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Pause",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 92,
+            "rect": {
+              "X": 384,
+              "Y": 1472,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Resume",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 93,
+            "rect": {
+              "X": 384,
+              "Y": 1504,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Stop",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 95,
+            "rect": {
+              "X": 352,
+              "Y": 1536,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Spoof",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 96,
+            "rect": {
+              "X": 384,
+              "Y": 1568,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Range of IPs",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 97,
+            "rect": {
+              "X": 384,
+              "Y": 1600,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Specific IPs",
               "filepath": ""
             }
           },
