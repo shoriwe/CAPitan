@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	//go:embed css
+	//go:embed css images
 	staticFS embed.FS
 
 	//go:embed templates

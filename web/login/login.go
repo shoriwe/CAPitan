@@ -16,8 +16,7 @@ func loginForm(middleware *middleware.Middleware, context *middleware.Context, r
 
 func loginUser(middleware *middleware.Middleware, context *middleware.Context, request *http.Request) bool {
 	if !request.PostForm.Has("username") || !request.PostForm.Has("password") {
-		// TODO: Reload login page
-		return false
+		return loginForm(middleware, context, request)
 	}
 	username := request.PostForm.Get("username")
 	password := request.PostForm.Get("password")

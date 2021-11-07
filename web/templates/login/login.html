@@ -3,8 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/css/login.css">
 </head>
 <body>
-
+<div style="display: flex; justify-content: center; align-items: center;">
+    <div class="login-container">
+        <img src="/static/images/logo_transparent_background.png" alt="logo">
+        <div class="login-form">
+            <h2>Login</h2>
+            <form method="post" action="/login">
+                <label for="username"></label>
+                <i class="fa fa-user icon"></i>
+                <input class="username-input" type="text" name="username" id="username" placeholder="Username">
+                <br>
+                <i class="fa fa-key icon"></i>
+                <label for="password"></label>
+                <input class="password-input" type="text" name="password" id="password" placeholder="Password">
+                <br>
+                <a href="/reset/password">Reset password</a>
+                <br>
+                <button type="submit">LOGIN</button>
+            </form>
+        </div>
+    </div>
+</div>
 </body>
 </html>

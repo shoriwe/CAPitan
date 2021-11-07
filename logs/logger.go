@@ -16,7 +16,7 @@ func (logger *Logger) LogError(request *http.Request, err error) {
 }
 
 func (logger *Logger) LogVisit(request *http.Request) {
-	logger.debugLogger.Printf("%s visited %s", request.RemoteAddr, request.RequestURI)
+	logger.debugLogger.Printf("%s %s %s", request.RemoteAddr, request.Method, request.RequestURI)
 }
 
 func (logger *Logger) LogLoginAttempt(request *http.Request, succeed bool) {
