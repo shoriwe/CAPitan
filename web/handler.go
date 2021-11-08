@@ -2,7 +2,6 @@ package web
 
 import (
 	"embed"
-	"fmt"
 	"github.com/shoriwe/CAPitan/data"
 	"github.com/shoriwe/CAPitan/logs"
 	"github.com/shoriwe/CAPitan/web/login"
@@ -11,7 +10,7 @@ import (
 )
 
 var (
-	//go:embed css images
+	//go:embed static
 	staticFS embed.FS
 
 	//go:embed templates
@@ -19,20 +18,25 @@ var (
 )
 
 func loadCredentials(mw *middleware.Middleware, context *middleware.Context, request *http.Request) bool {
-	// TODO: Check if the cookies are valid and load the user object in the context
-	fmt.Println(request.Cookies())
+	for _, cookie := range request.Cookies() {
+		if cookie.Name == "capitan" {
+			context.User = mw.GetSession(cookie.Value)
+			break
+		}
+	}
 	return true
 }
 
 func logVisit(mw *middleware.Middleware, context *middleware.Context, request *http.Request) bool {
-	mw.LogVisit(request)
+	go mw.LogVisit(request)
 	return true
 }
 
 func requiresLogin(mw *middleware.Middleware, context *middleware.Context, request *http.Request) bool {
 	if context.User == nil {
-		// TODO: Log no login tried request
-		// TODO: Redirect to login page
+		go mw.LogAuthRequired(request)
+		context.StatusCode = http.StatusFound
+		context.Redirect = "/login"
 		return false
 	}
 	return true
@@ -41,7 +45,7 @@ func requiresLogin(mw *middleware.Middleware, context *middleware.Context, reque
 func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 	mw := middleware.New(database, logger, templatesFS)
 	handler := http.NewServeMux()
-	handler.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
+	handler.Handle("/static/", http.FileServer(http.FS(staticFS)))
 	handler.HandleFunc("/login", mw.Handle(logVisit, loadCredentials, login.Login))
 	return handler
 }

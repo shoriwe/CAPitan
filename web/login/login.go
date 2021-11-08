@@ -7,46 +7,52 @@ import (
 	"net/http"
 )
 
-func loginForm(middleware *middleware.Middleware, context *middleware.Context, request *http.Request) bool {
-	form, _ := middleware.Templates.ReadFile("templates/login/login.html")
+func loginForm(mw *middleware.Middleware, context *middleware.Context, _ *http.Request) bool {
+	form, _ := mw.Templates.ReadFile("templates/login/login.html")
 	context.StatusCode = http.StatusOK
 	context.Body = string(form)
 	return false
 }
 
-func loginUser(middleware *middleware.Middleware, context *middleware.Context, request *http.Request) bool {
-	if !request.PostForm.Has("username") || !request.PostForm.Has("password") {
-		return loginForm(middleware, context, request)
-	}
-	username := request.PostForm.Get("username")
-	password := request.PostForm.Get("password")
-	/*
-		TODO: Check credentials
-		TODO: On fail, reload the login page
-		TODO: On success, set cookies and redirect to dashboard
-	*/
-	user, succeed := middleware.Login(request, username, password)
-	if !succeed {
-		// TODO: Reload login page but with the message
+func loginUser(mw *middleware.Middleware, context *middleware.Context, request *http.Request) bool {
+	username := request.PostFormValue("username")
+	password := request.PostFormValue("password")
+	if username == "" || password == "" {
+		context.StatusCode = http.StatusFound
+		context.Redirect = "/login"
 		return false
 	}
-	// TODO: Set cookies
-	// TODO: Redirect to dashboard
-	fmt.Println(user)
+	user, succeed := mw.Login(request, username, password)
+	if !succeed {
+		context.StatusCode = http.StatusFound
+		context.Redirect = "/login"
+		return false
+	}
+	var cookie string
+	cookie, succeed = mw.GenerateCookieFor(request, user)
+	if !succeed {
+		context.StatusCode = http.StatusFound
+		context.Redirect = "/login"
+		return false
+	}
+	context.User = user
+	context.StatusCode = http.StatusFound
+	context.Redirect = "/dashboard"
+	context.Headers["Set-Cookie"] = fmt.Sprintf("capitan=%s", cookie)
 	return false
 }
 
-func Login(middleware *middleware.Middleware, context *middleware.Context, request *http.Request) bool {
+func Login(mw *middleware.Middleware, context *middleware.Context, request *http.Request) bool {
 	if context.User != nil {
-		context.StatusCode = http.StatusOK
-		context.Body = `<script>window.location = "/dashboard";</script>`
+		context.StatusCode = http.StatusFound
+		context.Redirect = "/dashboard"
 		return false
 	}
 	switch request.Method {
 	case http.MethodGet:
-		return loginForm(middleware, context, request)
+		return loginForm(mw, context, request)
 	case http.MethodPost:
-		return loginUser(middleware, context, request)
+		return loginUser(mw, context, request)
 	}
-	return http405.MethodNotAllowed(middleware, context, request)
+	return http405.MethodNotAllowed(mw, context, request)
 }

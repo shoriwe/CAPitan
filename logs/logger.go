@@ -1,6 +1,7 @@
 package logs
 
 import (
+	"github.com/shoriwe/CAPitan/data/objects"
 	"io"
 	"log"
 	"net/http"
@@ -21,10 +22,22 @@ func (logger *Logger) LogVisit(request *http.Request) {
 
 func (logger *Logger) LogLoginAttempt(request *http.Request, succeed bool) {
 	if succeed {
-		logger.debugLogger.Printf("%s succeed login as %s", request.RemoteAddr, request.PostForm.Get("username"))
+		logger.debugLogger.Printf("%s succeed login as %s", request.RemoteAddr, request.PostFormValue("username"))
 	} else {
-		logger.debugLogger.Printf("%s failed login as %s", request.RemoteAddr, request.PostForm.Get("username"))
+		logger.debugLogger.Printf("%s failed login", request.RemoteAddr)
 	}
+}
+
+func (logger *Logger) LogCookieGeneration(request *http.Request, user *objects.User) {
+	logger.debugLogger.Printf("cookie generated for %s -> %s", user.Username, request.RemoteAddr)
+}
+
+func (logger *Logger) LogAuthRequired(request *http.Request) {
+	logger.debugLogger.Printf("request from %s to %s blocked AUTH REQUIRED", request.RemoteAddr, request.RequestURI)
+}
+
+func (logger *Logger) LogMethodNotAllowed(request *http.Request) {
+	logger.debugLogger.Printf("%s %s not allowed for %s", request.RemoteAddr, request.Method, request.RequestURI)
 }
 
 func NewLogger(logWriter io.Writer) *Logger {
