@@ -1,5 +1,5 @@
 body {
-    background: linear-gradient(-45deg, #9c88ff, #4cd137, #00a8ff);
+    background: linear-gradient(-45deg, #4cd137, #9c88ff);
     background-size: 400% 400%;
     animation: gradient 60s ease infinite;
 }
@@ -19,6 +19,8 @@ body {
 h2 {
     font-family: "Arial Black", serif;
     color: #e74c3c;
+    font-size: large;
+    margin-bottom: 2%;
 }
 
 .icon {
@@ -84,7 +86,7 @@ button:hover {
     text-align: center;
     justify-content: center;
     align-items: center;
-    padding: 5vh 5vw;
+    padding: 10vh 10vw;
     width: 30vw;
     height: 30vh;
     border: 0 solid gray;
