@@ -1,6 +1,7 @@
 package login
 
 import (
+	"fmt"
 	"github.com/shoriwe/CAPitan/web/http405"
 	"github.com/shoriwe/CAPitan/web/middleware"
 	"github.com/shoriwe/CAPitan/web/routes"
@@ -64,15 +65,19 @@ func resetPasswordAnswerQuestion(mw *middleware.Middleware, context *middleware.
 		context.Redirect = routes.Login
 		return false
 	}
-	freshUser, succeed := mw.LoginWithSecurityQuestion(context.Request, user.Username, context.Request.PostFormValue("answer"))
-	if succeed {
-		var cookie string
-		cookie, succeed = mw.GenerateCookieFor(context.Request, freshUser)
-		context.Headers["Set-Cookie"] = cookie
-		context.Redirect = routes.Dashboard
-	} else {
-		context.Redirect = routes.Login
+	freshUser, freshUserSucceed := mw.LoginWithSecurityQuestion(context.Request, user.Username, context.Request.PostFormValue("answer"))
+	if freshUserSucceed {
+		updateSucceed := mw.ResetPassword(context.Request, user.Username)
+		if updateSucceed {
+			cookie, generateCookieSucceed := mw.GenerateCookieFor(context.Request, freshUser)
+			if generateCookieSucceed {
+				context.Headers["Set-Cookie"] = fmt.Sprintf("capitan=%s", cookie)
+				context.Redirect = routes.Dashboard
+				return false
+			}
+		}
 	}
+	context.Redirect = routes.Login
 	return false
 }
 

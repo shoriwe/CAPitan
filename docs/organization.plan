@@ -427,7 +427,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Anyone",
               "filepath": ""
             }
@@ -472,7 +472,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Login",
               "filepath": ""
             }
@@ -522,6 +522,21 @@
             }
           },
           {
+            "id": 180,
+            "rect": {
+              "X": 448,
+              "Y": -192,
+              "W": 288,
+              "H": 64
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": true,
+              "description": "Username and Password based",
+              "filepath": ""
+            }
+          },
+          {
             "id": 109,
             "rect": {
               "X": 1472,
@@ -563,6 +578,21 @@
             "properties": {
               "checked": false,
               "description": "Created user",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 181,
+            "rect": {
+              "X": 448,
+              "Y": -128,
+              "W": 288,
+              "H": 96
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": true,
+              "description": "Username and Security question answer based",
               "filepath": ""
             }
           },
@@ -2784,6 +2814,21 @@
             }
           },
           {
+            "id": 176,
+            "rect": {
+              "X": -1152,
+              "Y": 1760,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "UI design",
+              "filepath": ""
+            }
+          },
+          {
             "id": 165,
             "rect": {
               "X": -288,
@@ -2825,21 +2870,6 @@
             "properties": {
               "checked": false,
               "description": "Timing diagram",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 176,
-            "rect": {
-              "X": -1568,
-              "Y": 1856,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "UI design",
               "filepath": ""
             }
           }

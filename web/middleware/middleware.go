@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"crypto/rand"
 	"embed"
 	"encoding/hex"
 	"github.com/shoriwe/CAPitan/data"
@@ -141,6 +142,21 @@ func (middleware *Middleware) GenerateCookieFor(request *http.Request, user *obj
 	}
 	go middleware.LogCookieGeneration(request, user)
 	return cookie, true
+}
+
+func (middleware *Middleware) ResetPassword(request *http.Request, username string) bool {
+	rawNewPassword := make([]byte, 32)
+	_, readError := rand.Read(rawNewPassword)
+	if readError != nil {
+		go middleware.LogError(request, readError)
+	}
+	succeed, err := middleware.UpdatePasswordAndSetExpiration(username, hex.EncodeToString(rawNewPassword), time.Now().Add(5*time.Minute))
+	if err != nil {
+		go middleware.LogError(request, err)
+		return false
+	}
+	go middleware.LogSystemUpdatePassword(request, username, succeed)
+	return succeed
 }
 
 func (middleware *Middleware) Limit(request *http.Request) bool {
