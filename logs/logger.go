@@ -20,11 +20,11 @@ func (logger *Logger) LogVisit(request *http.Request) {
 	logger.debugLogger.Printf("%s %s %s", request.RemoteAddr, request.Method, request.RequestURI)
 }
 
-func (logger *Logger) LogLoginAttempt(request *http.Request, succeed bool) {
+func (logger *Logger) LogLoginAttempt(request *http.Request, username string, succeed bool) {
 	if succeed {
-		logger.debugLogger.Printf("%s succeed login as %s", request.RemoteAddr, request.PostFormValue("username"))
+		logger.debugLogger.Printf("%s succeed login as %s", request.RemoteAddr, username)
 	} else {
-		logger.debugLogger.Printf("%s failed login", request.RemoteAddr)
+		logger.debugLogger.Printf("%s failed login as %s", request.RemoteAddr, username)
 	}
 }
 

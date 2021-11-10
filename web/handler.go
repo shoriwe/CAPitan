@@ -18,24 +18,24 @@ var (
 	templatesFS embed.FS
 )
 
-func loadCredentials(mw *middleware.Middleware, context *middleware.Context, request *http.Request) bool {
-	for _, cookie := range request.Cookies() {
+func loadCredentials(mw *middleware.Middleware, context *middleware.Context) bool {
+	for _, cookie := range context.Request.Cookies() {
 		if cookie.Name == "capitan" {
-			context.User = mw.GetSession(cookie.Value)
+			context.User = mw.LoginSessions.GetSession(cookie.Value)
 			break
 		}
 	}
 	return true
 }
 
-func logVisit(mw *middleware.Middleware, context *middleware.Context, request *http.Request) bool {
-	go mw.LogVisit(request)
+func logVisit(mw *middleware.Middleware, context *middleware.Context) bool {
+	go mw.LogVisit(context.Request)
 	return true
 }
 
-func requiresLogin(mw *middleware.Middleware, context *middleware.Context, request *http.Request) bool {
+func requiresLogin(mw *middleware.Middleware, context *middleware.Context) bool {
 	if context.User == nil {
-		go mw.LogAuthRequired(request)
+		go mw.LogAuthRequired(context.Request)
 		context.Redirect = routes.Login
 		return false
 	}

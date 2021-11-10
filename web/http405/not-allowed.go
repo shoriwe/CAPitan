@@ -6,8 +6,8 @@ import (
 	"net/http"
 )
 
-func MethodNotAllowed(mw *middleware.Middleware, context *middleware.Context, request *http.Request) bool {
-	go mw.LogMethodNotAllowed(request)
+func MethodNotAllowed(mw *middleware.Middleware, context *middleware.Context) bool {
+	go mw.LogMethodNotAllowed(context.Request)
 	context.StatusCode = http.StatusOK
 	context.Redirect = routes.Login
 	return false

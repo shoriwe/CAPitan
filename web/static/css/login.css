@@ -16,6 +16,13 @@ body {
     }
 }
 
+label {
+    text-align: left;
+    float: left;
+    color: #9b59b6;
+    font-family: Arial, serif;
+}
+
 h2 {
     font-family: "Arial Black", serif;
     color: #e74c3c;
