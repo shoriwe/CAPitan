@@ -5,5 +5,5 @@ import (
 )
 
 type Database interface {
-	Login(username, password string) (*objects.User, error)
+	GetUserByUsername(username string) (*objects.User, error)
 }

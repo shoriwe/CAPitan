@@ -6,6 +6,7 @@ import (
 	"github.com/shoriwe/CAPitan/data/objects"
 	"github.com/shoriwe/CAPitan/logs"
 	"github.com/shoriwe/CAPitan/sessions"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"time"
 )
@@ -74,12 +75,23 @@ func (middleware *Middleware) Handle(handlerFunctions ...HandleFunc) http.Handle
 }
 
 func (middleware *Middleware) Login(request *http.Request, username string, password string) (*objects.User, bool) {
-	user, loginError := middleware.Database.Login(username, password)
-	if loginError != nil {
-		go middleware.LogError(request, loginError)
-		return nil, false
+	user, err := middleware.Database.GetUserByUsername(username)
+	succeed := true
+	if user == nil || err != nil { // Check if the user at least exists
+		succeed = false
+	} else if time.Now().After(user.PasswordExpirationDate) || !user.IsEnabled { // Check if is still available
+		succeed = false
+		user = nil
+	} else if compareError := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); compareError != nil {
+		succeed = false
+		user = nil
+		if compareError != bcrypt.ErrMismatchedHashAndPassword {
+			err = compareError
+		}
 	}
-	succeed := user != nil
+	if err != nil {
+		go middleware.LogError(request, err)
+	}
 	go middleware.LogLoginAttempt(request, succeed)
 	return user, succeed
 }
