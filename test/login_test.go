@@ -1,6 +1,7 @@
 package test
 
 import (
+	"github.com/shoriwe/CAPitan/web/routes"
 	"net/http"
 	"net/url"
 	"testing"
@@ -14,7 +15,7 @@ func TestLoginSucceed(t *testing.T) {
 		return http.ErrUseLastResponse
 	}
 	response, requestError := client.PostForm(
-		server.URL+"/login",
+		server.URL+routes.Login,
 		url.Values{
 			"username": []string{"admin"},
 			"password": []string{"admin"},
@@ -30,7 +31,7 @@ func TestLoginSucceed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if location.Path != "/dashboard" {
+	if location.Path != routes.Dashboard {
 		t.Fatal(location.Path)
 	}
 }
@@ -43,7 +44,7 @@ func TestLoginFailed(t *testing.T) {
 		return http.ErrUseLastResponse
 	}
 	response, requestError := client.PostForm(
-		server.URL+"/login",
+		server.URL+routes.Login,
 		url.Values{
 			"username": []string{"admin"},
 			"password": []string{"wrong-password"},
@@ -59,7 +60,7 @@ func TestLoginFailed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if location.Path != "/login" {
+	if location.Path != routes.Login {
 		t.Fatal(location.Path)
 	}
 }

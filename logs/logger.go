@@ -40,6 +40,14 @@ func (logger *Logger) LogMethodNotAllowed(request *http.Request) {
 	logger.debugLogger.Printf("%s %s not allowed for %s", request.RemoteAddr, request.Method, request.RequestURI)
 }
 
+func (logger *Logger) LogBannedByLimit(request *http.Request) {
+	logger.debugLogger.Printf("Banned %s cause of limit exceed of path %s", request.RemoteAddr, request.RequestURI)
+}
+
+func (logger *Logger) LogUserNotFound(request *http.Request, username string) {
+	logger.debugLogger.Printf("User %s requested %s by not found", username, request.RemoteAddr)
+}
+
 func NewLogger(logWriter io.Writer) *Logger {
 	return &Logger{
 		errorLogger: log.New(logWriter, "ERROR: ", log.Ldate|log.Ltime),

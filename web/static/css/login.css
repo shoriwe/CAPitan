@@ -24,7 +24,7 @@ h2 {
 }
 
 .icon {
-    margin-right: 5%;
+    padding: 0;
 }
 
 input {
@@ -41,7 +41,7 @@ input:hover {
 }
 
 img {
-    width: 40%;
+    width: 50%;
     height: auto;
 }
 
@@ -86,9 +86,9 @@ button:hover {
     text-align: center;
     justify-content: center;
     align-items: center;
-    padding: 10vh 10vw;
-    width: 30vw;
-    height: 30vh;
+    padding: 2.5vh 2.5vw;
+    width: 60vw;
+    height: 50vh;
     border: 0 solid gray;
     border-radius: 2px;
 }
@@ -96,6 +96,5 @@ button:hover {
 .login-form {
     margin-left: 10%;
     text-align: center;
-    width: 60%;
-    height: 100%;
+    width: 50%;
 }

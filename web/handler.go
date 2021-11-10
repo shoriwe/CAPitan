@@ -6,6 +6,7 @@ import (
 	"github.com/shoriwe/CAPitan/logs"
 	"github.com/shoriwe/CAPitan/web/login"
 	"github.com/shoriwe/CAPitan/web/middleware"
+	"github.com/shoriwe/CAPitan/web/routes"
 	"net/http"
 )
 
@@ -35,8 +36,7 @@ func logVisit(mw *middleware.Middleware, context *middleware.Context, request *h
 func requiresLogin(mw *middleware.Middleware, context *middleware.Context, request *http.Request) bool {
 	if context.User == nil {
 		go mw.LogAuthRequired(request)
-		context.StatusCode = http.StatusFound
-		context.Redirect = "/login"
+		context.Redirect = routes.Login
 		return false
 	}
 	return true
@@ -46,6 +46,7 @@ func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 	mw := middleware.New(database, logger, templatesFS)
 	handler := http.NewServeMux()
 	handler.Handle("/static/", http.FileServer(http.FS(staticFS)))
-	handler.HandleFunc("/login", mw.Handle(logVisit, loadCredentials, login.Login))
+	handler.HandleFunc(routes.Login, mw.Handle(logVisit, loadCredentials, login.Login))
+	handler.HandleFunc(routes.ResetPassword, mw.Handle(logVisit, loadCredentials, login.ResetPassword))
 	return handler
 }
