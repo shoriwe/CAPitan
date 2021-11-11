@@ -428,7 +428,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": true,
-              "description": "Anyone",
+              "description": "Login module",
               "filepath": ""
             }
           },
@@ -728,6 +728,21 @@
             "properties": {
               "checked": false,
               "description": "Deleted user",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 182,
+            "rect": {
+              "X": 416,
+              "Y": -32,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": true,
+              "description": "Logout",
               "filepath": ""
             }
           },
@@ -2751,7 +2766,14 @@
               "checked": false,
               "description": "Doing",
               "filepath": ""
-            }
+            },
+            "links": [
+              {
+                "start": 160,
+                "end": 159,
+                "joints": []
+              }
+            ]
           },
           {
             "id": 162,
@@ -2766,7 +2788,14 @@
               "checked": false,
               "description": "Testing",
               "filepath": ""
-            }
+            },
+            "links": [
+              {
+                "start": 162,
+                "end": 160,
+                "joints": []
+              }
+            ]
           },
           {
             "id": 161,
@@ -2781,7 +2810,14 @@
               "checked": false,
               "description": "Review",
               "filepath": ""
-            }
+            },
+            "links": [
+              {
+                "start": 161,
+                "end": 162,
+                "joints": []
+              }
+            ]
           },
           {
             "id": 163,
@@ -2796,7 +2832,14 @@
               "checked": false,
               "description": "Completed",
               "filepath": ""
-            }
+            },
+            "links": [
+              {
+                "start": 163,
+                "end": 161,
+                "joints": []
+              }
+            ]
           },
           {
             "id": 166,
@@ -2844,6 +2887,21 @@
             }
           },
           {
+            "id": 186,
+            "rect": {
+              "X": 128,
+              "Y": 1760,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": true,
+              "description": "Login module",
+              "filepath": ""
+            }
+          },
+          {
             "id": 167,
             "rect": {
               "X": -1568,
@@ -2859,6 +2917,21 @@
             }
           },
           {
+            "id": 183,
+            "rect": {
+              "X": -1120,
+              "Y": 1792,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": true,
+              "description": "Login module",
+              "filepath": ""
+            }
+          },
+          {
             "id": 168,
             "rect": {
               "X": -1568,
@@ -2870,6 +2943,36 @@
             "properties": {
               "checked": false,
               "description": "Timing diagram",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 184,
+            "rect": {
+              "X": -1120,
+              "Y": 1824,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Admin module",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 185,
+            "rect": {
+              "X": -1120,
+              "Y": 1856,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "User module",
               "filepath": ""
             }
           }

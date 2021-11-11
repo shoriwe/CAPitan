@@ -1,11 +1,11 @@
 package login
 
 import (
-	"fmt"
 	"github.com/shoriwe/CAPitan/web/http405"
 	"github.com/shoriwe/CAPitan/web/middleware"
-	"github.com/shoriwe/CAPitan/web/routes"
+	"github.com/shoriwe/CAPitan/web/strings"
 	"net/http"
+	"time"
 )
 
 func loginForm(mw *middleware.Middleware, context *middleware.Context) bool {
@@ -19,29 +19,42 @@ func loginUser(mw *middleware.Middleware, context *middleware.Context) bool {
 	username := context.Request.PostFormValue("username")
 	password := context.Request.PostFormValue("password")
 	if username == "" || password == "" {
-		context.Redirect = routes.Login
+		context.Redirect = strings.Login
 		return false
 	}
 	user, succeed := mw.Login(context.Request, username, password)
 	if !succeed {
-		context.Redirect = routes.Login
+		context.Redirect = strings.Login
 		return false
 	}
 	var cookie string
-	cookie, succeed = mw.GenerateCookieFor(context.Request, user)
+	cookie, succeed = mw.GenerateCookieFor(context.Request, user.Username)
 	if !succeed {
-		context.Redirect = routes.Login
+		context.Redirect = strings.Login
 		return false
 	}
 	context.User = user
-	context.Redirect = routes.Dashboard
-	context.Headers["Set-Cookie"] = fmt.Sprintf("capitan=%s", cookie)
+	context.Redirect = strings.Dashboard
+	context.Cookie = &http.Cookie{
+		Name:       strings.CookieName,
+		Value:      cookie,
+		Path:       strings.Root,
+		Domain:     "",
+		Expires:    time.Now().Add(24 * time.Hour),
+		RawExpires: "",
+		MaxAge:     0,
+		Secure:     true,
+		HttpOnly:   false,
+		SameSite:   0,
+		Raw:        "",
+		Unparsed:   nil,
+	}
 	return false
 }
 
 func Login(mw *middleware.Middleware, context *middleware.Context) bool {
 	if context.User != nil {
-		context.Redirect = routes.Dashboard
+		context.Redirect = strings.Dashboard
 		return false
 	}
 	switch context.Request.Method {

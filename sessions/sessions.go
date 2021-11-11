@@ -3,13 +3,12 @@ package sessions
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"github.com/shoriwe/CAPitan/data/objects"
 	"sync"
 	"time"
 )
 
 type session struct {
-	user       *objects.User
+	username   string
 	registered time.Time
 	available  time.Duration
 }
@@ -19,15 +18,15 @@ type Sessions struct {
 	sessions map[string]session
 }
 
-func (sessions *Sessions) GetSession(key string) *objects.User {
+func (sessions *Sessions) GetSession(key string) string {
 	result, found := sessions.sessions[key]
 	if !found {
-		return nil
+		return ""
 	}
-	return result.user
+	return result.username
 }
 
-func (sessions *Sessions) CreateSession(user *objects.User, available time.Duration) (string, error) {
+func (sessions *Sessions) CreateSession(username string, available time.Duration) (string, error) {
 	rawKey := make([]byte, 32)
 	_, readError := rand.Read(rawKey)
 	if readError != nil {
@@ -35,7 +34,7 @@ func (sessions *Sessions) CreateSession(user *objects.User, available time.Durat
 	}
 	key := hex.EncodeToString(rawKey)
 	value := session{
-		user:       user,
+		username:   username,
 		registered: time.Now(),
 		available:  available,
 	}

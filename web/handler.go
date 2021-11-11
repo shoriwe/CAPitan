@@ -6,8 +6,9 @@ import (
 	"github.com/shoriwe/CAPitan/logs"
 	"github.com/shoriwe/CAPitan/web/login"
 	"github.com/shoriwe/CAPitan/web/middleware"
-	"github.com/shoriwe/CAPitan/web/routes"
+	"github.com/shoriwe/CAPitan/web/strings"
 	"net/http"
+	"time"
 )
 
 var (
@@ -20,8 +21,16 @@ var (
 
 func loadCredentials(mw *middleware.Middleware, context *middleware.Context) bool {
 	for _, cookie := range context.Request.Cookies() {
-		if cookie.Name == "capitan" {
-			context.User = mw.LoginSessions.GetSession(cookie.Value)
+		if cookie.Name == strings.CookieName {
+			user, getUserError := mw.GetUserByUsername(mw.LoginSessions.GetSession(cookie.Value))
+			if getUserError != nil {
+				go mw.LogError(context.Request, getUserError)
+				return false
+			} else if user != nil {
+				if time.Now().Before(user.PasswordExpirationDate) && user.IsEnabled {
+					context.User = user
+				}
+			}
 			break
 		}
 	}
@@ -36,7 +45,7 @@ func logVisit(mw *middleware.Middleware, context *middleware.Context) bool {
 func requiresLogin(mw *middleware.Middleware, context *middleware.Context) bool {
 	if context.User == nil {
 		go mw.LogAuthRequired(context.Request)
-		context.Redirect = routes.Login
+		context.Redirect = strings.Login
 		return false
 	}
 	return true
@@ -46,7 +55,8 @@ func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 	mw := middleware.New(database, logger, templatesFS)
 	handler := http.NewServeMux()
 	handler.Handle("/static/", http.FileServer(http.FS(staticFS)))
-	handler.HandleFunc(routes.Login, mw.Handle(logVisit, loadCredentials, login.Login))
-	handler.HandleFunc(routes.ResetPassword, mw.Handle(logVisit, loadCredentials, login.ResetPassword))
+	handler.HandleFunc(strings.Login, mw.Handle(logVisit, loadCredentials, login.Login))
+	handler.HandleFunc(strings.Logout, mw.Handle(logVisit, loadCredentials, requiresLogin, login.Logout))
+	handler.HandleFunc(strings.ResetPassword, mw.Handle(logVisit, loadCredentials, login.ResetPassword))
 	return handler
 }

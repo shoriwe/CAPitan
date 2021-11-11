@@ -1,7 +1,6 @@
 package logs
 
 import (
-	"github.com/shoriwe/CAPitan/data/objects"
 	"io"
 	"log"
 	"net/http"
@@ -28,8 +27,8 @@ func (logger *Logger) LogLoginAttempt(request *http.Request, username string, su
 	}
 }
 
-func (logger *Logger) LogCookieGeneration(request *http.Request, user *objects.User) {
-	logger.debugLogger.Printf("cookie generated for %s -> %s", user.Username, request.RemoteAddr)
+func (logger *Logger) LogCookieGeneration(request *http.Request, username string) {
+	logger.debugLogger.Printf("cookie generated for %s -> %s", username, request.RemoteAddr)
 }
 
 func (logger *Logger) LogAuthRequired(request *http.Request) {
@@ -49,7 +48,7 @@ func (logger *Logger) LogUserNotFound(request *http.Request, username string) {
 }
 
 func (logger *Logger) LogSystemUpdatePassword(request *http.Request, username string, succeed bool) {
-
+	// TODO: Implement me
 }
 
 func NewLogger(logWriter io.Writer) *Logger {

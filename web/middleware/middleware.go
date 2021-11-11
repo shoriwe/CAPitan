@@ -26,6 +26,7 @@ type (
 		WriteBody      bool
 		ResponseWriter http.ResponseWriter
 		Request        *http.Request
+		Cookie         *http.Cookie
 	}
 	HandleFunc func(middleware *Middleware, context *Context) bool
 	Middleware struct {
@@ -50,6 +51,7 @@ func NewContext(responseWriter http.ResponseWriter, request *http.Request) *Cont
 		WriteBody:      true,
 		ResponseWriter: responseWriter,
 		Request:        request,
+		Cookie:         nil,
 	}
 }
 
@@ -77,6 +79,9 @@ func (middleware *Middleware) Handle(handlerFunctions ...HandleFunc) http.Handle
 		}
 		for key, value := range context.Headers {
 			responseWriter.Header().Set(key, value)
+		}
+		if context.Cookie != nil {
+			http.SetCookie(responseWriter, context.Cookie)
 		}
 		if context.Redirect != "" {
 			http.Redirect(responseWriter, request, context.Redirect, http.StatusFound)
@@ -134,13 +139,13 @@ func (middleware *Middleware) LoginWithSecurityQuestion(request *http.Request, u
 	return user, succeed
 }
 
-func (middleware *Middleware) GenerateCookieFor(request *http.Request, user *objects.User) (string, bool) {
-	cookie, sessionCreationError := middleware.LoginSessions.CreateSession(user, 24*time.Hour)
+func (middleware *Middleware) GenerateCookieFor(request *http.Request, username string) (string, bool) {
+	cookie, sessionCreationError := middleware.LoginSessions.CreateSession(username, 24*time.Hour)
 	if sessionCreationError != nil {
 		go middleware.LogError(request, sessionCreationError)
 		return "", false
 	}
-	go middleware.LogCookieGeneration(request, user)
+	go middleware.LogCookieGeneration(request, username)
 	return cookie, true
 }
 
