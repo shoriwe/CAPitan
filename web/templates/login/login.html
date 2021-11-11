@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/css/login.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div style="display: flex; justify-content: center; align-items: center;">
+    <div class="login-container">
+        <img alt="logo" src="/static/images/logo_transparent_background.png">
+        <div class="login-form">
+            <h2>Login</h2>
+            <form action="/login" id="login-form" method="post">
+                <label for="username"></label>
+                <i class="fa fa-user icon"></i>
+                <input class="username-input" form="login-form" id="username" name="username" placeholder="Username"
+                       required="required" type="text">
+                <br>
+                <i class="fa fa-key icon"></i>
+                <label for="password"></label>
+                <input class="password-input" form="login-form" id="password" name="password" placeholder="Password"
+                       required="required" type="password">
+                <br>
+                <a href="/reset/password">Reset password</a>
+                <br>
+                <button form="login-form" type="submit">LOGIN</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
