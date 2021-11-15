@@ -1,0 +1,18 @@
+<link href="/static/css/nav-bar.css" rel="stylesheet" type="text/css">
+<div class="navigation-container">
+    <div class="navigation-bar">
+        <div style="width: 95%;">
+            <a class="title" href="/dashboard">CAPitan</a>
+            <a class="navigation-button" href="/packet">Packet</a>
+            <a class="navigation-button" href="/arp">ARP</a>
+        </div>
+        <div class="dropdown">
+            <button class="dropbtn" onclick="myFunction()">{{.Username}}</button>
+            <div class="dropdown-content" id="myDropdown">
+                <a href="/user/settings">Settings</a>
+                <a href="/logout">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/js/dashboard.js"></script>

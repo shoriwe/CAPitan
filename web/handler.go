@@ -4,8 +4,10 @@ import (
 	"embed"
 	"github.com/shoriwe/CAPitan/data"
 	"github.com/shoriwe/CAPitan/logs"
+	"github.com/shoriwe/CAPitan/web/dashboard"
 	"github.com/shoriwe/CAPitan/web/login"
 	"github.com/shoriwe/CAPitan/web/middleware"
+	navigation_bar "github.com/shoriwe/CAPitan/web/navigation-bar"
 	"github.com/shoriwe/CAPitan/web/strings"
 	"net/http"
 	"time"
@@ -27,7 +29,9 @@ func loadCredentials(mw *middleware.Middleware, context *middleware.Context) boo
 				go mw.LogError(context.Request, getUserError)
 				return false
 			} else if user != nil {
-				if time.Now().Before(user.PasswordExpirationDate) && user.IsEnabled {
+				if user.PasswordExpirationDate.Equal(time.Time{}) {
+					context.User = user
+				} else if time.Now().Before(user.PasswordExpirationDate) && user.IsEnabled {
 					context.User = user
 				}
 			}
@@ -58,5 +62,6 @@ func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 	handler.HandleFunc(strings.Login, mw.Handle(logVisit, loadCredentials, login.Login))
 	handler.HandleFunc(strings.Logout, mw.Handle(logVisit, loadCredentials, requiresLogin, login.Logout))
 	handler.HandleFunc(strings.ResetPassword, mw.Handle(logVisit, loadCredentials, login.ResetPassword))
+	handler.HandleFunc(strings.Dashboard, mw.Handle(logVisit, loadCredentials, requiresLogin, navigation_bar.SetNavigationBar, dashboard.Dashboard))
 	return handler
 }

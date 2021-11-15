@@ -22,6 +22,7 @@ type (
 		Redirect       string
 		Headers        map[string]string
 		Body           string
+		NavigationBar  string
 		User           *objects.User
 		WriteBody      bool
 		ResponseWriter http.ResponseWriter

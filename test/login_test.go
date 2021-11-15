@@ -100,7 +100,7 @@ func TestLogout(t *testing.T) {
 	client.Jar.SetCookies(logoutURL, response.Cookies())
 
 	response, requestError = client.Get(server.URL + strings.Logout)
-	if  requestError != nil {
+	if requestError != nil {
 		t.Fatal(requestError)
 	}
 	if response.StatusCode != http.StatusFound {
@@ -108,7 +108,7 @@ func TestLogout(t *testing.T) {
 	}
 
 	response, requestError = client.Get(server.URL + strings.Login)
-	if  requestError != nil {
+	if requestError != nil {
 		t.Fatal(requestError)
 	}
 	if response.StatusCode == http.StatusFound {
