@@ -7,4 +7,5 @@ const (
 	Logout        = "/logout"
 	ResetPassword = "/reset/password"
 	Dashboard     = "/dashboard"
+	Settings      = "/settings"
 )

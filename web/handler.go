@@ -8,6 +8,7 @@ import (
 	"github.com/shoriwe/CAPitan/web/login"
 	"github.com/shoriwe/CAPitan/web/middleware"
 	navigation_bar "github.com/shoriwe/CAPitan/web/navigation-bar"
+	"github.com/shoriwe/CAPitan/web/settings"
 	"github.com/shoriwe/CAPitan/web/strings"
 	"net/http"
 	"time"
@@ -63,5 +64,6 @@ func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 	handler.HandleFunc(strings.Logout, mw.Handle(logVisit, loadCredentials, requiresLogin, login.Logout))
 	handler.HandleFunc(strings.ResetPassword, mw.Handle(logVisit, loadCredentials, login.ResetPassword))
 	handler.HandleFunc(strings.Dashboard, mw.Handle(logVisit, loadCredentials, requiresLogin, navigation_bar.SetNavigationBar, dashboard.Dashboard))
+	handler.HandleFunc(strings.Settings, mw.Handle(logVisit, loadCredentials, requiresLogin, navigation_bar.SetNavigationBar, settings.Settings))
 	return handler
 }

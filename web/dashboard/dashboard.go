@@ -8,7 +8,10 @@ import (
 )
 
 var (
-	dashboardTemplate = `<link href="/static/css/dashboard.css" rel="stylesheet" type="text/css"><div class="dashboard-container"><h1 style="color: black;" class="dashboard-message">%s</h1><div>`
+	dashboardTemplate = `<link href="/static/css/dashboard.css" rel="stylesheet" type="text/css">
+<div class="dashboard-container">
+	<h1 style="color: black;" class="dashboard-message">%s</h1>
+<div>`
 )
 
 func Dashboard(mw *middleware.Middleware, context *middleware.Context) bool {
