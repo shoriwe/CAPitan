@@ -6,12 +6,13 @@ import (
 )
 
 type DatabaseAdminFeatures interface {
-	UpdatePasswordAndSetExpiration(username, newPassword string, expiration time.Time) (bool, error)
+	UpdatePasswordAndSetExpiration(username, newPassword string, duration time.Duration) (bool, error)
 }
 
 type DatabaseGlobalFeatures interface {
 	GetUserByUsername(username string) (*objects.User, error)
 	UpdatePassword(username, oldPassword, newPassword string) (bool, error)
+	UpdateSecurityQuestion(username, password, newQuestion, newQuestionAnswer string) (bool, error)
 }
 
 type Database interface {

@@ -30,6 +30,13 @@ h2 {
     margin-bottom: 2%;
 }
 
+h3 {
+    font-family: Arial, serif;
+    color: white;
+    background: #e74c3c;
+    padding: 2.5vh 2.5vw;
+}
+
 .icon {
     padding: 0;
 }

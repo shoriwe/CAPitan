@@ -28,11 +28,13 @@ func (sessions *Sessions) Remove(key string) {
 }
 
 func (sessions *Sessions) GetSession(key string) string {
+	sessions.Lock()
 	result, found := sessions.sessions[key]
-	if !found {
-		return ""
+	sessions.Unlock()
+	if found {
+		return result.username
 	}
-	return result.username
+	return ""
 }
 
 func (sessions *Sessions) CreateSession(username string, available time.Duration) (string, error) {

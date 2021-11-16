@@ -1,11 +1,11 @@
 package symbols
 
 const (
+	Static                 = "/static/"
 	CookieName             = "capitan"
-	Root                   = "/"
 	Login                  = "/login"
 	Logout                 = "/logout"
-	ResetPassword          = "/reset/password"
+	ResetPassword          = "/reset"
 	Dashboard              = "/dashboard"
 	Settings               = "/settings"
 	UpdatePassword         = "/settings/update/password"

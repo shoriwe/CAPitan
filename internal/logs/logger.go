@@ -57,9 +57,17 @@ func (logger *Logger) LogSystemUpdatePassword(request *http.Request, username st
 
 func (logger *Logger) LogUpdatePassword(request *http.Request, username string, succeed bool) {
 	if succeed {
-		logger.debugLogger.Printf("Successfully updated password for %s", username)
+		logger.debugLogger.Printf("Successfully updated password for %s by %s", username, request.RemoteAddr)
 	} else {
-		logger.debugLogger.Printf("Failed to updated password for %s", username)
+		logger.debugLogger.Printf("Failed to updated password for %s by %s", username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogUpdateSecurityQuestion(request *http.Request, username string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully updated security question for %s by %s", username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to updated security question for %s by %s", username, request.RemoteAddr)
 	}
 }
 

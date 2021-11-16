@@ -5,7 +5,6 @@ import (
 	"github.com/shoriwe/CAPitan/internal/web/middleware"
 	"github.com/shoriwe/CAPitan/internal/web/symbols"
 	"net/http"
-	"time"
 )
 
 func loginForm(mw *middleware.Middleware, context *middleware.Context) bool {
@@ -28,26 +27,15 @@ func loginUser(mw *middleware.Middleware, context *middleware.Context) bool {
 		return false
 	}
 	var cookie string
-	cookie, succeed = mw.GenerateCookieFor(context.Request, user.Username)
+	cookie, succeed = mw.GenerateCookieFor(context.Request, user.Username, symbols.LoginSessionDuration)
 	if !succeed {
 		context.Redirect = symbols.Login
 		return false
 	}
-	context.User = user
 	context.Redirect = symbols.Dashboard
-	context.Cookie = &http.Cookie{
-		Name:       symbols.CookieName,
-		Value:      cookie,
-		Path:       symbols.Root,
-		Domain:     "",
-		Expires:    time.Now().Add(24 * time.Hour),
-		RawExpires: "",
-		MaxAge:     0,
-		Secure:     true,
-		HttpOnly:   false,
-		SameSite:   0,
-		Raw:        "",
-		Unparsed:   nil,
+	context.NewCookie = &http.Cookie{
+		Name:  symbols.CookieName,
+		Value: cookie,
 	}
 	return false
 }

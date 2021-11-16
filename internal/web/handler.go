@@ -24,22 +24,25 @@ var (
 )
 
 func loadCredentials(mw *middleware.Middleware, context *middleware.Context) bool {
-	for _, cookie := range context.Request.Cookies() {
-		if cookie.Name == symbols.CookieName {
-			user, getUserError := mw.GetUserByUsername(mw.LoginSessions.GetSession(cookie.Value))
-			if getUserError != nil {
-				go mw.LogError(context.Request, getUserError)
-				return false
-			} else if user != nil {
+	cookie, getCookieError := context.Request.Cookie(symbols.CookieName)
+	if getCookieError != nil {
+		go mw.LogError(context.Request, getCookieError)
+		return true
+	}
+	if cookie.Name == symbols.CookieName {
+		context.SessionCookie = cookie
+		user, getUserError := mw.GetUserByUsername(mw.LoginSessions.GetSession(cookie.Value))
+		if getUserError != nil {
+			go mw.LogError(context.Request, getUserError)
+			return false
+		} else if user != nil {
+			if user.IsEnabled {
 				if user.PasswordExpirationDate.Equal(time.Time{}) {
 					context.User = user
-					context.Cookie = cookie
-				} else if time.Now().Before(user.PasswordExpirationDate) && user.IsEnabled {
+				} else if time.Now().Before(user.PasswordExpirationDate) {
 					context.User = user
-					context.Cookie = cookie
 				}
 			}
-			break
 		}
 	}
 	return true
@@ -83,13 +86,13 @@ func setNavigationBar(mw *middleware.Middleware, context *middleware.Context) bo
 func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 	mw := middleware.New(database, logger, templatesFS)
 	handler := http.NewServeMux()
-	handler.Handle("/static/", http.FileServer(http.FS(staticFS)))
+	handler.Handle(symbols.Static, http.FileServer(http.FS(staticFS)))
 	handler.HandleFunc(symbols.Login, mw.Handle(logVisit, loadCredentials, login.Login))
 	handler.HandleFunc(symbols.Logout, mw.Handle(logVisit, loadCredentials, requiresLogin, login.Logout))
 	handler.HandleFunc(symbols.ResetPassword, mw.Handle(logVisit, loadCredentials, login.ResetPassword))
 	handler.HandleFunc(symbols.Dashboard, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, dashboard.Dashboard))
 	handler.HandleFunc(symbols.Settings, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings.Settings))
 	handler.HandleFunc(symbols.UpdatePassword, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings.UpdatePassword))
-	// handler.HandleFunc(symbols.UpdateSecurityQuestion, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings.UpdateSecurityQuestion))
+	handler.HandleFunc(symbols.UpdateSecurityQuestion, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings.UpdateSecurityQuestion))
 	return handler
 }

@@ -24,10 +24,11 @@ type (
 		Body           string
 		NavigationBar  string
 		User           *objects.User
+		SessionCookie  *http.Cookie
 		WriteBody      bool
 		ResponseWriter http.ResponseWriter
 		Request        *http.Request
-		Cookie         *http.Cookie
+		NewCookie      *http.Cookie
 	}
 	HandleFunc func(middleware *Middleware, context *Context) bool
 	Middleware struct {
@@ -50,10 +51,11 @@ func NewContext(responseWriter http.ResponseWriter, request *http.Request) *Cont
 		Body:           "",
 		NavigationBar:  "",
 		User:           nil,
+		SessionCookie:  nil,
 		WriteBody:      true,
 		ResponseWriter: responseWriter,
 		Request:        request,
-		Cookie:         nil,
+		NewCookie:      nil,
 	}
 }
 
@@ -82,8 +84,8 @@ func (middleware *Middleware) Handle(handlerFunctions ...HandleFunc) http.Handle
 		for key, value := range context.Headers {
 			responseWriter.Header().Set(key, value)
 		}
-		if context.Cookie != nil {
-			http.SetCookie(responseWriter, context.Cookie)
+		if context.NewCookie != nil {
+			http.SetCookie(responseWriter, context.NewCookie)
 		}
 		if context.Redirect != "" {
 			http.Redirect(responseWriter, request, context.Redirect, http.StatusFound)
@@ -99,52 +101,60 @@ func (middleware *Middleware) Handle(handlerFunctions ...HandleFunc) http.Handle
 
 func (middleware *Middleware) Login(request *http.Request, username, password string) (*objects.User, bool) {
 	user, err := middleware.Database.GetUserByUsername(username)
-	succeed := true
-	if user == nil || err != nil { // Check if the user at least exists
-		succeed = false
-	} else if user.PasswordExpirationDate.Equal(time.Time{}) {
-		err = nil
-	} else if time.Now().After(user.PasswordExpirationDate) || !user.IsEnabled { // Check if is still available
-		succeed = false
-		user = nil
-	} else if compareError := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); compareError != nil {
-		succeed = false
-		user = nil
-		if compareError != bcrypt.ErrMismatchedHashAndPassword {
-			err = compareError
+	if err != nil { // Check if the user at least exists
+		go middleware.LogError(request, err)
+		return nil, false
+	}
+	if !user.IsEnabled {
+		go middleware.LogLoginAttempt(request, username, false)
+		return nil, false
+	}
+	if !user.PasswordExpirationDate.Equal(time.Time{}) {
+		if time.Now().After(user.PasswordExpirationDate) {
+			go middleware.LogLoginAttempt(request, username, false)
+			return nil, false
 		}
 	}
-	if err != nil {
-		go middleware.LogError(request, err)
+	if compareError := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); compareError != nil {
+		if compareError != bcrypt.ErrMismatchedHashAndPassword {
+			go middleware.LogError(request, compareError)
+		}
+		go middleware.LogLoginAttempt(request, username, false)
+		return nil, false
 	}
-	go middleware.LogLoginAttempt(request, username, succeed)
-	return user, succeed
+	go middleware.LogLoginAttempt(request, username, true)
+	return user, true
 }
 
 func (middleware *Middleware) LoginWithSecurityQuestion(request *http.Request, username, answer string) (*objects.User, bool) {
 	user, err := middleware.Database.GetUserByUsername(username)
-	succeed := true
-	if user == nil || err != nil { // Check if the user at least exists
-		succeed = false
-	} else if time.Now().After(user.PasswordExpirationDate) || !user.IsEnabled { // Check if is still available
-		succeed = false
-		user = nil
-	} else if compareError := bcrypt.CompareHashAndPassword([]byte(user.SecurityQuestionAnswer), []byte(answer)); compareError != nil {
-		succeed = false
-		user = nil
-		if compareError != bcrypt.ErrMismatchedHashAndPassword {
-			err = compareError
+	if err != nil { // Check if the user at least exists
+		go middleware.LogError(request, err)
+		return nil, false
+	}
+	if !user.IsEnabled {
+		go middleware.LogLoginAttempt(request, username, false)
+		return nil, false
+	}
+	if !user.PasswordExpirationDate.Equal(time.Time{}) {
+		if time.Now().After(user.PasswordExpirationDate) {
+			go middleware.LogLoginAttempt(request, username, false)
+			return nil, false
 		}
 	}
-	if err != nil {
-		go middleware.LogError(request, err)
+	if compareError := bcrypt.CompareHashAndPassword([]byte(user.SecurityQuestionAnswer), []byte(answer)); compareError != nil {
+		if compareError != bcrypt.ErrMismatchedHashAndPassword {
+			go middleware.LogError(request, compareError)
+		}
+		go middleware.LogLoginAttempt(request, username, false)
+		return nil, false
 	}
-	go middleware.LogLoginAttempt(request, username, succeed)
-	return user, succeed
+	go middleware.LogLoginAttempt(request, username, true)
+	return user, true
 }
 
-func (middleware *Middleware) GenerateCookieFor(request *http.Request, username string) (string, bool) {
-	cookie, sessionCreationError := middleware.LoginSessions.CreateSession(username, 24*time.Hour)
+func (middleware *Middleware) GenerateCookieFor(request *http.Request, username string, duration time.Duration) (string, bool) {
+	cookie, sessionCreationError := middleware.LoginSessions.CreateSession(username, duration)
 	if sessionCreationError != nil {
 		go middleware.LogError(request, sessionCreationError)
 		return "", false
@@ -153,18 +163,21 @@ func (middleware *Middleware) GenerateCookieFor(request *http.Request, username 
 	return cookie, true
 }
 
-func (middleware *Middleware) ResetPassword(request *http.Request, username string) bool {
-	rawNewPassword := make([]byte, 32)
+func (middleware *Middleware) ResetPassword(request *http.Request, username string, duration time.Duration) (string, bool) {
+	rawNewPassword := make([]byte, 12)
 	_, readError := rand.Read(rawNewPassword)
 	if readError != nil {
 		go middleware.LogError(request, readError)
+		go middleware.LogSystemUpdatePassword(request, username, false)
+		return "", false
 	}
-	succeed, err := middleware.UpdatePasswordAndSetExpiration(username, hex.EncodeToString(rawNewPassword), time.Now().Add(5*time.Minute))
+	newPassword := hex.EncodeToString(rawNewPassword)
+	succeed, err := middleware.UpdatePasswordAndSetExpiration(username, newPassword, duration)
 	if err != nil {
 		go middleware.LogError(request, err)
 	}
 	go middleware.LogSystemUpdatePassword(request, username, succeed)
-	return succeed
+	return newPassword, succeed
 }
 
 func (middleware *Middleware) UpdatePassword(request *http.Request, username, oldPassword, newPassword, confirmation string) bool {
@@ -177,6 +190,15 @@ func (middleware *Middleware) UpdatePassword(request *http.Request, username, ol
 		go middleware.LogError(request, err)
 	}
 	go middleware.LogUpdatePassword(request, username, succeed)
+	return succeed
+}
+
+func (middleware *Middleware) UpdateSecurityQuestion(request *http.Request, username, password, newQuestion, newQuestionAnswer string) bool {
+	succeed, err := middleware.Database.UpdateSecurityQuestion(username, password, newQuestion, newQuestionAnswer)
+	if err != nil {
+		go middleware.LogError(request, err)
+	}
+	go middleware.LogUpdateSecurityQuestion(request, username, succeed)
 	return succeed
 }
 

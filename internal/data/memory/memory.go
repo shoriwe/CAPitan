@@ -18,13 +18,13 @@ func (memory *Memory) GetUserByUsername(username string) (*objects.User, error) 
 	memory.Lock()
 	result, found := memory.users[username]
 	memory.Unlock()
-	if !found {
-		return nil, nil
+	if found {
+		return result, nil
 	}
-	return result, nil
+	return nil, nil
 }
 
-func (memory *Memory) UpdatePasswordAndSetExpiration(username, newPassword string, expiration time.Time) (bool, error) {
+func (memory *Memory) UpdatePasswordAndSetExpiration(username, newPassword string, duration time.Duration) (bool, error) {
 	memory.Lock()
 	_, found := memory.users[username]
 	memory.Unlock()
@@ -37,7 +37,7 @@ func (memory *Memory) UpdatePasswordAndSetExpiration(username, newPassword strin
 	}
 	memory.Lock()
 	memory.users[username].PasswordHash = string(newPasswordHash)
-	memory.users[username].PasswordExpirationDate = expiration
+	memory.users[username].PasswordExpirationDate = time.Now().Add(duration)
 	memory.Unlock()
 	return true, nil
 }
@@ -63,6 +63,31 @@ func (memory *Memory) UpdatePassword(username, oldPassword, newPassword string) 
 	memory.Lock()
 	memory.users[username].PasswordHash = string(newPasswordHash)
 	memory.users[username].PasswordExpirationDate = time.Time{}
+	memory.Unlock()
+	return true, nil
+}
+
+func (memory *Memory) UpdateSecurityQuestion(username, password, newQuestion, newQuestionAnswer string) (bool, error) {
+	memory.Lock()
+	user, found := memory.users[username]
+	memory.Unlock()
+	if !found {
+		return false, nil
+	}
+	compareError := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+	if compareError != nil {
+		if compareError == bcrypt.ErrMismatchedHashAndPassword {
+			return false, nil
+		}
+		return false, compareError
+	}
+	newQuestionAnswerHash, generateError := bcrypt.GenerateFromPassword([]byte(newQuestionAnswer), bcrypt.DefaultCost)
+	if generateError != nil {
+		return false, generateError
+	}
+	memory.Lock()
+	memory.users[username].SecurityQuestion = newQuestion
+	memory.users[username].SecurityQuestionAnswer = string(newQuestionAnswerHash)
 	memory.Unlock()
 	return true, nil
 }

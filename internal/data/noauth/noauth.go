@@ -28,7 +28,11 @@ func (noAuth *NoAuth) UpdatePasswordAndSetExpiration(_, _ string, _ time.Time) (
 	return true, nil
 }
 
-func (noAuth *NoAuth) UpdatePassword(username, oldPassword, newPassword string) (bool, error) {
+func (noAuth *NoAuth) UpdatePassword(_, _, _ string) (bool, error) {
+	return true, nil
+}
+
+func (noAuth *NoAuth) UpdateSecurityQuestion(_, _, _, _ string) (bool, error) {
 	return true, nil
 }
 

@@ -1,6 +1,7 @@
 package login
 
 import (
+	"bytes"
 	"github.com/shoriwe/CAPitan/internal/web/http405"
 	"github.com/shoriwe/CAPitan/internal/web/middleware"
 	"github.com/shoriwe/CAPitan/internal/web/symbols"
@@ -64,37 +65,30 @@ func resetPasswordAnswerQuestion(mw *middleware.Middleware, context *middleware.
 		context.Redirect = symbols.Login
 		return false
 	}
-	freshUser, freshUserSucceed := mw.LoginWithSecurityQuestion(context.Request, username, context.Request.PostFormValue("answer"))
+	mw.ResetSessions.Remove(context.Request.PostFormValue("key"))
+
+	_, freshUserSucceed := mw.LoginWithSecurityQuestion(context.Request, username, context.Request.PostFormValue("answer"))
 	if !freshUserSucceed {
 		context.Redirect = symbols.Login
 		return false
 	}
-	updateSucceed := mw.ResetPassword(context.Request, username)
+	newPassword, updateSucceed := mw.ResetPassword(context.Request, username, symbols.ResetSessionDuration)
 	if !updateSucceed {
 		context.Redirect = symbols.Login
 		return false
 	}
-	cookie, generateCookieSucceed := mw.GenerateCookieFor(context.Request, freshUser.Username)
-	if !generateCookieSucceed {
-		context.Redirect = symbols.Login
-		return false
-	}
-	context.User = freshUser
-	context.Redirect = symbols.Dashboard
-	context.Cookie = &http.Cookie{
-		Name:       symbols.CookieName,
-		Value:      cookie,
-		Path:       "/",
-		Domain:     "",
-		Expires:    time.Now().Add(24 * time.Hour),
-		RawExpires: "",
-		MaxAge:     0,
-		Secure:     true,
-		HttpOnly:   false,
-		SameSite:   0,
-		Raw:        "",
-		Unparsed:   nil,
-	}
+	// TODO: Render the login page with the new password embed
+	contents, _ := mw.Templates.ReadFile("templates/login/login-on-reset.html")
+	var body bytes.Buffer
+	_ = template.Must(template.New("login-reset").Parse(string(contents))).Execute(
+		&body,
+		struct {
+			Password string
+		}{
+			Password: newPassword,
+		},
+	)
+	context.Body = body.String()
 	return false
 }
 

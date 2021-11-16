@@ -146,7 +146,7 @@ func TestResetPassword(t *testing.T) {
 	}
 	// Reset password
 	response, err := client.PostForm(
-		server.URL+"/reset/password?action=get-question",
+		server.URL+"/reset?action=get-question",
 		url.Values{
 			"username": []string{"admin"},
 		},
@@ -169,7 +169,7 @@ func TestResetPassword(t *testing.T) {
 	key := string(rawKeyEntry)[7:]
 
 	response, err = client.PostForm(
-		server.URL+"/reset/password?action=answer-question",
+		server.URL+"/reset?action=answer-question",
 		url.Values{
 			"key":    []string{key},
 			"answer": []string{"admin"},
