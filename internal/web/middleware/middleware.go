@@ -9,6 +9,7 @@ import (
 	"github.com/shoriwe/CAPitan/internal/limit"
 	"github.com/shoriwe/CAPitan/internal/logs"
 	"github.com/shoriwe/CAPitan/internal/sessions"
+	"github.com/shoriwe/CAPitan/internal/web/symbols"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/sha3"
 	"net"
@@ -32,8 +33,6 @@ type (
 	}
 	HandleFunc func(middleware *Middleware, context *Context) bool
 	Middleware struct {
-		// dataController   data.Database
-		// logger *logs.Logger
 		data.Database
 		*logs.Logger
 		*limit.Limiter
@@ -85,6 +84,7 @@ func (middleware *Middleware) Handle(handlerFunctions ...HandleFunc) http.Handle
 			responseWriter.Header().Set(key, value)
 		}
 		if context.NewCookie != nil {
+			context.NewCookie.Path = symbols.Root
 			http.SetCookie(responseWriter, context.NewCookie)
 		}
 		if context.Redirect != "" {

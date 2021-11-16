@@ -7,6 +7,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -178,23 +179,22 @@ func TestResetPassword(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if response.StatusCode != http.StatusFound {
+	if response.StatusCode != http.StatusOK {
 		t.Fatal(response.StatusCode)
 	}
-	location, locationError := response.Location()
-	if locationError != nil {
-		t.Fatal(locationError)
+	var contents []byte
+	contents, readError  = io.ReadAll(response.Body)
+	if readError != nil {
+		t.Fatal(readError)
 	}
-	if location.Path != symbols.Dashboard {
-		t.Fatal(location.Path)
-	}
-	// Try to re-login but with the old credentials
-	// WARNING: Login should fail
+	result := regexp.MustCompile("Your password is: \\w+").Find(contents)
+	newPassword := strings.Split(string(result), ": ")[1]
+	// Login with the new creds
 	response, err = client.PostForm(
 		server.URL+symbols.Login,
 		url.Values{
 			"username": []string{"admin"},
-			"password": []string{"admin"},
+			"password": []string{newPassword},
 		},
 	)
 	if err != nil {
@@ -203,11 +203,12 @@ func TestResetPassword(t *testing.T) {
 	if response.StatusCode != http.StatusFound {
 		t.Fatal(response)
 	}
+	var location *url.URL
 	location, err = response.Location()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if location.Path != symbols.Login {
+	if location.Path != symbols.Dashboard {
 		t.Fatal(location.Path)
 	}
 }

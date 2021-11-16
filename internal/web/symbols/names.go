@@ -1,8 +1,9 @@
 package symbols
 
 const (
-	Static                 = "/static/"
 	CookieName             = "capitan"
+	Root                   = "/"
+	Static                 = "/static/"
 	Login                  = "/login"
 	Logout                 = "/logout"
 	ResetPassword          = "/reset"
