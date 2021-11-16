@@ -1,9 +1,9 @@
 package test
 
 import (
-	"github.com/shoriwe/CAPitan/data/memory"
-	"github.com/shoriwe/CAPitan/logs"
-	"github.com/shoriwe/CAPitan/web"
+	"github.com/shoriwe/CAPitan/internal/data/memory"
+	"github.com/shoriwe/CAPitan/internal/logs"
+	"github.com/shoriwe/CAPitan/internal/web"
 	"net/http/httptest"
 	"os"
 )

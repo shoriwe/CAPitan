@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/shoriwe/CAPitan/web/strings"
+	"github.com/shoriwe/CAPitan/internal/web/symbols"
 	"io"
 	"net/http"
 	"net/http/cookiejar"
@@ -13,12 +13,12 @@ import (
 func TestLoginSucceed(t *testing.T) {
 	server := NewTestServer()
 	defer server.Close()
-	client := server.Client()
+	client := &http.Client{}
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
 	response, requestError := client.PostForm(
-		server.URL+strings.Login,
+		server.URL+symbols.Login,
 		url.Values{
 			"username": []string{"admin"},
 			"password": []string{"admin"},
@@ -34,7 +34,7 @@ func TestLoginSucceed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if location.Path != strings.Dashboard {
+	if location.Path != symbols.Dashboard {
 		t.Fatal(location.Path)
 	}
 }
@@ -42,12 +42,12 @@ func TestLoginSucceed(t *testing.T) {
 func TestLoginFailed(t *testing.T) {
 	server := NewTestServer()
 	defer server.Close()
-	client := server.Client()
+	client := &http.Client{}
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
 	response, requestError := client.PostForm(
-		server.URL+strings.Login,
+		server.URL+symbols.Login,
 		url.Values{
 			"username": []string{"admin"},
 			"password": []string{"wrong-password"},
@@ -63,7 +63,7 @@ func TestLoginFailed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if location.Path != strings.Login {
+	if location.Path != symbols.Login {
 		t.Fatal(location.Path)
 	}
 }
@@ -71,12 +71,13 @@ func TestLoginFailed(t *testing.T) {
 func TestLogout(t *testing.T) {
 	server := NewTestServer()
 	defer server.Close()
-	client := server.Client()
+	client := &http.Client{}
+	client.Jar, _ = cookiejar.New(nil)
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
 	response, requestError := client.PostForm(
-		server.URL+strings.Login,
+		server.URL+symbols.Login,
 		url.Values{
 			"username": []string{"admin"},
 			"password": []string{"admin"},
@@ -92,34 +93,54 @@ func TestLogout(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if location.Path != strings.Dashboard {
+	if location.Path != symbols.Dashboard {
 		t.Fatal(location.Path)
 	}
-	logoutURL, _ := url.Parse(server.URL + strings.Logout)
-	client.Jar, _ = cookiejar.New(&cookiejar.Options{})
-	client.Jar.SetCookies(logoutURL, response.Cookies())
-
-	response, requestError = client.Get(server.URL + strings.Logout)
+	cookies := response.Cookies()
+	// Logout
+	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.Logout, nil)
+	for _, cookie := range cookies {
+		request.AddCookie(cookie)
+	}
+	response, requestError = client.Do(request)
 	if requestError != nil {
 		t.Fatal(requestError)
 	}
 	if response.StatusCode != http.StatusFound {
-		t.Fatal(response.StatusCode)
+		t.Fatal(response)
 	}
-
-	response, requestError = client.Get(server.URL + strings.Login)
+	location, err = response.Location()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if location.Path != symbols.Login {
+		t.Fatal(location.Path)
+	}
+	// Revisit Dashboard with cookies
+	request, _ = http.NewRequest(http.MethodGet, server.URL+symbols.Dashboard, nil)
+	for _, cookie := range cookies {
+		request.AddCookie(cookie)
+	}
+	response, requestError = client.Do(request)
 	if requestError != nil {
 		t.Fatal(requestError)
 	}
-	if response.StatusCode == http.StatusFound {
-		t.Fatal(response.StatusCode)
+	if response.StatusCode != http.StatusFound {
+		t.Fatal(response)
+	}
+	location, err = response.Location()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if location.Path != symbols.Login {
+		t.Fatal(location.Path)
 	}
 }
 
 func TestResetPassword(t *testing.T) {
 	server := NewTestServer()
 	defer server.Close()
-	client := server.Client()
+	client := &http.Client{}
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
@@ -164,13 +185,13 @@ func TestResetPassword(t *testing.T) {
 	if locationError != nil {
 		t.Fatal(locationError)
 	}
-	if location.Path != strings.Dashboard {
+	if location.Path != symbols.Dashboard {
 		t.Fatal(location.Path)
 	}
 	// Try to re-login but with the old credentials
 	// WARNING: Login should fail
 	response, err = client.PostForm(
-		server.URL+strings.Login,
+		server.URL+symbols.Login,
 		url.Values{
 			"username": []string{"admin"},
 			"password": []string{"admin"},
@@ -186,7 +207,7 @@ func TestResetPassword(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if location.Path != strings.Login {
+	if location.Path != symbols.Login {
 		t.Fatal(location.Path)
 	}
 }
