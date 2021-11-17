@@ -1,0 +1,15 @@
+<link href="/static/css/update-form.css" rel="stylesheet" type="text/css">
+<div class="update-container">
+    <h1 class="update-title">Update security question</h1>
+    <form action="/settings/update/security/question" method="post">
+        <label for="password"></label>
+        <input class="update-password" id="password" name="password" placeholder="Password" type="password"><br>
+        <label for="new-question">{{.OldQuestion}}</label>
+        <input class="update-password" id="new-question" name="question" placeholder="New question" type="text"><br>
+        <label for="new-question-answer"></label>
+        <input class="update-password" id="new-question-answer" name="answer"
+               placeholder="Answer"
+               type="password"><br>
+        <input class="update-submit" type="submit" value="Submit">
+    </form>
+</div>

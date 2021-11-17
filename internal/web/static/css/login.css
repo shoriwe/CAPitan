@@ -1,0 +1,114 @@
+body {
+    background: linear-gradient(-45deg, #4cd137, #9c88ff);
+    background-size: 400% 400%;
+    animation: gradient 60s ease infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0 50%;
+    }
+}
+
+label {
+    text-align: left;
+    float: left;
+    color: #9b59b6;
+    font-family: Arial, serif;
+}
+
+h2 {
+    font-family: "Arial Black", serif;
+    color: #e74c3c;
+    font-size: large;
+    margin-bottom: 2%;
+}
+
+h3 {
+    font-family: Arial, serif;
+    color: white;
+    background: #e74c3c;
+    padding: 2.5vh 2.5vw;
+}
+
+.icon {
+    padding: 0;
+}
+
+input {
+    font-family: Arial, serif;
+    font-size: large;
+    padding: 5%;
+    width: 75%;
+    border: 0 solid gray;
+    border-radius: 2px;
+}
+
+input:hover {
+    background: #f1f2f6;
+}
+
+img {
+    width: 50%;
+    height: auto;
+}
+
+.username-input {
+    margin-bottom: 2.5%;
+}
+
+.password-input {
+    margin-bottom: 3%;
+}
+
+a {
+    font-family: "Arial", serif;
+    font-size: medium;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #0984e3;
+}
+
+button {
+    cursor: pointer;
+    margin-top: 5%;
+    width: 100%;
+    border: 0 solid gray;
+    border-radius: 2px;
+    font-size: x-large;
+    font-family: "Helvetica", serif;
+    background: #0097e6;
+    color: white;
+}
+
+button:hover {
+    background: #2980b9;
+}
+
+.login-container {
+    background: white;
+    display: flex;
+    margin-top: 10vh;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    padding: 2.5vh 2.5vw;
+    width: 60vw;
+    height: 50vh;
+    border: 0 solid gray;
+    border-radius: 2px;
+}
+
+.login-form {
+    margin-left: 10%;
+    text-align: center;
+    width: 50%;
+}
