@@ -221,7 +221,7 @@ func TestUpdateSecurityQuestion(t *testing.T) {
 		t.Fatal(response.StatusCode)
 	}
 	var contents []byte
-	contents, readError  = io.ReadAll(response.Body)
+	contents, readError = io.ReadAll(response.Body)
 	if readError != nil {
 		t.Fatal(readError)
 	}

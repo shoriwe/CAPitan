@@ -214,3 +214,12 @@ func (middleware *Middleware) Limit(request *http.Request) bool {
 	go middleware.LogBannedByLimit(request)
 	return false
 }
+
+func (middleware *Middleware) AdminListUsers(request *http.Request, username string) ([]*objects.User, bool) {
+	users, err := middleware.Database.ListUsers(username)
+	if err != nil {
+		go middleware.LogError(request, err)
+		return nil, false
+	}
+	return users, true
+}

@@ -1,6 +1,7 @@
 package symbols
 
 const (
+	Favicon                = "/favicon.ico"
 	CookieName             = "capitan"
 	Root                   = "/"
 	Static                 = "/static/"
@@ -11,4 +12,5 @@ const (
 	Settings               = "/settings"
 	UpdatePassword         = "/settings/update/password"
 	UpdateSecurityQuestion = "/settings/update/security/question"
+	AdminPanel             = "/admin"
 )

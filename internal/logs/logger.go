@@ -49,9 +49,9 @@ func (logger *Logger) LogUserNotFound(request *http.Request, username string) {
 
 func (logger *Logger) LogSystemUpdatePassword(request *http.Request, username string, succeed bool) {
 	if succeed {
-		logger.debugLogger.Printf("Successfully force password update for %s", username)
+		logger.debugLogger.Printf("Successfully force password update for %s FROM %s", username, request.RemoteAddr)
 	} else {
-		logger.debugLogger.Printf("Failed to force password update for %s", username)
+		logger.debugLogger.Printf("Failed to force password update for %s FROM %s", username, request.RemoteAddr)
 	}
 }
 
@@ -69,6 +69,10 @@ func (logger *Logger) LogUpdateSecurityQuestion(request *http.Request, username 
 	} else {
 		logger.debugLogger.Printf("Failed to updated security question for %s by %s", username, request.RemoteAddr)
 	}
+}
+
+func (logger *Logger) LogAdminRequired(request *http.Request, username string) {
+	logger.debugLogger.Printf("request from %s to %s with username %s blocked ADMIN REQUIRED", request.RemoteAddr, request.RequestURI, username)
 }
 
 func NewLogger(logWriter io.Writer) *Logger {

@@ -7,6 +7,7 @@ import (
 
 type DatabaseAdminFeatures interface {
 	UpdatePasswordAndSetExpiration(username, newPassword string, duration time.Duration) (bool, error)
+	ListUsers(username string) ([]*objects.User, error)
 }
 
 type DatabaseGlobalFeatures interface {

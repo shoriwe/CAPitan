@@ -5,10 +5,11 @@ import (
 	"embed"
 	"github.com/shoriwe/CAPitan/internal/data"
 	"github.com/shoriwe/CAPitan/internal/logs"
-	"github.com/shoriwe/CAPitan/internal/web/dashboard"
-	"github.com/shoriwe/CAPitan/internal/web/login"
 	"github.com/shoriwe/CAPitan/internal/web/middleware"
-	"github.com/shoriwe/CAPitan/internal/web/settings"
+	"github.com/shoriwe/CAPitan/internal/web/routes/admin"
+	"github.com/shoriwe/CAPitan/internal/web/routes/dashboard"
+	login2 "github.com/shoriwe/CAPitan/internal/web/routes/login"
+	settings2 "github.com/shoriwe/CAPitan/internal/web/routes/settings"
 	"github.com/shoriwe/CAPitan/internal/web/symbols"
 	"html/template"
 	"net/http"
@@ -62,6 +63,14 @@ func requiresLogin(mw *middleware.Middleware, context *middleware.Context) bool 
 	return true
 }
 
+func requiresAdminPrivilege(mw *middleware.Middleware, context *middleware.Context) bool {
+	if context.User.IsAdmin {
+		return true
+	}
+	go mw.LogAdminRequired(context.Request, context.User.Username)
+	return false
+}
+
 func setNavigationBar(mw *middleware.Middleware, context *middleware.Context) bool {
 	var navigationBar []byte
 	if context.User.IsAdmin {
@@ -86,13 +95,22 @@ func setNavigationBar(mw *middleware.Middleware, context *middleware.Context) bo
 func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 	mw := middleware.New(database, logger, templatesFS)
 	handler := http.NewServeMux()
+	handler.HandleFunc(symbols.Favicon,
+		mw.Handle(
+			func(mw *middleware.Middleware, context *middleware.Context) bool {
+				context.Redirect = "/static/images/favicon.ico"
+				return false
+			},
+		),
+	)
 	handler.Handle(symbols.Static, http.FileServer(http.FS(staticFS)))
-	handler.HandleFunc(symbols.Login, mw.Handle(logVisit, loadCredentials, login.Login))
-	handler.HandleFunc(symbols.Logout, mw.Handle(logVisit, loadCredentials, requiresLogin, login.Logout))
-	handler.HandleFunc(symbols.ResetPassword, mw.Handle(logVisit, loadCredentials, login.ResetPassword))
+	handler.HandleFunc(symbols.Login, mw.Handle(logVisit, loadCredentials, login2.Login))
+	handler.HandleFunc(symbols.Logout, mw.Handle(logVisit, loadCredentials, requiresLogin, login2.Logout))
+	handler.HandleFunc(symbols.ResetPassword, mw.Handle(logVisit, loadCredentials, login2.ResetPassword))
 	handler.HandleFunc(symbols.Dashboard, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, dashboard.Dashboard))
-	handler.HandleFunc(symbols.Settings, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings.Settings))
-	handler.HandleFunc(symbols.UpdatePassword, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings.UpdatePassword))
-	handler.HandleFunc(symbols.UpdateSecurityQuestion, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings.UpdateSecurityQuestion))
+	handler.HandleFunc(symbols.Settings, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings2.Settings))
+	handler.HandleFunc(symbols.UpdatePassword, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings2.UpdatePassword))
+	handler.HandleFunc(symbols.UpdateSecurityQuestion, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings2.UpdateSecurityQuestion))
+	handler.HandleFunc(symbols.AdminPanel, mw.Handle(logVisit, loadCredentials, requiresLogin, requiresAdminPrivilege, setNavigationBar, admin.Panel))
 	return handler
 }

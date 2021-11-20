@@ -93,10 +93,10 @@ func resetPasswordAnswerQuestion(mw *middleware.Middleware, context *middleware.
 }
 
 func resetPasswordPost(mw *middleware.Middleware, context *middleware.Context) bool {
-	switch context.Request.URL.Query().Get("action") {
-	case "get-question":
+	switch context.Request.URL.Query().Get(symbols.Action) {
+	case symbols.GetQuestion:
 		return resetPasswordGetQuestion(mw, context)
-	case "answer-question":
+	case symbols.AnswerQuestion:
 		return resetPasswordAnswerQuestion(mw, context)
 	}
 	context.Redirect = symbols.Login

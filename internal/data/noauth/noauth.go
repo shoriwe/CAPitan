@@ -20,11 +20,24 @@ var admin = &objects.User{
 type NoAuth struct {
 }
 
+func (noAuth *NoAuth) ListUsers(username string) ([]*objects.User, error) {
+	return []*objects.User{
+		&objects.User{
+			Username: "john",
+			IsAdmin:  true,
+		},
+		&objects.User{
+			Username:  "sulcud",
+			IsEnabled: true,
+		},
+	}, nil
+}
+
 func (noAuth *NoAuth) GetUserByUsername(_ string) (*objects.User, error) {
 	return admin, nil
 }
 
-func (noAuth *NoAuth) UpdatePasswordAndSetExpiration(_, _ string, _ time.Time) (bool, error) {
+func (noAuth *NoAuth) UpdatePasswordAndSetExpiration(_, _ string, _ time.Duration) (bool, error) {
 	return true, nil
 }
 

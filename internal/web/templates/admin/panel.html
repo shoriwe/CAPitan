@@ -1,0 +1,33 @@
+<link href="/static/css/admin/panel.css" rel="stylesheet" type="text/css">
+<div class="admin-panel">
+    <div class="new-button-container">
+        <a class="button">New</a>
+    </div>
+    <div class="list-container">
+        {{range .Users}}
+        {{if .IsEnabled}}
+        <div class="list-entry">
+            <h3 class="description">{{.Username}}</h3>
+            <h3 class="description" style="color: #2ecc71">Enabled</h3>
+            {{if .IsAdmin}}
+            <h3 class="description" style="color: #3498db">Admin</h3>
+            {{else}}
+            <h3 class="description">Basic</h3>
+            {{end}}
+            <a class="button">Edit</a>
+        </div>
+        {{else}}
+        <div class="list-entry">
+            <h3 class="description">{{.Username}}</h3>
+            <h3 class="description" style="color: #e74c3c">Disabled</h3>
+            {{if .IsAdmin}}
+            <h3 class="description" style="color: #3498db">Admin</h3>
+            {{else}}
+            <h3 class="description">Basic</h3>
+            {{end}}
+            <a class="button">Edit</a>
+        </div>
+        {{end}}
+        {{end}}
+    </div>
+</div>

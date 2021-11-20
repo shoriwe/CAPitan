@@ -92,6 +92,18 @@ func (memory *Memory) UpdateSecurityQuestion(username, password, newQuestion, ne
 	return true, nil
 }
 
+func (memory *Memory) ListUsers(username string) ([]*objects.User, error) {
+	var result []*objects.User
+	memory.Lock()
+	for _, user := range memory.users {
+		if user.Username != username {
+			result = append(result, user)
+		}
+	}
+	memory.Unlock()
+	return result, nil
+}
+
 func NewInMemoryDB() data.Database {
 	result := &Memory{
 		Mutex:  new(sync.Mutex),
