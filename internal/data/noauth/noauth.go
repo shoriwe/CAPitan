@@ -20,6 +20,10 @@ var admin = &objects.User{
 type NoAuth struct {
 }
 
+func (noAuth *NoAuth) CreateUser(username string) (bool, error) {
+	return true, nil
+}
+
 func (noAuth *NoAuth) ListUsers(username string) ([]*objects.User, error) {
 	return []*objects.User{
 		&objects.User{

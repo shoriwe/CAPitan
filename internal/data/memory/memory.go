@@ -1,6 +1,8 @@
 package memory
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"github.com/shoriwe/CAPitan/internal/data"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
 	"golang.org/x/crypto/bcrypt"
@@ -12,6 +14,48 @@ type Memory struct {
 	*sync.Mutex
 	users  map[string]*objects.User
 	nextId uint
+}
+
+func (memory *Memory) CreateUser(username string) (bool, error) {
+	memory.Lock()
+	defer memory.Unlock()
+	_, found := memory.users[username]
+	if found {
+		return false, nil
+	}
+	var (
+		rawPassword         []byte
+		rawSecurityQuestion []byte
+		rawAnswer           []byte
+	)
+	_, readError := rand.Read(rawPassword)
+	if readError != nil {
+		return false, readError
+	}
+	_, readError = rand.Read(rawSecurityQuestion)
+	if readError != nil {
+		return false, readError
+	}
+	_, readError = rand.Read(rawAnswer)
+	if readError != nil {
+		return false, readError
+	}
+	passwordHash, hashingError := bcrypt.GenerateFromPassword([]byte(hex.EncodeToString(rawPassword)), bcrypt.DefaultCost)
+	if hashingError != nil {
+		return false, hashingError
+	}
+	memory.users[username] = &objects.User{
+		Id:                     memory.nextId,
+		Username:               username,
+		PasswordHash:           string(passwordHash),
+		SecurityQuestion:       hex.EncodeToString(rawSecurityQuestion),
+		SecurityQuestionAnswer: hex.EncodeToString(rawSecurityQuestion),
+		IsAdmin:                false,
+		IsEnabled:              false,
+		PasswordExpirationDate: time.Time{},
+	}
+	memory.nextId++
+	return true, nil
 }
 
 func (memory *Memory) GetUserByUsername(username string) (*objects.User, error) {

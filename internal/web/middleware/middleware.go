@@ -223,3 +223,11 @@ func (middleware *Middleware) AdminListUsers(request *http.Request, username str
 	}
 	return users, true
 }
+
+func (middleware *Middleware) AdminCreateUser(request *http.Request, username string) {
+	succeed, userCreationError := middleware.Database.CreateUser(username)
+	if userCreationError != nil {
+		go middleware.LogError(request, userCreationError)
+	}
+	go middleware.LogUserCreation(request, succeed, username)
+}

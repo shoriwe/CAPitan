@@ -1,33 +1,92 @@
 <link href="/static/css/admin/panel.css" rel="stylesheet" type="text/css">
 <div class="admin-panel">
     <div class="new-button-container">
-        <a class="button">New</a>
+        <a class="button" onclick="showDialog()">New</a>
+    </div>
+    <div class="new-user-dialog" id="new-user-dialog" style="display: none;">
+        <h3 id="user-already-taken" style="display: none; color: #e74c3c; font-family: Arial, serif;">User already
+            taken</h3>
+        <h3 id="user-not-taken" style="display: none; color: #2ecc71; font-family: Arial, serif;">User not taken</h3>
+        <form action="/admin?action=new-user" method="post">
+            <label for="username"></label>
+            <div>
+                <input class="username-input" id="username" name="username" placeholder="Username" type="text">
+                <button class="button" onclick="checkUsername()" type="button">Test</button>
+            </div>
+            <div style="margin-top: 2%;">
+                <button class="cancel-button" onclick="hideDialog()" type="button">Cancel</button>
+                <button class="button" type="submit">Create User</button>
+            </div>
+        </form>
     </div>
     <div class="list-container">
-        {{range .Users}}
+        {{range $index, $user := .Users}}
         {{if .IsEnabled}}
         <div class="list-entry">
-            <h3 class="description">{{.Username}}</h3>
+            <h3 class="description">{{$user.Username}}</h3>
             <h3 class="description" style="color: #2ecc71">Enabled</h3>
             {{if .IsAdmin}}
             <h3 class="description" style="color: #3498db">Admin</h3>
             {{else}}
             <h3 class="description">Basic</h3>
             {{end}}
-            <a class="button">Edit</a>
+            <form action="/admin?action=edit" method="post">
+                <label for="{{$index}}" style="display: none;">{{$user.Username}}</label>
+                <input class="description" disabled id="{{$index}}" name="username" style="display: none;"
+                       type="text"
+                       value="{{$user.Username}}">
+                <button class="button" type="submit">Edit</button>
+            </form>
         </div>
         {{else}}
         <div class="list-entry">
-            <h3 class="description">{{.Username}}</h3>
+            <h3 class="description">{{$user.Username}}</h3>
             <h3 class="description" style="color: #e74c3c">Disabled</h3>
             {{if .IsAdmin}}
             <h3 class="description" style="color: #3498db">Admin</h3>
             {{else}}
             <h3 class="description">Basic</h3>
             {{end}}
-            <a class="button">Edit</a>
+            <form action="/admin?action=edit" method="post">
+                <label for="{{$index}}" style="display: none;">{{$user.Username}}</label>
+                <input class="description" disabled id="{{$index}}" name="username" style="display: none;"
+                       type="text"
+                       value="{{$user.Username}}">
+                <button class="button" type="submit">Edit</button>
+            </form>
         </div>
         {{end}}
         {{end}}
     </div>
 </div>
+<script>
+    function checkUsername() {
+        fetch("/admin?action=test-user", {
+            method: "POST",
+            body: JSON.stringify({Username: document.getElementById("username").value}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+                response.json().then(data => {
+                        if (data.Found) {
+                            document.getElementById("user-already-taken").style.display = "block";
+                            document.getElementById("user-not-taken").style.display = "none";
+                        } else {
+                            document.getElementById("user-already-taken").style.display = "none";
+                            document.getElementById("user-not-taken").style.display = "block";
+                        }
+                    }
+                );
+            }
+        );
+    }
+
+    function showDialog() {
+        document.getElementById("new-user-dialog").style.display = "block";
+    }
+
+    function hideDialog() {
+        document.getElementById("new-user-dialog").style.display = "none";
+    }
+</script>

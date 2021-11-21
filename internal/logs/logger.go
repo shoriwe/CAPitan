@@ -75,6 +75,14 @@ func (logger *Logger) LogAdminRequired(request *http.Request, username string) {
 	logger.debugLogger.Printf("request from %s to %s with username %s blocked ADMIN REQUIRED", request.RemoteAddr, request.RequestURI, username)
 }
 
+func (logger *Logger) LogUserCreation(request *http.Request, succeed bool, username string) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully created user %s by %s", username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to create user %s by %s", username, request.RemoteAddr)
+	}
+}
+
 func NewLogger(logWriter io.Writer) *Logger {
 	return &Logger{
 		errorLogger: log.New(logWriter, "ERROR: ", log.Ldate|log.Ltime),

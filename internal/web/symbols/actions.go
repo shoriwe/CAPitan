@@ -6,6 +6,7 @@ const (
 	AnswerQuestion        = "answer-question"
 	View                  = "view"
 	NewUser               = "new-user"
+	TestUser              = "test-user"
 	AddPacketInterface    = "add-packet-interface"
 	DeletePacketInterface = "delete-packet-interface"
 	AddARPInterface       = "add-arp-interface"

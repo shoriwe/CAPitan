@@ -77,7 +77,6 @@ func resetPasswordAnswerQuestion(mw *middleware.Middleware, context *middleware.
 		context.Redirect = symbols.Login
 		return false
 	}
-	// TODO: Render the login page with the new password embed
 	contents, _ := mw.Templates.ReadFile("templates/login/login-on-reset.html")
 	var body bytes.Buffer
 	_ = template.Must(template.New("login-reset").Parse(string(contents))).Execute(
