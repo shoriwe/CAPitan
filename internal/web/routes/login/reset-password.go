@@ -22,14 +22,14 @@ func resetPasswordGetQuestion(mw *middleware.Middleware, context *middleware.Con
 		context.Redirect = symbols.Login
 		return false
 	}
-	username := context.Request.PostFormValue("username")
-	user, err := mw.GetUserByUsername(username)
+	username := context.Request.PostFormValue(symbols.Username)
+	found, user, err := mw.GetUserByUsername(username)
 	if err != nil {
 		go mw.LogError(context.Request, err)
 		context.Redirect = symbols.Login
 		return false
-	} else if user == nil {
-		go mw.LogUserNotFound(context.Request, context.Request.PostFormValue("username"))
+	} else if !found{
+		go mw.LogUserNotFound(context.Request, context.Request.PostFormValue(symbols.Username))
 		context.Redirect = symbols.Login
 		return false
 	}
@@ -60,12 +60,12 @@ func resetPasswordGetQuestion(mw *middleware.Middleware, context *middleware.Con
 }
 
 func resetPasswordAnswerQuestion(mw *middleware.Middleware, context *middleware.Context) bool {
-	username := mw.ResetSessions.GetSession(context.Request.PostFormValue("key"))
+	username := mw.ResetSessions.GetSession(context.Request.PostFormValue(symbols.Key))
 	if username == "" {
 		context.Redirect = symbols.Login
 		return false
 	}
-	mw.ResetSessions.Remove(context.Request.PostFormValue("key"))
+	mw.ResetSessions.Remove(context.Request.PostFormValue(symbols.Key))
 
 	_, freshUserSucceed := mw.LoginWithSecurityQuestion(context.Request, username, context.Request.PostFormValue("answer"))
 	if !freshUserSucceed {

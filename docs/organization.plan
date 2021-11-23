@@ -1,5 +1,10 @@
 {
-  "version": "0.8.0-alpha.2",
+  "version": "0.8.0-alpha.3",
+  "pan": {
+    "X": -216.20163,
+    "Y": 431.76566
+  },
+  "zoom": 0.6221497654914856,
   "root": {
     "pagecontenttype": "PageContentFolder",
     "name": "New Folder",
@@ -50,8 +55,7 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Ideas for the functionalities and deployment features the app should have",
-              "filepath": ""
+              "description": "Ideas for the functionalities and deployment features the app should have"
             }
           },
           {
@@ -158,7 +162,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Errors",
               "filepath": ""
             }
@@ -188,7 +192,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Login attempts",
               "filepath": ""
             }
@@ -233,7 +237,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Succeded",
               "filepath": ""
             }
@@ -278,7 +282,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Failed",
               "filepath": ""
             }
@@ -517,8 +521,7 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "This one should be powered by mariadb and the network interfaces are configured for the container it self",
-              "filepath": ""
+              "description": "This one should be powered by mariadb and the network interfaces are configured for the container it self"
             }
           },
           {
@@ -576,7 +579,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Created user",
               "filepath": ""
             }
@@ -657,9 +660,9 @@
             }
           },
           {
-            "id": 117,
+            "id": 187,
             "rect": {
-              "X": 2048,
+              "X": 2080,
               "Y": -96,
               "W": 288,
               "H": 32
@@ -667,8 +670,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "By update",
-              "filepath": ""
+              "description": "Admin"
             }
           },
           {
@@ -702,18 +704,17 @@
             }
           },
           {
-            "id": 115,
+            "id": 188,
             "rect": {
-              "X": 2016,
+              "X": 2080,
               "Y": -64,
               "W": 288,
               "H": 32
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Email change",
-              "filepath": ""
+              "checked": true,
+              "description": "By User"
             }
           },
           {
@@ -743,6 +744,21 @@
             "properties": {
               "checked": true,
               "description": "Logout",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 117,
+            "rect": {
+              "X": 2048,
+              "Y": -32,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": true,
+              "description": "By update",
               "filepath": ""
             }
           },
@@ -831,8 +847,7 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "This one is powered a by a custom JSON database",
-              "filepath": ""
+              "description": "This one is powered a by a custom JSON database"
             }
           },
           {
@@ -968,7 +983,14 @@
               "checked": false,
               "description": "Killed ARP scans",
               "filepath": ""
-            }
+            },
+            "links": [
+              {
+                "start": 160,
+                "end": 159,
+                "joints": []
+              }
+            ]
           },
           {
             "id": 110,
@@ -980,8 +1002,7 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Shared with me captures are read only",
-              "filepath": ""
+              "description": "Shared with me captures are read only"
             }
           },
           {
@@ -1219,7 +1240,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Create user",
               "filepath": ""
             }
@@ -1639,8 +1660,7 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Shared with me captures are read only",
-              "filepath": ""
+              "description": "Shared with me captures are read only"
             }
           },
           {
@@ -2766,14 +2786,7 @@
               "checked": false,
               "description": "Doing",
               "filepath": ""
-            },
-            "links": [
-              {
-                "start": 160,
-                "end": 159,
-                "joints": []
-              }
-            ]
+            }
           },
           {
             "id": 162,

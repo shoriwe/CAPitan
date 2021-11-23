@@ -83,6 +83,14 @@ func (logger *Logger) LogUserCreation(request *http.Request, succeed bool, usern
 	}
 }
 
+func (logger *Logger) LogQueryUserPermissions(request *http.Request, username string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully query permissions for user %s by %s", username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to query permissions for user %s by %s", username, request.RemoteAddr)
+	}
+}
+
 func NewLogger(logWriter io.Writer) *Logger {
 	return &Logger{
 		errorLogger: log.New(logWriter, "ERROR: ", log.Ldate|log.Ltime),

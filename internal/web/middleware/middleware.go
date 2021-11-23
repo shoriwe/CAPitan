@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"embed"
 	"encoding/hex"
+	"github.com/google/gopacket/pcap"
 	"github.com/shoriwe/CAPitan/internal/data"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
 	"github.com/shoriwe/CAPitan/internal/limit"
@@ -36,6 +37,7 @@ type (
 		data.Database
 		*logs.Logger
 		*limit.Limiter
+		devices       map[string]pcap.Interface
 		Templates     embed.FS
 		LoginSessions *sessions.Sessions
 		ResetSessions *sessions.Sessions
@@ -66,6 +68,7 @@ func New(c data.Database, l *logs.Logger, t embed.FS) *Middleware {
 		Limiter:       limit.NewLimiter(),
 		LoginSessions: sessions.NewSessions(),
 		ResetSessions: sessions.NewSessions(),
+		devices:       nil,
 	}
 }
 
@@ -100,9 +103,14 @@ func (middleware *Middleware) Handle(handlerFunctions ...HandleFunc) http.Handle
 }
 
 func (middleware *Middleware) Login(request *http.Request, username, password string) (*objects.User, bool) {
-	user, err := middleware.Database.GetUserByUsername(username)
+	found, user, err := middleware.Database.GetUserByUsername(username)
 	if err != nil { // Check if the user at least exists
 		go middleware.LogError(request, err)
+		go middleware.LogLoginAttempt(request, username, false)
+		return nil, false
+	}
+	if !found {
+		go middleware.LogLoginAttempt(request, username, false)
 		return nil, false
 	}
 	if !user.IsEnabled {
@@ -127,9 +135,14 @@ func (middleware *Middleware) Login(request *http.Request, username, password st
 }
 
 func (middleware *Middleware) LoginWithSecurityQuestion(request *http.Request, username, answer string) (*objects.User, bool) {
-	user, err := middleware.Database.GetUserByUsername(username)
+	found, user, err := middleware.Database.GetUserByUsername(username)
 	if err != nil { // Check if the user at least exists
 		go middleware.LogError(request, err)
+		go middleware.LogLoginAttempt(request, username, false)
+		return nil, false
+	}
+	if !found {
+		go middleware.LogLoginAttempt(request, username, false)
 		return nil, false
 	}
 	if !user.IsEnabled {
@@ -230,4 +243,30 @@ func (middleware *Middleware) AdminCreateUser(request *http.Request, username st
 		go middleware.LogError(request, userCreationError)
 	}
 	go middleware.LogUserCreation(request, succeed, username)
+}
+
+func (middleware *Middleware) ListNetInterfaces(request *http.Request) map[string]pcap.Interface {
+	if middleware.devices == nil {
+		devices, findInterfacesError := pcap.FindAllDevs()
+		if findInterfacesError != nil {
+			go middleware.LogError(request, findInterfacesError)
+		}
+		middleware.devices = map[string]pcap.Interface{}
+		for _, device := range devices {
+			middleware.devices[device.Name] = device
+		}
+	}
+	return middleware.devices
+}
+
+func (middleware *Middleware) QueryUserPermissions(request *http.Request, username string) (user *objects.User, captureInterfaces map[string]struct{}, arpScanInterfaces map[string]struct{}, arpSpoofInterfaces map[string]struct{}, succeed bool) {
+	var getError error
+	succeed, user, captureInterfaces, arpScanInterfaces, arpSpoofInterfaces, getError = middleware.Database.GetUserInterfacePermissions(username)
+	if getError != nil {
+		go middleware.LogError(request, getError)
+		go middleware.LogQueryUserPermissions(request, username, false)
+		return nil, nil, nil, nil, false
+	}
+	go middleware.LogQueryUserPermissions(request, username, succeed)
+	return user, captureInterfaces, arpScanInterfaces, arpSpoofInterfaces, succeed
 }

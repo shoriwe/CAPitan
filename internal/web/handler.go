@@ -32,11 +32,11 @@ func loadCredentials(mw *middleware.Middleware, context *middleware.Context) boo
 	}
 	if cookie.Name == symbols.CookieName {
 		context.SessionCookie = cookie
-		user, getUserError := mw.GetUserByUsername(mw.LoginSessions.GetSession(cookie.Value))
+		found, user, getUserError := mw.GetUserByUsername(mw.LoginSessions.GetSession(cookie.Value))
 		if getUserError != nil {
 			go mw.LogError(context.Request, getUserError)
 			return false
-		} else if user != nil {
+		} else if found {
 			if user.IsEnabled {
 				if user.PasswordExpirationDate.Equal(time.Time{}) {
 					context.User = user
@@ -112,5 +112,6 @@ func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 	handler.HandleFunc(symbols.UpdatePassword, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings2.UpdatePassword))
 	handler.HandleFunc(symbols.UpdateSecurityQuestion, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings2.UpdateSecurityQuestion))
 	handler.HandleFunc(symbols.AdminPanel, mw.Handle(logVisit, loadCredentials, requiresLogin, requiresAdminPrivilege, setNavigationBar, admin.Panel))
+	handler.HandleFunc(symbols.AdminEditUsers, mw.Handle(logVisit, loadCredentials, requiresLogin, requiresAdminPrivilege, setNavigationBar, admin.EditUsers))
 	return handler
 }

@@ -1,0 +1,22 @@
+<link href="/static/css/user-edit.css" rel="stylesheet" type="text/css">
+<h2>{{.Username}}</h2>
+<div class="container">
+    <h3>Password</h3>
+    <form action="/admin/user?action=update-password" method="post">
+        <label for="password"></label>
+        <input class="text-input" id="password" placeholder="Password" type="password">
+        <button class="button" type="submit">Update</button>
+    </form>
+</div>
+<div class="container">
+    <h3>User status</h3>
+</div>
+<div class="container">
+    <h3>Capture permissions</h3>
+</div>
+<div class="container">
+    <h3>ARP Scan permissions</h3>
+</div>
+<div class="container">
+    <h3>ARP Spoof permissions</h3>
+</div>

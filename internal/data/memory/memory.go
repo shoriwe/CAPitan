@@ -11,14 +11,56 @@ import (
 )
 
 type Memory struct {
-	*sync.Mutex
-	users  map[string]*objects.User
-	nextId uint
+	usersMutex                        *sync.Mutex
+	users                             map[string]*objects.User
+	captureInterfacePermissionsMutex  *sync.Mutex
+	captureInterfacePermissions       map[uint]*objects.CapturePermission
+	arpScanInterfacePermissionsMutex  *sync.Mutex
+	arpScanInterfacePermissions       map[uint]*objects.ARPScanPermission
+	arpSpoofInterfacePermissionsMutex *sync.Mutex
+	arpSpoofInterfacePermissions      map[uint]*objects.ARPSpoofPermission
+	nextId                            uint
+}
+
+func (memory *Memory) GetUserInterfacePermissions(username string) (succeed bool, user *objects.User, captureInterfaces map[string]struct{}, arpScanInterfaces map[string]struct{}, arpSpoofInterfaces map[string]struct{}, err error) {
+	memory.usersMutex.Lock()
+	user, succeed = memory.users[username]
+	memory.usersMutex.Unlock()
+	if !succeed {
+		return false, nil, nil, nil, nil, nil
+	}
+
+	captureInterfaces = map[string]struct{}{}
+	arpScanInterfaces = map[string]struct{}{}
+	arpSpoofInterfaces = map[string]struct{}{}
+
+	// Capture
+	memory.captureInterfacePermissionsMutex.Lock()
+	for _, permission := range memory.captureInterfacePermissions {
+		captureInterfaces[permission.Interface] = struct{}{}
+	}
+	memory.captureInterfacePermissionsMutex.Unlock()
+
+	// ARP Scan
+	memory.arpScanInterfacePermissionsMutex.Lock()
+	for _, permission := range memory.arpScanInterfacePermissions {
+		arpScanInterfaces[permission.Interface] = struct{}{}
+	}
+	memory.arpScanInterfacePermissionsMutex.Unlock()
+
+	// ARP Spoof
+	memory.arpSpoofInterfacePermissionsMutex.Lock()
+	for _, permission := range memory.arpSpoofInterfacePermissions {
+		arpSpoofInterfaces[permission.Interface] = struct{}{}
+	}
+	memory.arpSpoofInterfacePermissionsMutex.Unlock()
+
+	return true, user, captureInterfaces, arpScanInterfaces, arpSpoofInterfaces, nil
 }
 
 func (memory *Memory) CreateUser(username string) (bool, error) {
-	memory.Lock()
-	defer memory.Unlock()
+	memory.usersMutex.Lock()
+	defer memory.usersMutex.Unlock()
 	_, found := memory.users[username]
 	if found {
 		return false, nil
@@ -58,20 +100,17 @@ func (memory *Memory) CreateUser(username string) (bool, error) {
 	return true, nil
 }
 
-func (memory *Memory) GetUserByUsername(username string) (*objects.User, error) {
-	memory.Lock()
+func (memory *Memory) GetUserByUsername(username string) (bool, *objects.User, error) {
+	memory.usersMutex.Lock()
+	defer memory.usersMutex.Unlock()
 	result, found := memory.users[username]
-	memory.Unlock()
-	if found {
-		return result, nil
-	}
-	return nil, nil
+	return found, result, nil
 }
 
 func (memory *Memory) UpdatePasswordAndSetExpiration(username, newPassword string, duration time.Duration) (bool, error) {
-	memory.Lock()
+	memory.usersMutex.Lock()
+	defer memory.usersMutex.Unlock()
 	_, found := memory.users[username]
-	memory.Unlock()
 	if !found {
 		return false, nil
 	}
@@ -79,17 +118,15 @@ func (memory *Memory) UpdatePasswordAndSetExpiration(username, newPassword strin
 	if generationError != nil {
 		return false, generationError
 	}
-	memory.Lock()
 	memory.users[username].PasswordHash = string(newPasswordHash)
 	memory.users[username].PasswordExpirationDate = time.Now().Add(duration)
-	memory.Unlock()
 	return true, nil
 }
 
 func (memory *Memory) UpdatePassword(username, oldPassword, newPassword string) (bool, error) {
-	memory.Lock()
+	memory.usersMutex.Lock()
+	defer memory.usersMutex.Unlock()
 	user, found := memory.users[username]
-	memory.Unlock()
 	if !found {
 		return false, nil
 	}
@@ -104,17 +141,15 @@ func (memory *Memory) UpdatePassword(username, oldPassword, newPassword string) 
 	if generateError != nil {
 		return false, generateError
 	}
-	memory.Lock()
 	memory.users[username].PasswordHash = string(newPasswordHash)
 	memory.users[username].PasswordExpirationDate = time.Time{}
-	memory.Unlock()
 	return true, nil
 }
 
 func (memory *Memory) UpdateSecurityQuestion(username, password, newQuestion, newQuestionAnswer string) (bool, error) {
-	memory.Lock()
+	memory.usersMutex.Lock()
+	defer memory.usersMutex.Unlock()
 	user, found := memory.users[username]
-	memory.Unlock()
 	if !found {
 		return false, nil
 	}
@@ -129,30 +164,34 @@ func (memory *Memory) UpdateSecurityQuestion(username, password, newQuestion, ne
 	if generateError != nil {
 		return false, generateError
 	}
-	memory.Lock()
 	memory.users[username].SecurityQuestion = newQuestion
 	memory.users[username].SecurityQuestionAnswer = string(newQuestionAnswerHash)
-	memory.Unlock()
 	return true, nil
 }
 
 func (memory *Memory) ListUsers(username string) ([]*objects.User, error) {
+	memory.usersMutex.Lock()
+	defer memory.usersMutex.Unlock()
 	var result []*objects.User
-	memory.Lock()
 	for _, user := range memory.users {
 		if user.Username != username {
 			result = append(result, user)
 		}
 	}
-	memory.Unlock()
 	return result, nil
 }
 
 func NewInMemoryDB() data.Database {
 	result := &Memory{
-		Mutex:  new(sync.Mutex),
-		users:  map[string]*objects.User{},
-		nextId: 2,
+		usersMutex:                        new(sync.Mutex),
+		captureInterfacePermissionsMutex:  new(sync.Mutex),
+		arpScanInterfacePermissionsMutex:  new(sync.Mutex),
+		arpSpoofInterfacePermissionsMutex: new(sync.Mutex),
+		users:                             map[string]*objects.User{},
+		captureInterfacePermissions:       map[uint]*objects.CapturePermission{},
+		arpScanInterfacePermissions:       map[uint]*objects.ARPScanPermission{},
+		arpSpoofInterfacePermissions:      map[uint]*objects.ARPSpoofPermission{},
+		nextId:                            2,
 	}
 	result.users["admin"] = &objects.User{
 		Id:                     1,

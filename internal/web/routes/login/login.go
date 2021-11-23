@@ -15,8 +15,8 @@ func loginForm(mw *middleware.Middleware, context *middleware.Context) bool {
 }
 
 func loginUser(mw *middleware.Middleware, context *middleware.Context) bool {
-	username := context.Request.PostFormValue("username")
-	password := context.Request.PostFormValue("password")
+	username := context.Request.PostFormValue(symbols.Username)
+	password := context.Request.PostFormValue(symbols.Password)
 	if username == "" || password == "" {
 		context.Redirect = symbols.Login
 		return false
