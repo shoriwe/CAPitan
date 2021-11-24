@@ -93,6 +93,7 @@
 
 /* Links inside the dropdown */
 .dropdown-content a {
+    cursor: pointer;
     font-family: Arial, serif;
     color: black;
     padding: 12px 16px;

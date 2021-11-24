@@ -19,7 +19,145 @@ type Memory struct {
 	arpScanInterfacePermissions       map[uint]*objects.ARPScanPermission
 	arpSpoofInterfacePermissionsMutex *sync.Mutex
 	arpSpoofInterfacePermissions      map[uint]*objects.ARPSpoofPermission
-	nextId                            uint
+	nextUserId                        uint
+	nextCapturePermissionId           uint
+	nextARPScanPermissionId           uint
+	nextARPSpoofPermissionId          uint
+}
+
+func (memory *Memory) DeleteCaptureInterfacePrivilege(username string, i string) (bool, error) {
+	memory.usersMutex.Lock()
+	user, found := memory.users[username]
+	memory.usersMutex.Unlock()
+	if !found {
+		return false, nil
+	}
+	memory.captureInterfacePermissionsMutex.Lock()
+	defer memory.captureInterfacePermissionsMutex.Unlock()
+	for id, capturePermission := range memory.captureInterfacePermissions {
+		if capturePermission.UsersId == user.Id && capturePermission.Interface == i {
+			delete(memory.captureInterfacePermissions, id)
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (memory *Memory) DeleteARPScanInterfacePrivilege(username string, i string) (bool, error) {
+	memory.usersMutex.Lock()
+	user, found := memory.users[username]
+	memory.usersMutex.Unlock()
+	if !found {
+		return false, nil
+	}
+	memory.arpScanInterfacePermissionsMutex.Lock()
+	defer memory.arpScanInterfacePermissionsMutex.Unlock()
+	for id, arpScanPermission := range memory.arpScanInterfacePermissions {
+		if arpScanPermission.UsersId == user.Id && arpScanPermission.Interface == i {
+			delete(memory.arpScanInterfacePermissions, id)
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (memory *Memory) DeleteARPSpoofInterfacePrivilege(username string, i string) (bool, error) {
+	memory.usersMutex.Lock()
+	user, found := memory.users[username]
+	memory.usersMutex.Unlock()
+	if !found {
+		return false, nil
+	}
+	memory.arpSpoofInterfacePermissionsMutex.Lock()
+	defer memory.arpSpoofInterfacePermissionsMutex.Unlock()
+	for id, arpSpoofPermission := range memory.arpSpoofInterfacePermissions {
+		if arpSpoofPermission.UsersId == user.Id && arpSpoofPermission.Interface == i {
+			delete(memory.arpSpoofInterfacePermissions, id)
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (memory *Memory) AddCaptureInterfacePrivilege(username string, i string) (bool, error) {
+	memory.usersMutex.Lock()
+	user, found := memory.users[username]
+	memory.usersMutex.Unlock()
+	if !found {
+		return false, nil
+	}
+	memory.captureInterfacePermissionsMutex.Lock()
+	defer memory.captureInterfacePermissionsMutex.Unlock()
+	for _, capturePermission := range memory.captureInterfacePermissions {
+		if capturePermission.UsersId == user.Id && capturePermission.Interface == i {
+			return false, nil
+		}
+	}
+	memory.captureInterfacePermissions[memory.nextCapturePermissionId] = &objects.CapturePermission{
+		Id:        memory.nextCapturePermissionId,
+		UsersId:   user.Id,
+		Interface: i,
+	}
+	memory.nextCapturePermissionId++
+	return false, nil
+}
+
+func (memory *Memory) AddARPScanInterfacePrivilege(username string, i string) (bool, error) {
+	memory.usersMutex.Lock()
+	user, found := memory.users[username]
+	memory.usersMutex.Unlock()
+	if !found {
+		return false, nil
+	}
+	memory.arpScanInterfacePermissionsMutex.Lock()
+	defer memory.arpScanInterfacePermissionsMutex.Unlock()
+	for _, arpScanPermission := range memory.arpScanInterfacePermissions {
+		if arpScanPermission.UsersId == user.Id && arpScanPermission.Interface == i {
+			return false, nil
+		}
+	}
+	memory.arpScanInterfacePermissions[memory.nextARPScanPermissionId] = &objects.ARPScanPermission{
+		Id:        memory.nextARPScanPermissionId,
+		UsersId:   user.Id,
+		Interface: i,
+	}
+	memory.nextARPScanPermissionId++
+	return false, nil
+}
+
+func (memory *Memory) AddARPSpoofInterfacePrivilege(username string, i string) (bool, error) {
+	memory.usersMutex.Lock()
+	user, found := memory.users[username]
+	memory.usersMutex.Unlock()
+	if !found {
+		return false, nil
+	}
+	memory.arpSpoofInterfacePermissionsMutex.Lock()
+	defer memory.arpSpoofInterfacePermissionsMutex.Unlock()
+	for _, arpSpoofPermission := range memory.arpSpoofInterfacePermissions {
+		if arpSpoofPermission.UsersId == user.Id && arpSpoofPermission.Interface == i {
+			return false, nil
+		}
+	}
+	memory.arpSpoofInterfacePermissions[memory.nextARPSpoofPermissionId] = &objects.ARPSpoofPermission{
+		Id:        memory.nextARPSpoofPermissionId,
+		UsersId:   user.Id,
+		Interface: i,
+	}
+	memory.nextARPSpoofPermissionId++
+	return false, nil
+}
+
+func (memory *Memory) UpdateUserStatus(username string, isAdmin, isEnabled bool) (succeed bool, updateError error) {
+	memory.usersMutex.Lock()
+	defer memory.usersMutex.Unlock()
+	_, found := memory.users[username]
+	if !found {
+		return false, nil
+	}
+	memory.users[username].IsAdmin = isAdmin
+	memory.users[username].IsEnabled = isEnabled
+	return true, nil
 }
 
 func (memory *Memory) GetUserInterfacePermissions(username string) (succeed bool, user *objects.User, captureInterfaces map[string]struct{}, arpScanInterfaces map[string]struct{}, arpSpoofInterfaces map[string]struct{}, err error) {
@@ -87,7 +225,7 @@ func (memory *Memory) CreateUser(username string) (bool, error) {
 		return false, hashingError
 	}
 	memory.users[username] = &objects.User{
-		Id:                     memory.nextId,
+		Id:                     memory.nextUserId,
 		Username:               username,
 		PasswordHash:           string(passwordHash),
 		SecurityQuestion:       hex.EncodeToString(rawSecurityQuestion),
@@ -96,7 +234,7 @@ func (memory *Memory) CreateUser(username string) (bool, error) {
 		IsEnabled:              false,
 		PasswordExpirationDate: time.Time{},
 	}
-	memory.nextId++
+	memory.nextUserId++
 	return true, nil
 }
 
@@ -191,7 +329,10 @@ func NewInMemoryDB() data.Database {
 		captureInterfacePermissions:       map[uint]*objects.CapturePermission{},
 		arpScanInterfacePermissions:       map[uint]*objects.ARPScanPermission{},
 		arpSpoofInterfacePermissions:      map[uint]*objects.ARPSpoofPermission{},
-		nextId:                            2,
+		nextUserId:                        2,
+		nextCapturePermissionId:           1,
+		nextARPScanPermissionId:           1,
+		nextARPSpoofPermissionId:          1,
 	}
 	result.users["admin"] = &objects.User{
 		Id:                     1,

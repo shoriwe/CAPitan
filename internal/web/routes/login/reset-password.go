@@ -5,6 +5,7 @@ import (
 	"github.com/shoriwe/CAPitan/internal/web/http405"
 	"github.com/shoriwe/CAPitan/internal/web/middleware"
 	"github.com/shoriwe/CAPitan/internal/web/symbols"
+	"github.com/shoriwe/CAPitan/internal/web/symbols/actions"
 	"html/template"
 	"net/http"
 	"time"
@@ -92,10 +93,10 @@ func resetPasswordAnswerQuestion(mw *middleware.Middleware, context *middleware.
 }
 
 func resetPasswordPost(mw *middleware.Middleware, context *middleware.Context) bool {
-	switch context.Request.URL.Query().Get(symbols.Action) {
-	case symbols.GetQuestion:
+	switch context.Request.URL.Query().Get(actions.Action) {
+	case actions.GetQuestion:
 		return resetPasswordGetQuestion(mw, context)
-	case symbols.AnswerQuestion:
+	case actions.AnswerQuestion:
 		return resetPasswordAnswerQuestion(mw, context)
 	}
 	context.Redirect = symbols.Login

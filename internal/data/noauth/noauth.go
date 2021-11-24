@@ -20,6 +20,10 @@ var admin = &objects.User{
 type NoAuth struct {
 }
 
+func (noAuth *NoAuth) UpdateUserStatus(username string, isAdmin, isEnabled bool) (succeed bool, updateError error) {
+	return true, nil
+}
+
 func (noAuth *NoAuth) GetUserInterfacePermissions(username string) (succeed bool, user *objects.User, captureInterfaces map[string]struct{}, arpScanInterfaces map[string]struct{}, arpSpoofInterfaces map[string]struct{}, err error) {
 	user = &objects.User{
 		Id:                     1,
@@ -32,8 +36,8 @@ func (noAuth *NoAuth) GetUserInterfacePermissions(username string) (succeed bool
 		PasswordExpirationDate: time.Now().Add(30 * time.Minute),
 	}
 	captureInterfaces = map[string]struct{}{"eth0": {}}
-	arpScanInterfaces = map[string]struct{}{"eth0": {}}
-	arpSpoofInterfaces = map[string]struct{}{"eth0": {}}
+	arpScanInterfaces = map[string]struct{}{"eth0": {}, "eth1": {}}
+	arpSpoofInterfaces = map[string]struct{}{"eth2": {}}
 	return true, user, captureInterfaces, arpScanInterfaces, arpSpoofInterfaces, nil
 }
 

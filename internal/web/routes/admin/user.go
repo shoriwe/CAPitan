@@ -7,12 +7,14 @@ import (
 	"github.com/shoriwe/CAPitan/internal/web/base"
 	"github.com/shoriwe/CAPitan/internal/web/middleware"
 	"github.com/shoriwe/CAPitan/internal/web/symbols"
+	"github.com/shoriwe/CAPitan/internal/web/symbols/actions"
 	"html/template"
 	"io"
 	"net/http"
 )
 
 func listUsers(mw *middleware.Middleware, context *middleware.Context) bool {
+	// TODO: Unit test this
 	t, _ := mw.Templates.ReadFile("templates/admin/users.html")
 	users, succeed := mw.AdminListUsers(context.Request, context.User.Username)
 	if !succeed {
@@ -74,6 +76,7 @@ func testUser(mw *middleware.Middleware, context *middleware.Context) bool {
 }
 
 func editUser(mw *middleware.Middleware, context *middleware.Context) bool {
+	// TODO: Unit test this
 	username := context.Request.PostFormValue(symbols.Username)
 	if username == context.User.Username {
 		context.Redirect = symbols.AdminEditUsers
@@ -86,7 +89,7 @@ func editUser(mw *middleware.Middleware, context *middleware.Context) bool {
 	}
 	var data struct {
 		*objects.User
-		CapturedInterfaces      map[string]struct{}
+		CaptureInterfaces       map[string]struct{}
 		CaptureUnsetInterfaces  []string
 		ARPScanInterfaces       map[string]struct{}
 		ARPScanUnsetInterfaces  []string
@@ -95,8 +98,9 @@ func editUser(mw *middleware.Middleware, context *middleware.Context) bool {
 	}
 
 	data.User = user
-	data.CapturedInterfaces = captureInterfaces
+	data.CaptureInterfaces = captureInterfaces
 	data.ARPScanInterfaces = arpScanInterfaces
+	data.ARPSpoofInterfaces = arpSpoofInterfaces
 
 	connectedInterfaces := mw.ListNetInterfaces(context.Request)
 	if connectedInterfaces == nil {
@@ -122,25 +126,104 @@ func editUser(mw *middleware.Middleware, context *middleware.Context) bool {
 	return false
 }
 
+func updatePassword(mw *middleware.Middleware, context *middleware.Context) bool {
+	// TODO: Unit test this
+	username := context.Request.PostFormValue(symbols.Username)
+	password := context.Request.PostFormValue(symbols.Password)
+	mw.AdminUpdatePassword(context.Request, username, password)
+	context.Redirect = symbols.AdminPanel
+	return false
+}
+
+func updateStatus(mw *middleware.Middleware, context *middleware.Context) bool {
+	// TODO: Unit test this
+	username := context.Request.PostFormValue(symbols.Username)
+	isAdmin := context.Request.PostFormValue(symbols.IsAdmin) == "on"
+	isEnabled := context.Request.PostFormValue(symbols.IsEnabled) == "on"
+	mw.AdminUpdateStatus(context.Request, username, isAdmin, isEnabled)
+	context.Redirect = symbols.AdminPanel
+	return false
+}
+
+func deleteARPSpoofInterface(mw *middleware.Middleware, context *middleware.Context) bool {
+	// TODO: Unit test this
+	username := context.Request.PostFormValue(symbols.Username)
+	i := context.Request.PostFormValue(symbols.Interface)
+	mw.AdminDeleteARPSpoofInterfacePrivilege(context.Request, username, i)
+	context.Redirect = symbols.AdminPanel
+	return false
+}
+
+func addARPSpoofInterface(mw *middleware.Middleware, context *middleware.Context) bool {
+	// TODO: Unit test this
+	username := context.Request.PostFormValue(symbols.Username)
+	i := context.Request.PostFormValue(symbols.Interface)
+	mw.AdminAddARPSpoofInterfacePrivilege(context.Request, username, i)
+	context.Redirect = symbols.AdminPanel
+	return false
+}
+
+func deleteARPScanInterface(mw *middleware.Middleware, context *middleware.Context) bool {
+	// TODO: Unit test this
+	username := context.Request.PostFormValue(symbols.Username)
+	i := context.Request.PostFormValue(symbols.Interface)
+	mw.AdminDeleteARPScanInterfacePrivilege(context.Request, username, i)
+	context.Redirect = symbols.AdminPanel
+	return false
+}
+
+func addARPScanInterface(mw *middleware.Middleware, context *middleware.Context) bool {
+	// TODO: Unit test this
+	username := context.Request.PostFormValue(symbols.Username)
+	i := context.Request.PostFormValue(symbols.Interface)
+	mw.AdminAddARPScanInterfacePrivilege(context.Request, username, i)
+	context.Redirect = symbols.AdminPanel
+	return false
+}
+
+func deleteCaptureInterface(mw *middleware.Middleware, context *middleware.Context) bool {
+	// TODO: Unit test this
+	username := context.Request.PostFormValue(symbols.Username)
+	i := context.Request.PostFormValue(symbols.Interface)
+	mw.AdminDeleteCaptureInterfacePrivilege(context.Request, username, i)
+	context.Redirect = symbols.AdminPanel
+	return false
+}
+
+func addCaptureInterface(mw *middleware.Middleware, context *middleware.Context) bool {
+	// TODO: Unit test this
+	username := context.Request.PostFormValue(symbols.Username)
+	i := context.Request.PostFormValue(symbols.Interface)
+	mw.AdminAddCaptureInterfacePrivilege(context.Request, username, i)
+	context.Redirect = symbols.AdminPanel
+	return false
+}
+
 func EditUsers(mw *middleware.Middleware, context *middleware.Context) bool {
 	if context.Request.Method == http.MethodPost {
-		switch context.Request.URL.Query().Get(symbols.Action) {
-		case symbols.TestUser:
+		switch context.Request.URL.Query().Get(actions.Action) {
+		case actions.TestUser:
 			return testUser(mw, context)
-		case symbols.EditUser:
+		case actions.EditUser:
 			return editUser(mw, context)
-		case symbols.NewUser:
+		case actions.NewUser:
 			return newUser(mw, context)
-		case symbols.AddPacketInterfaceToUser:
-			break
-		case symbols.DeletePacketInterfaceToUser:
-			break
-		case symbols.AddARPInterfaceToUser:
-			break
-		case symbols.DeleteARPInterfaceToUser:
-			break
-		case symbols.UpdateUser:
-			break
+		case actions.UpdatePassword:
+			return updatePassword(mw, context)
+		case actions.UpdateStatus:
+			return updateStatus(mw, context)
+		case actions.AddCaptureInterface:
+			return addCaptureInterface(mw, context)
+		case actions.DeleteCaptureInterface:
+			return deleteCaptureInterface(mw, context)
+		case actions.AddARPScanInterface:
+			return addARPScanInterface(mw, context)
+		case actions.DeleteARPScanInterface:
+			return deleteARPScanInterface(mw, context)
+		case actions.AddARPSpoofInterface:
+			return addARPSpoofInterface(mw, context)
+		case actions.DeleteARPSpoofInterface:
+			return deleteARPSpoofInterface(mw, context)
 		}
 	}
 	return listUsers(mw, context)

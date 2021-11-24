@@ -10,4 +10,7 @@ const (
 	Confirmation = "confirmation"
 	Question     = "question"
 	Answer       = "answer"
+	IsAdmin      = "is-admin"
+	IsEnabled    = "is-enabled"
+	Interface    = "interface"
 )
