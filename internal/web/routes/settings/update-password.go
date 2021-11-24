@@ -21,9 +21,9 @@ func updatePasswordError(mw *middleware.Middleware, context *middleware.Context)
 }
 
 func updatePasswordPost(mw *middleware.Middleware, context *middleware.Context) bool {
-	old := context.Request.PostFormValue("old")
-	newPassword := context.Request.PostFormValue("new")
-	confirmation := context.Request.PostFormValue("confirmation")
+	old := context.Request.PostFormValue(symbols.Old)
+	newPassword := context.Request.PostFormValue(symbols.New)
+	confirmation := context.Request.PostFormValue(symbols.Confirmation)
 	if old == "" || newPassword == "" || confirmation == "" {
 		context.Redirect = symbols.UpdatePassword
 		return false

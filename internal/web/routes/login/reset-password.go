@@ -5,6 +5,7 @@ import (
 	"github.com/shoriwe/CAPitan/internal/web/http405"
 	"github.com/shoriwe/CAPitan/internal/web/middleware"
 	"github.com/shoriwe/CAPitan/internal/web/symbols"
+	"github.com/shoriwe/CAPitan/internal/web/symbols/actions"
 	"html/template"
 	"net/http"
 	"time"
@@ -22,14 +23,14 @@ func resetPasswordGetQuestion(mw *middleware.Middleware, context *middleware.Con
 		context.Redirect = symbols.Login
 		return false
 	}
-	username := context.Request.PostFormValue("username")
-	user, err := mw.GetUserByUsername(username)
+	username := context.Request.PostFormValue(symbols.Username)
+	found, user, err := mw.GetUserByUsername(username)
 	if err != nil {
 		go mw.LogError(context.Request, err)
 		context.Redirect = symbols.Login
 		return false
-	} else if user == nil {
-		go mw.LogUserNotFound(context.Request, context.Request.PostFormValue("username"))
+	} else if !found {
+		go mw.LogUserNotFound(context.Request, context.Request.PostFormValue(symbols.Username))
 		context.Redirect = symbols.Login
 		return false
 	}
@@ -60,12 +61,12 @@ func resetPasswordGetQuestion(mw *middleware.Middleware, context *middleware.Con
 }
 
 func resetPasswordAnswerQuestion(mw *middleware.Middleware, context *middleware.Context) bool {
-	username := mw.ResetSessions.GetSession(context.Request.PostFormValue("key"))
+	username := mw.ResetSessions.GetSession(context.Request.PostFormValue(symbols.Key))
 	if username == "" {
 		context.Redirect = symbols.Login
 		return false
 	}
-	mw.ResetSessions.Remove(context.Request.PostFormValue("key"))
+	mw.ResetSessions.Remove(context.Request.PostFormValue(symbols.Key))
 
 	_, freshUserSucceed := mw.LoginWithSecurityQuestion(context.Request, username, context.Request.PostFormValue("answer"))
 	if !freshUserSucceed {
@@ -77,7 +78,6 @@ func resetPasswordAnswerQuestion(mw *middleware.Middleware, context *middleware.
 		context.Redirect = symbols.Login
 		return false
 	}
-	// TODO: Render the login page with the new password embed
 	contents, _ := mw.Templates.ReadFile("templates/login/login-on-reset.html")
 	var body bytes.Buffer
 	_ = template.Must(template.New("login-reset").Parse(string(contents))).Execute(
@@ -93,10 +93,10 @@ func resetPasswordAnswerQuestion(mw *middleware.Middleware, context *middleware.
 }
 
 func resetPasswordPost(mw *middleware.Middleware, context *middleware.Context) bool {
-	switch context.Request.URL.Query().Get("action") {
-	case "get-question":
+	switch context.Request.URL.Query().Get(actions.Action) {
+	case actions.GetQuestion:
 		return resetPasswordGetQuestion(mw, context)
-	case "answer-question":
+	case actions.AnswerQuestion:
 		return resetPasswordAnswerQuestion(mw, context)
 	}
 	context.Redirect = symbols.Login

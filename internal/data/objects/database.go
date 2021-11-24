@@ -13,4 +13,19 @@ type (
 		IsEnabled              bool
 		PasswordExpirationDate time.Time
 	}
+	ARPSpoofPermission struct {
+		Id        uint
+		UsersId   uint
+		Interface string
+	}
+	ARPScanPermission struct {
+		Id        uint
+		UsersId   uint
+		Interface string
+	}
+	CapturePermission struct {
+		Id        uint
+		UsersId   uint
+		Interface string
+	}
 )

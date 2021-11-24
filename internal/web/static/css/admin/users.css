@@ -1,0 +1,103 @@
+.admin-panel {
+    margin-top: 1%;
+}
+
+.username-input {
+    font-family: Arial, serif;
+    font-size: large;
+    padding: 3%;
+    border: 0 solid gray;
+    border-radius: 2px;
+}
+
+.username-input:hover {
+    background: #f1f2f6;
+}
+
+.new-user-dialog {
+    position: absolute;
+    width: 25%;
+    z-index: 10;
+    padding: 1%;
+
+    box-shadow: 1px 1px 1px 1px gray;
+    border: 1px solid gray;
+    background: white;
+
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+}
+
+.new-button-container {
+    display: flex;
+    justify-content: right;
+}
+
+.list-container {
+    box-shadow: 1px 1px 1px 1px gray;
+    border: 1px solid gray;
+    padding: 1%;
+
+    margin-top: 1%;
+}
+
+.list-entry {
+    max-width: 50%;
+    margin: 0.25% auto;
+    padding: 1%;
+    box-shadow: 1px 1px 2px 1px gray;
+    border: 0 solid gray;
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+}
+
+.list-entry:hover {
+    background: #f5f6fa;
+}
+
+.button {
+    font-family: Arial, serif;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 1vh 1vw;
+    background: #2ecc71;
+    color: white;
+    box-shadow: 1px 1px 1px 1px #27ae60;
+    border: 1px solid #27ae60;
+    border-radius: 2px;
+    margin-left: 1%;
+    margin-right: 1%;
+}
+
+.button:hover {
+    background: #27ae60;
+}
+
+.cancel-button {
+    font-family: Arial, serif;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 1vh 1vw;
+    background: #ff3838;
+    color: white;
+    box-shadow: 1px 1px 1px 1px #e74c3c;
+    border: 1px solid #e74c3c;
+    border-radius: 2px;
+    margin-left: 1%;
+    margin-right: 1%;
+}
+
+.cancel-button:hover {
+    background: #e74c3c;
+}
+
+
+.description {
+    padding: 1vh 1vw;
+    font-family: Arial, serif;
+}

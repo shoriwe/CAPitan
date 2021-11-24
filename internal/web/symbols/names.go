@@ -1,14 +1,16 @@
 package symbols
 
 const (
-	CookieName             = "capitan"
-	Root                   = "/"
-	Static                 = "/static/"
-	Login                  = "/login"
-	Logout                 = "/logout"
-	ResetPassword          = "/reset"
-	Dashboard              = "/dashboard"
-	Settings               = "/settings"
-	UpdatePassword         = "/settings/update/password"
-	UpdateSecurityQuestion = "/settings/update/security/question"
+	CookieName   = "capitan"
+	Username     = "username"
+	Password     = "password"
+	Old          = "old"
+	New          = "new"
+	Key          = "key"
+	Confirmation = "confirmation"
+	Question     = "question"
+	Answer       = "answer"
+	IsAdmin      = "is-admin"
+	IsEnabled    = "is-enabled"
+	Interface    = "interface"
 )

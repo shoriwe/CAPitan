@@ -8,8 +8,8 @@
             <a class="navigation-button" href="/admin">Admin</a>
         </div>
         <div class="dropdown">
-            <button class="dropbtn" onclick="myFunction()">{{.Username}}</button>
-            <div class="dropdown-content" id="myDropdown">
+            <button class="dropbtn" id="nav-bar" onclick="showMenu(this.id)">{{.Username}}</button>
+            <div class="dropdown-content" id="dropDownMenu-nav-bar">
                 <a href="/settings">Settings</a>
                 <a href="/logout">Logout</a>
             </div>

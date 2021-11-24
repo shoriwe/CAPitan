@@ -1,0 +1,346 @@
+<link href="/static/css/nav-bar.css" rel="stylesheet" type="text/css">
+<div style="display: none;">
+    <form action="/admin/user?action=edit-user" id="reload-submit" method="post">
+        <label for="resubmit-username" style="display: none;">{{.Username}}</label>
+        <input class="description" id="resubmit-username" name="username" readonly style="display: none;"
+               type="text"
+               value="{{.Username}}">
+        <button class="button" type="submit">Edit</button>
+    </form>
+</div>
+<link href="/static/css/admin/user-edit.css" rel="stylesheet" type="text/css">
+<div class="master-container">
+    <h2 class="username">{{.Username}}</h2>
+    <div class="container">
+        <h3 class="container-title">Password</h3>
+        <form onsubmit="return false;">
+            <label for="password"></label>
+            <input class="text-input" id="password" placeholder="Password" type="password">
+            <button class="button" onclick="submitUpdatePassword()" onsubmit="submitUpdatePassword()" type="submit">
+                Update
+            </button>
+        </form>
+    </div>
+    <div class="container">
+        <h3 class="container-title">User status</h3>
+        <form onsubmit="return false;">
+            <label for="is-admin"></label>
+            {{if .IsAdmin}}
+            <input checked id="is-admin" name="is-admin" readonly style="display: none;" type="checkbox">
+            {{else}}
+            <input id="is-admin" name="is-admin" readonly style="display: none;" type="checkbox">
+            {{end}}
+            <label for="enabled-disabled"></label>
+            {{if .IsEnabled}}
+            <input checked id="enabled-disabled" name="is-enabled" readonly style="display: none;" type="checkbox">
+            {{else}}
+            <input id="enabled-disabled" name="is-enabled" readonly style="display: none;" type="checkbox">
+            {{end}}
+            <button class="unchecked-checkbox" id="is-admin-checkbox" onclick="toggleIsAdmin()" type="button">User
+            </button>
+            <button class="unchecked-checkbox" id="enabled-disabled-checkbox" onclick="toggleEnabledDisabled()"
+                    type="button">Disabled
+            </button>
+            <button class="button" onclick="submitUpdateStatus()" onsubmit="submitUpdateStatus()" type="submit">Update
+            </button>
+        </form>
+    </div>
+    <div class="container">
+        <div class="sub-container">
+            <h3 class="container-title">Capture permissions</h3>
+            <span style="width: 1%;"></span>
+            <div class="dropdown">
+                <button class="dropbtn" id="capture" onclick="showMenu(this.id)">Add</button>
+                <div class="dropdown-content" id="dropDownMenu-capture">
+                    {{range $interface := .CaptureUnsetInterfaces}}
+                    <form onsubmit="return false;">
+                        <a id="capture-interface-{{$interface}}" onclick="addCaptureInterface(this.id)"
+                           onsubmit="addCaptureInterface(this.id)"
+                           type="submit">{{$interface}}</a>
+                    </form>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{range $interface, $nothing := .CaptureInterfaces}}
+        <div class="interface-container">
+            <h3 class="interface-name">{{$interface}}</h3>
+            <span style="width: 1%;"></span>
+            <form onsubmit="return false;">
+                <button class="delete-button" id="capture-interface-to-delete-{{$interface}}"
+                        onclick="deleteCaptureInterface(this.id)" onsubmit="deleteCaptureInterface(this.id)"
+                        type="submit">Delete
+                </button>
+            </form>
+        </div>
+        {{end}}
+    </div>
+    <div class="container">
+        <div class="sub-container">
+            <h3 class="container-title">ARP Scan permissions</h3>
+            <span style="width: 1%;"></span>
+            <div class="dropdown">
+                <button class="dropbtn" id="arp-scan" onclick="showMenu(this.id)">Add</button>
+                <div class="dropdown-content" id="dropDownMenu-arp-scan">
+                    {{range $interface := .ARPScanUnsetInterfaces}}
+                    <form onsubmit="return false;">
+                        <a id="arp-scan-interface-{{$interface}}" onclick="addARPScanInterface(this.id)"
+                           onsubmit="addARPScanInterface(this.id)"
+                           type="submit">{{$interface}}</a>
+                    </form>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{range $interface, $nothing := .ARPScanInterfaces}}
+        <div class="interface-container">
+            <h3 class="interface-name">{{$interface}}</h3>
+            <span style="width: 1%;"></span>
+            <form onsubmit="return false;">
+                <button class="delete-button" id="arp-scan-interface-to-delete-{{$interface}}"
+                        onclick="deleteARPScanInterface(this.id)" onsubmit="deleteARPScanInterface()"
+                        type="submit">
+                    Delete
+                </button>
+            </form>
+        </div>
+        {{end}}
+    </div>
+    <div class="container">
+        <div class="sub-container">
+            <h3 class="container-title">ARP Spoof permissions</h3>
+            <span style="width: 1%;"></span>
+            <div class="dropdown">
+                <button class="dropbtn" id="arp-spoof" onclick="showMenu(this.id)">Add</button>
+                <div class="dropdown-content" id="dropDownMenu-arp-spoof">
+                    {{range $interface := .ARPSpoofUnsetInterfaces}}
+                    <form onsubmit="return false;">
+                        <a id="arp-spoof-interface-{{$interface}}" onclick="addARPSpoofInterface(this.id)"
+                           onsubmit="addARPSpoofInterface(this.id)"
+                           type="submit">{{$interface}}</a>
+                    </form>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{range $interface, $nothing := .ARPSpoofInterfaces}}
+        <div class="interface-container">
+            <h3 class="interface-name">{{$interface}}</h3>
+            <span style="width: 1%;"></span>
+            <form onsubmit="return false;">
+                <button class="delete-button" id="arp-spoof-interface-to-delete-{{$interface}}"
+                        onclick="deleteARPSpoofInterface(this.id)" onsubmit="deleteARPSpoofInterface()"
+                        type="submit">
+                    Delete
+                </button>
+            </form>
+        </div>
+        {{end}}
+    </div>
+</div>
+<script>
+    const isAdmin = document.getElementById("is-admin");
+    const enabledDisabled = document.getElementById("enabled-disabled");
+    if (isAdmin.checked) {
+        const isAdminCheckbox = document.getElementById("is-admin-checkbox");
+        isAdminCheckbox.classList.remove("unchecked-checkbox");
+        isAdminCheckbox.classList.add("checked-checkbox");
+        isAdminCheckbox.textContent = "Admin";
+    }
+
+    if (enabledDisabled.checked) {
+        const enabledDisabledCheckbox = document.getElementById("enabled-disabled-checkbox");
+        enabledDisabledCheckbox.classList.remove("unchecked-checkbox");
+        enabledDisabledCheckbox.classList.add("checked-checkbox");
+        enabledDisabledCheckbox.textContent = "Enabled";
+    }
+
+    function toggleIsAdmin() {
+        const isAdmin = document.getElementById("is-admin");
+        isAdmin.checked = !isAdmin.checked;
+        const isAdminCheckbox = document.getElementById("is-admin-checkbox");
+        if (isAdmin.checked) {
+            isAdminCheckbox.classList.remove("unchecked-checkbox");
+            isAdminCheckbox.classList.add("checked-checkbox");
+            isAdminCheckbox.textContent = "Admin";
+        } else {
+            isAdminCheckbox.classList.add("unchecked-checkbox");
+            isAdminCheckbox.classList.remove("checked-checkbox");
+            isAdminCheckbox.textContent = "User";
+        }
+    }
+
+    function toggleEnabledDisabled() {
+        const enabledDisabled = document.getElementById("enabled-disabled");
+        enabledDisabled.checked = !enabledDisabled.checked;
+        const enabledDisabledCheckbox = document.getElementById("enabled-disabled-checkbox");
+        if (enabledDisabled.checked) {
+            enabledDisabledCheckbox.classList.remove("unchecked-checkbox");
+            enabledDisabledCheckbox.classList.add("checked-checkbox");
+            enabledDisabledCheckbox.textContent = "Enabled";
+        } else {
+            enabledDisabledCheckbox.classList.remove("checked-checkbox");
+            enabledDisabledCheckbox.classList.add("unchecked-checkbox");
+            enabledDisabledCheckbox.textContent = "Disabled";
+        }
+    }
+
+    function reloadPage() {
+        const reload = document.getElementById("reload-submit");
+        reload.submit();
+        return false;
+    }
+
+    function submitUpdatePassword() {
+        const username = document.getElementById("resubmit-username").value;
+        const password = document.getElementById("password").value;
+        document.getElementById("password").value = "";
+        const formBody = [];
+        formBody.push("username=" + encodeURIComponent(username));
+        formBody.push("password=" + encodeURIComponent(password));
+        fetch(
+            "/admin/user?action=update-password",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formBody.join("&")
+            }
+        );
+    }
+
+    function submitUpdateStatus() {
+        const username = document.getElementById("resubmit-username").value;
+        const isAdmin = document.getElementById("is-admin").checked ? "on" : "";
+        const isEnabled = document.getElementById("enabled-disabled").checked ? "on" : "";
+        const formBody = [];
+        formBody.push("username=" + encodeURIComponent(username));
+        formBody.push("is-admin=" + encodeURIComponent(isAdmin));
+        formBody.push("is-enabled=" + encodeURIComponent(isEnabled));
+        fetch(
+            "/admin/user?action=update-status",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formBody.join("&")
+            }
+        );
+    }
+
+    function addCaptureInterface(id) {
+        const i = document.getElementById(id).textContent;
+        const username = document.getElementById("resubmit-username").value;
+        const formBody = [];
+        formBody.push("username=" + encodeURIComponent(username));
+        formBody.push("interface=" + encodeURIComponent(i));
+        fetch(
+            "/admin/user?action=add-capture-interface",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formBody.join("&")
+            }
+        );
+        reloadPage();
+    }
+
+    function deleteCaptureInterface(id) {
+        const username = document.getElementById("resubmit-username").value;
+        const formBody = [];
+        const i = id.replace("capture-interface-to-delete-", "");
+        formBody.push("username=" + encodeURIComponent(username));
+        formBody.push("interface=" + encodeURIComponent(i));
+        fetch(
+            "/admin/user?action=delete-capture-interface",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formBody.join("&")
+            }
+        );
+        reloadPage();
+    }
+
+    function addARPScanInterface(id) {
+        const i = document.getElementById(id).textContent;
+        const username = document.getElementById("resubmit-username").value;
+        const formBody = [];
+        formBody.push("username=" + encodeURIComponent(username));
+        formBody.push("interface=" + encodeURIComponent(i));
+        fetch(
+            "/admin/user?action=add-arp-scan-interface",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formBody.join("&")
+            }
+        );
+        reloadPage();
+    }
+
+    function deleteARPScanInterface(id) {
+        const username = document.getElementById("resubmit-username").value;
+        const formBody = [];
+        const i = id.replace("arp-scan-interface-to-delete-", "");
+        formBody.push("username=" + encodeURIComponent(username));
+        formBody.push("interface=" + encodeURIComponent(i));
+        fetch(
+            "/admin/user?action=delete-arp-scan-interface",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formBody.join("&")
+            }
+        );
+        reloadPage();
+    }
+
+    function addARPSpoofInterface(id) {
+        const i = document.getElementById(id).textContent;
+        const username = document.getElementById("resubmit-username").value;
+        const formBody = [];
+        formBody.push("username=" + encodeURIComponent(username));
+        formBody.push("interface=" + encodeURIComponent(i));
+        fetch(
+            "/admin/user?action=add-arp-spoof-interface",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formBody.join("&")
+            }
+        );
+        reloadPage();
+    }
+
+    function deleteARPSpoofInterface(id) {
+        const username = document.getElementById("resubmit-username").value;
+        const formBody = [];
+        const i = id.replace("arp-spoof-interface-to-delete-", "");
+        formBody.push("username=" + encodeURIComponent(username));
+        formBody.push("interface=" + encodeURIComponent(i));
+        fetch(
+            "/admin/user?action=delete-arp-spoof-interface",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formBody.join("&")
+            }
+        );
+        reloadPage();
+    }
+</script>

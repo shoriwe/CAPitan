@@ -1,5 +1,10 @@
 {
-  "version": "0.8.0-alpha.2",
+  "version": "0.8.0-alpha.3",
+  "pan": {
+    "X": 278.2413,
+    "Y": 881.4553
+  },
+  "zoom": 0.28690510988235474,
   "root": {
     "pagecontenttype": "PageContentFolder",
     "name": "New Folder",
@@ -50,7 +55,51 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Ideas for the functionalities and deployment features the app should have",
+              "description": "Ideas for the functionalities and deployment features the app should have"
+            }
+          },
+          {
+            "id": 129,
+            "rect": {
+              "X": 2400,
+              "Y": -640,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Network captures",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 130,
+            "rect": {
+              "X": 2432,
+              "Y": -608,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Started",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 131,
+            "rect": {
+              "X": 2432,
+              "Y": -576,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Completed",
               "filepath": ""
             }
           },
@@ -85,6 +134,21 @@
                 "joints": []
               }
             ]
+          },
+          {
+            "id": 132,
+            "rect": {
+              "X": 2432,
+              "Y": -544,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "By who",
+              "filepath": ""
+            }
           },
           {
             "id": 98,
@@ -158,23 +222,8 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Errors",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 129,
-            "rect": {
-              "X": 2400,
-              "Y": -416,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Network captures",
               "filepath": ""
             }
           },
@@ -188,23 +237,8 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Login attempts",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 130,
-            "rect": {
-              "X": 2432,
-              "Y": -384,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Started",
               "filepath": ""
             }
           },
@@ -233,23 +267,8 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Succeded",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 131,
-            "rect": {
-              "X": 2432,
-              "Y": -352,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Completed",
               "filepath": ""
             }
           },
@@ -278,23 +297,8 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Failed",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 132,
-            "rect": {
-              "X": 2432,
-              "Y": -320,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "By who",
               "filepath": ""
             }
           },
@@ -326,11 +330,6 @@
               {
                 "start": 1,
                 "end": 5,
-                "joints": []
-              },
-              {
-                "start": 1,
-                "end": 22,
                 "joints": []
               },
               {
@@ -487,7 +486,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Account modification",
               "filepath": ""
             }
@@ -508,16 +507,17 @@
             }
           },
           {
-            "id": 172,
+            "id": 173,
             "rect": {
-              "X": 3520,
+              "X": 3488,
               "Y": -224,
-              "W": 256,
-              "H": 224
+              "W": 288,
+              "H": 64
             },
-            "contents": "Note",
+            "contents": "Checkbox",
             "properties": {
-              "description": "This one should be powered by mariadb and the network interfaces are configured for the container it self",
+              "checked": false,
+              "description": "Standalone executable",
               "filepath": ""
             }
           },
@@ -561,7 +561,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Password change",
               "filepath": ""
             }
@@ -576,9 +576,22 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Created user",
               "filepath": ""
+            }
+          },
+          {
+            "id": 172,
+            "rect": {
+              "X": 3488,
+              "Y": -160,
+              "W": 256,
+              "H": 224
+            },
+            "contents": "Note",
+            "properties": {
+              "description": "This one should be powered by mariadb and the network interfaces are configured for the container it self"
             }
           },
           {
@@ -621,7 +634,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "By reset",
               "filepath": ""
             }
@@ -636,7 +649,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Disabled user",
               "filepath": ""
             }
@@ -657,17 +670,17 @@
             }
           },
           {
-            "id": 117,
+            "id": 187,
             "rect": {
-              "X": 2048,
+              "X": 2080,
               "Y": -96,
               "W": 288,
               "H": 32
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "By update",
+              "checked": true,
+              "description": "Admin",
               "filepath": ""
             }
           },
@@ -681,7 +694,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Enabled user",
               "filepath": ""
             }
@@ -702,32 +715,32 @@
             }
           },
           {
-            "id": 115,
+            "id": 188,
             "rect": {
-              "X": 2016,
+              "X": 2080,
               "Y": -64,
               "W": 288,
               "H": 32
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Email change",
+              "checked": true,
+              "description": "By User",
               "filepath": ""
             }
           },
           {
-            "id": 137,
+            "id": 138,
             "rect": {
               "X": 2496,
               "Y": -64,
               "W": 288,
-              "H": 32
+              "H": 64
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Deleted user",
+              "checked": true,
+              "description": "Modified permissions",
               "filepath": ""
             }
           },
@@ -747,24 +760,24 @@
             }
           },
           {
-            "id": 138,
+            "id": 117,
             "rect": {
-              "X": 2496,
+              "X": 2048,
               "Y": -32,
               "W": 288,
-              "H": 64
+              "H": 32
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Modified permissions",
+              "checked": true,
+              "description": "By update",
               "filepath": ""
             }
           },
           {
-            "id": 173,
+            "id": 158,
             "rect": {
-              "X": 3488,
+              "X": 2496,
               "Y": 0,
               "W": 288,
               "H": 64
@@ -772,8 +785,21 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Standalone executable",
+              "description": "Active session manipulation",
               "filepath": ""
+            }
+          },
+          {
+            "id": 110,
+            "rect": {
+              "X": -192,
+              "Y": 32,
+              "W": 256,
+              "H": 96
+            },
+            "contents": "Note",
+            "properties": {
+              "description": "Shared with me captures are read only"
             }
           },
           {
@@ -807,32 +833,31 @@
             }
           },
           {
-            "id": 158,
+            "id": 159,
             "rect": {
-              "X": 2496,
-              "Y": 32,
+              "X": 2528,
+              "Y": 64,
               "W": 288,
-              "H": 64
+              "H": 32
             },
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Active session manipulation",
+              "description": "Killed captures",
               "filepath": ""
             }
           },
           {
             "id": 174,
             "rect": {
-              "X": 3520,
+              "X": 3488,
               "Y": 64,
               "W": 256,
               "H": 128
             },
             "contents": "Note",
             "properties": {
-              "description": "This one is powered a by a custom JSON database",
-              "filepath": ""
+              "description": "This one is powered a by a custom JSON database"
             }
           },
           {
@@ -866,7 +891,7 @@
             }
           },
           {
-            "id": 159,
+            "id": 160,
             "rect": {
               "X": 2528,
               "Y": 96,
@@ -876,9 +901,16 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Killed captures",
+              "description": "Killed ARP scans",
               "filepath": ""
-            }
+            },
+            "links": [
+              {
+                "start": 160,
+                "end": 159,
+                "joints": []
+              }
+            ]
           },
           {
             "id": 58,
@@ -920,7 +952,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Account edit",
               "filepath": ""
             }
@@ -956,31 +988,32 @@
             }
           },
           {
-            "id": 160,
+            "id": 149,
             "rect": {
-              "X": 2528,
+              "X": 2496,
               "Y": 128,
+              "W": 288,
+              "H": 64
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Old captures manipulation",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 117,
+            "rect": {
+              "X": -160,
+              "Y": 160,
               "W": 288,
               "H": 32
             },
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Killed ARP scans",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 110,
-            "rect": {
-              "X": -160,
-              "Y": 160,
-              "W": 256,
-              "H": 96
-            },
-            "contents": "Note",
-            "properties": {
-              "description": "Shared with me captures are read only",
+              "description": "Rename",
               "filepath": ""
             }
           },
@@ -1009,7 +1042,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Recover own password",
               "filepath": ""
             }
@@ -1045,17 +1078,17 @@
             }
           },
           {
-            "id": 149,
+            "id": 72,
             "rect": {
-              "X": 2496,
-              "Y": 160,
+              "X": -160,
+              "Y": 192,
               "W": 288,
-              "H": 64
+              "H": 32
             },
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Old captures manipulation",
+              "description": "Export to pcap",
               "filepath": ""
             }
           },
@@ -1090,6 +1123,21 @@
             }
           },
           {
+            "id": 151,
+            "rect": {
+              "X": 2528,
+              "Y": 192,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Rename",
+              "filepath": ""
+            }
+          },
+          {
             "id": 5,
             "rect": {
               "X": -1344,
@@ -1099,7 +1147,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "User manipulation",
               "filepath": ""
             }
@@ -1135,6 +1183,21 @@
             }
           },
           {
+            "id": 68,
+            "rect": {
+              "X": -160,
+              "Y": 224,
+              "W": 288,
+              "H": 64
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Captured packets filter",
+              "filepath": ""
+            }
+          },
+          {
             "id": 47,
             "rect": {
               "X": 256,
@@ -1159,7 +1222,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Update own password",
               "filepath": ""
             }
@@ -1195,7 +1258,7 @@
             }
           },
           {
-            "id": 151,
+            "id": 139,
             "rect": {
               "X": 2528,
               "Y": 224,
@@ -1205,7 +1268,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Rename",
+              "description": "Deleted",
               "filepath": ""
             }
           },
@@ -1219,23 +1282,8 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Create user",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 117,
-            "rect": {
-              "X": -160,
-              "Y": 256,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Rename",
               "filepath": ""
             }
           },
@@ -1285,7 +1333,7 @@
             }
           },
           {
-            "id": 139,
+            "id": 144,
             "rect": {
               "X": 2528,
               "Y": 256,
@@ -1295,12 +1343,12 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Deleted",
+              "description": "Opened",
               "filepath": ""
             }
           },
           {
-            "id": 4,
+            "id": 7,
             "rect": {
               "X": -1312,
               "Y": 288,
@@ -1309,8 +1357,8 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Delete user",
+              "checked": true,
+              "description": "Enable user",
               "filepath": ""
             }
           },
@@ -1345,7 +1393,7 @@
             }
           },
           {
-            "id": 72,
+            "id": 59,
             "rect": {
               "X": -160,
               "Y": 288,
@@ -1355,22 +1403,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Export to pcap",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 14,
-            "rect": {
-              "X": 672,
-              "Y": 288,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Update own email",
+              "description": "Delete",
               "filepath": ""
             }
           },
@@ -1405,7 +1438,7 @@
             }
           },
           {
-            "id": 144,
+            "id": 140,
             "rect": {
               "X": 2528,
               "Y": 288,
@@ -1415,12 +1448,12 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Opened",
+              "description": "Shared",
               "filepath": ""
             }
           },
           {
-            "id": 7,
+            "id": 6,
             "rect": {
               "X": -1312,
               "Y": 320,
@@ -1429,13 +1462,13 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Enable user",
+              "checked": true,
+              "description": "Disable user",
               "filepath": ""
             }
           },
           {
-            "id": 68,
+            "id": 60,
             "rect": {
               "X": -160,
               "Y": 320,
@@ -1445,7 +1478,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Captured packets filter",
+              "description": "Share with specific users",
               "filepath": ""
             }
           },
@@ -1465,7 +1498,7 @@
             }
           },
           {
-            "id": 140,
+            "id": 145,
             "rect": {
               "X": 2528,
               "Y": 320,
@@ -1475,12 +1508,12 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Shared",
+              "description": "unshared",
               "filepath": ""
             }
           },
           {
-            "id": 6,
+            "id": 8,
             "rect": {
               "X": -1312,
               "Y": 352,
@@ -1489,8 +1522,8 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Disable user",
+              "checked": true,
+              "description": "Edit permissions",
               "filepath": ""
             }
           },
@@ -1570,7 +1603,7 @@
             }
           },
           {
-            "id": 145,
+            "id": 146,
             "rect": {
               "X": 2528,
               "Y": 352,
@@ -1580,37 +1613,37 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "unshared",
+              "description": "By who",
               "filepath": ""
             }
           },
           {
-            "id": 8,
+            "id": 9,
             "rect": {
-              "X": -1312,
+              "X": -1280,
               "Y": 384,
               "W": 288,
               "H": 32
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Edit permissions",
+              "checked": true,
+              "description": "Grant permissions",
               "filepath": ""
             }
           },
           {
-            "id": 59,
+            "id": 71,
             "rect": {
               "X": -160,
               "Y": 384,
               "W": 288,
-              "H": 32
+              "H": 64
             },
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Delete",
+              "description": "Unshare with specific users",
               "filepath": ""
             }
           },
@@ -1630,21 +1663,22 @@
             }
           },
           {
-            "id": 127,
+            "id": 128,
             "rect": {
               "X": 1056,
               "Y": 384,
-              "W": 256,
-              "H": 96
+              "W": 288,
+              "H": 32
             },
-            "contents": "Note",
+            "contents": "Checkbox",
             "properties": {
-              "description": "Shared with me captures are read only",
+              "checked": false,
+              "description": "Rename",
               "filepath": ""
             }
           },
           {
-            "id": 146,
+            "id": 141,
             "rect": {
               "X": 2528,
               "Y": 384,
@@ -1654,12 +1688,12 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "By who",
+              "description": "Export",
               "filepath": ""
             }
           },
           {
-            "id": 9,
+            "id": 10,
             "rect": {
               "X": -1280,
               "Y": 416,
@@ -1668,8 +1702,8 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Grant permissions",
+              "checked": true,
+              "description": "Remove permissions",
               "filepath": ""
             }
           },
@@ -1704,21 +1738,6 @@
             }
           },
           {
-            "id": 60,
-            "rect": {
-              "X": -160,
-              "Y": 416,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Share with specific users",
-              "filepath": ""
-            }
-          },
-          {
             "id": 27,
             "rect": {
               "X": 288,
@@ -1749,24 +1768,39 @@
             }
           },
           {
-            "id": 141,
+            "id": 84,
             "rect": {
-              "X": 2528,
+              "X": 1056,
               "Y": 416,
               "W": 288,
-              "H": 32
+              "H": 64
             },
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Export",
+              "description": "Show IPs with MAC discovered",
               "filepath": ""
             }
           },
           {
-            "id": 10,
+            "id": 142,
             "rect": {
-              "X": -1280,
+              "X": 2496,
+              "Y": 416,
+              "W": 288,
+              "H": 64
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Old ARP scans manipulation",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 61,
+            "rect": {
+              "X": -160,
               "Y": 448,
               "W": 288,
               "H": 32
@@ -1774,7 +1808,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Remove permissions",
+              "description": "View",
               "filepath": ""
             }
           },
@@ -1809,24 +1843,9 @@
             }
           },
           {
-            "id": 142,
+            "id": 62,
             "rect": {
-              "X": 2496,
-              "Y": 448,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Old ARP scans manipulation",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 71,
-            "rect": {
-              "X": -160,
+              "X": -128,
               "Y": 480,
               "W": 288,
               "H": 64
@@ -1834,7 +1853,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Unshare with specific users",
+              "description": "Show packet captured table",
               "filepath": ""
             }
           },
@@ -1854,9 +1873,24 @@
             }
           },
           {
-            "id": 128,
+            "id": 85,
             "rect": {
               "X": 1056,
+              "Y": 480,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Export to JSON",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 147,
+            "rect": {
+              "X": 2528,
               "Y": 480,
               "W": 288,
               "H": 32
@@ -1884,7 +1918,7 @@
             }
           },
           {
-            "id": 84,
+            "id": 87,
             "rect": {
               "X": 1056,
               "Y": 512,
@@ -1894,12 +1928,12 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Show IPs with MAC discovered",
+              "description": "Share with specific users",
               "filepath": ""
             }
           },
           {
-            "id": 147,
+            "id": 148,
             "rect": {
               "X": 2528,
               "Y": 512,
@@ -1909,22 +1943,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Rename",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 22,
-            "rect": {
-              "X": -1024,
-              "Y": 544,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Logs manipulation",
+              "description": "Deleted",
               "filepath": ""
             }
           },
@@ -1944,17 +1963,17 @@
             }
           },
           {
-            "id": 61,
+            "id": 67,
             "rect": {
-              "X": -160,
+              "X": -128,
               "Y": 544,
               "W": 288,
-              "H": 32
+              "H": 64
             },
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "View",
+              "description": "Re-Do capture with same condition",
               "filepath": ""
             }
           },
@@ -1974,7 +1993,7 @@
             }
           },
           {
-            "id": 148,
+            "id": 153,
             "rect": {
               "X": 2528,
               "Y": 544,
@@ -1984,22 +2003,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Deleted",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 23,
-            "rect": {
-              "X": -992,
-              "Y": 576,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "View application logs",
+              "description": "Opened",
               "filepath": ""
             }
           },
@@ -2019,21 +2023,6 @@
             }
           },
           {
-            "id": 62,
-            "rect": {
-              "X": -128,
-              "Y": 576,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Show packet captured table",
-              "filepath": ""
-            }
-          },
-          {
             "id": 30,
             "rect": {
               "X": 288,
@@ -2049,22 +2038,22 @@
             }
           },
           {
-            "id": 85,
+            "id": 88,
             "rect": {
               "X": 1056,
               "Y": 576,
               "W": 288,
-              "H": 32
+              "H": 64
             },
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Export to JSON",
+              "description": "Unshare with specific users",
               "filepath": ""
             }
           },
           {
-            "id": 153,
+            "id": 154,
             "rect": {
               "X": 2528,
               "Y": 576,
@@ -2074,7 +2063,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Opened",
+              "description": "Shared",
               "filepath": ""
             }
           },
@@ -2090,6 +2079,21 @@
             "properties": {
               "checked": false,
               "description": "Kill active ARP scans",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 63,
+            "rect": {
+              "X": -128,
+              "Y": 608,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Render",
               "filepath": ""
             }
           },
@@ -2124,22 +2128,7 @@
             }
           },
           {
-            "id": 87,
-            "rect": {
-              "X": 1056,
-              "Y": 608,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Share with specific users",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 154,
+            "id": 143,
             "rect": {
               "X": 2528,
               "Y": 608,
@@ -2149,37 +2138,22 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Shared",
+              "description": "unshared",
               "filepath": ""
             }
           },
           {
-            "id": 24,
+            "id": 65,
             "rect": {
-              "X": -992,
+              "X": -96,
               "Y": 640,
               "W": 288,
-              "H": 64
+              "H": 32
             },
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Delete application logs",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 67,
-            "rect": {
-              "X": -128,
-              "Y": 640,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Re-Do capture with same condition",
+              "description": "Captured images",
               "filepath": ""
             }
           },
@@ -2199,7 +2173,20 @@
             }
           },
           {
-            "id": 143,
+            "id": 127,
+            "rect": {
+              "X": 1056,
+              "Y": 640,
+              "W": 256,
+              "H": 96
+            },
+            "contents": "Note",
+            "properties": {
+              "description": "Shared with me captures are read only"
+            }
+          },
+          {
+            "id": 152,
             "rect": {
               "X": 2528,
               "Y": 640,
@@ -2209,7 +2196,22 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "unshared",
+              "description": "By who",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 66,
+            "rect": {
+              "X": -96,
+              "Y": 672,
+              "W": 288,
+              "H": 64
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Captured plain text content",
               "filepath": ""
             }
           },
@@ -2244,22 +2246,7 @@
             }
           },
           {
-            "id": 88,
-            "rect": {
-              "X": 1056,
-              "Y": 672,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Unshare with specific users",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 152,
+            "id": 150,
             "rect": {
               "X": 2528,
               "Y": 672,
@@ -2269,22 +2256,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "By who",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 63,
-            "rect": {
-              "X": -128,
-              "Y": 704,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Render",
+              "description": "Export",
               "filepath": ""
             }
           },
@@ -2319,9 +2291,9 @@
             }
           },
           {
-            "id": 150,
+            "id": 155,
             "rect": {
-              "X": 2528,
+              "X": 2496,
               "Y": 704,
               "W": 288,
               "H": 32
@@ -2329,14 +2301,14 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Export",
+              "description": "Log manipulation",
               "filepath": ""
             }
           },
           {
-            "id": 65,
+            "id": 42,
             "rect": {
-              "X": -96,
+              "X": -128,
               "Y": 736,
               "W": 288,
               "H": 32
@@ -2344,7 +2316,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Captured images",
+              "description": "Plots",
               "filepath": ""
             }
           },
@@ -2379,9 +2351,9 @@
             }
           },
           {
-            "id": 155,
+            "id": 156,
             "rect": {
-              "X": 2496,
+              "X": 2528,
               "Y": 736,
               "W": 288,
               "H": 32
@@ -2389,12 +2361,12 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Log manipulation",
+              "description": "Open",
               "filepath": ""
             }
           },
           {
-            "id": 66,
+            "id": 43,
             "rect": {
               "X": -96,
               "Y": 768,
@@ -2404,12 +2376,12 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Captured plain text content",
+              "description": "Network topology graph",
               "filepath": ""
             }
           },
           {
-            "id": 156,
+            "id": 157,
             "rect": {
               "X": 2528,
               "Y": 768,
@@ -2419,7 +2391,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Open",
+              "description": "Delete",
               "filepath": ""
             }
           },
@@ -2439,32 +2411,17 @@
             }
           },
           {
-            "id": 157,
+            "id": 45,
             "rect": {
-              "X": 2528,
-              "Y": 800,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Delete",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 42,
-            "rect": {
-              "X": -128,
+              "X": -96,
               "Y": 832,
               "W": 288,
-              "H": 32
+              "H": 96
             },
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Plots",
+              "description": "Bar graph of number of packet sent by host",
               "filepath": ""
             }
           },
@@ -2473,21 +2430,6 @@
             "rect": {
               "X": 288,
               "Y": 832,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Network topology graph",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 43,
-            "rect": {
-              "X": -96,
-              "Y": 864,
               "W": 288,
               "H": 64
             },
@@ -2514,7 +2456,7 @@
             }
           },
           {
-            "id": 45,
+            "id": 44,
             "rect": {
               "X": -96,
               "Y": 928,
@@ -2524,7 +2466,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Bar graph of number of packet sent by host",
+              "description": "Pie graph of number of packets by layer 4 protocol sent",
               "filepath": ""
             }
           },
@@ -2544,7 +2486,7 @@
             }
           },
           {
-            "id": 44,
+            "id": 57,
             "rect": {
               "X": -96,
               "Y": 1024,
@@ -2554,7 +2496,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Pie graph of number of packets by layer 4 protocol sent",
+              "description": "Pie graph of number of packets by layer 7 protocol sent",
               "filepath": ""
             }
           },
@@ -2574,25 +2516,10 @@
             }
           },
           {
-            "id": 57,
+            "id": 46,
             "rect": {
               "X": -96,
               "Y": 1120,
-              "W": 288,
-              "H": 96
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Pie graph of number of packets by layer 7 protocol sent",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 179,
-            "rect": {
-              "X": 288,
-              "Y": 1184,
               "W": 288,
               "H": 96
             },
@@ -2604,10 +2531,10 @@
             }
           },
           {
-            "id": 46,
+            "id": 179,
             "rect": {
-              "X": -96,
-              "Y": 1216,
+              "X": 288,
+              "Y": 1184,
               "W": 288,
               "H": 96
             },
@@ -2766,14 +2693,7 @@
               "checked": false,
               "description": "Doing",
               "filepath": ""
-            },
-            "links": [
-              {
-                "start": 160,
-                "end": 159,
-                "joints": []
-              }
-            ]
+            }
           },
           {
             "id": 162,
@@ -2917,7 +2837,7 @@
             }
           },
           {
-            "id": 183,
+            "id": 184,
             "rect": {
               "X": -1120,
               "Y": 1792,
@@ -2926,8 +2846,23 @@
             },
             "contents": "Checkbox",
             "properties": {
+              "checked": false,
+              "description": "Admin module",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 188,
+            "rect": {
+              "X": 128,
+              "Y": 1792,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
               "checked": true,
-              "description": "Login module",
+              "description": "UI design",
               "filepath": ""
             }
           },
@@ -2947,17 +2882,47 @@
             }
           },
           {
-            "id": 184,
+            "id": 189,
             "rect": {
-              "X": -1120,
+              "X": -1088,
+              "Y": 1824,
+              "W": 288,
+              "H": 64
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Old captures manipulation",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 183,
+            "rect": {
+              "X": 160,
               "Y": 1824,
               "W": 288,
               "H": 32
             },
             "contents": "Checkbox",
             "properties": {
+              "checked": true,
+              "description": "Login module",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 190,
+            "rect": {
+              "X": -1088,
+              "Y": 1888,
+              "W": 288,
+              "H": 64
+            },
+            "contents": "Checkbox",
+            "properties": {
               "checked": false,
-              "description": "Admin module",
+              "description": "Old ARP scan manipulation",
               "filepath": ""
             }
           },
@@ -2965,7 +2930,7 @@
             "id": 185,
             "rect": {
               "X": -1120,
-              "Y": 1856,
+              "Y": 1952,
               "W": 288,
               "H": 32
             },

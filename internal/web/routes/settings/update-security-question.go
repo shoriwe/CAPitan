@@ -47,9 +47,9 @@ func updateSecurityQuestionError(mw *middleware.Middleware, context *middleware.
 }
 
 func updateSecurityQuestionPost(mw *middleware.Middleware, context *middleware.Context) bool {
-	password := context.Request.PostFormValue("password")
-	newQuestion := context.Request.PostFormValue("question")
-	newQuestionAnswer := context.Request.PostFormValue("answer")
+	password := context.Request.PostFormValue(symbols.Password)
+	newQuestion := context.Request.PostFormValue(symbols.Question)
+	newQuestionAnswer := context.Request.PostFormValue(symbols.Answer)
 	if password == "" || newQuestion == "" || newQuestionAnswer == "" {
 		context.Redirect = symbols.UpdateSecurityQuestion
 		return false
