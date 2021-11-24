@@ -14,7 +14,6 @@ import (
 )
 
 func listUsers(mw *middleware.Middleware, context *middleware.Context) bool {
-	// TODO: Unit test this
 	t, _ := mw.Templates.ReadFile("templates/admin/users.html")
 	users, succeed := mw.AdminListUsers(context.Request, context.User.Username)
 	if !succeed {
@@ -35,7 +34,6 @@ func listUsers(mw *middleware.Middleware, context *middleware.Context) bool {
 }
 
 func newUser(mw *middleware.Middleware, context *middleware.Context) bool {
-	// TODO: Unit test this
 	username := context.Request.PostFormValue(symbols.Username)
 	mw.AdminCreateUser(context.Request, username)
 	context.Redirect = symbols.AdminEditUsers
@@ -43,7 +41,6 @@ func newUser(mw *middleware.Middleware, context *middleware.Context) bool {
 }
 
 func testUser(mw *middleware.Middleware, context *middleware.Context) bool {
-	// TODO: Unit test this
 	if context.Request.Header.Get("Content-Type") != "application/json" {
 		return false
 	}
@@ -76,7 +73,6 @@ func testUser(mw *middleware.Middleware, context *middleware.Context) bool {
 }
 
 func editUser(mw *middleware.Middleware, context *middleware.Context) bool {
-	// TODO: Unit test this
 	username := context.Request.PostFormValue(symbols.Username)
 	if username == context.User.Username {
 		context.Redirect = symbols.AdminEditUsers
@@ -127,7 +123,6 @@ func editUser(mw *middleware.Middleware, context *middleware.Context) bool {
 }
 
 func updatePassword(mw *middleware.Middleware, context *middleware.Context) bool {
-	// TODO: Unit test this
 	username := context.Request.PostFormValue(symbols.Username)
 	password := context.Request.PostFormValue(symbols.Password)
 	mw.AdminUpdatePassword(context.Request, username, password)
@@ -136,7 +131,6 @@ func updatePassword(mw *middleware.Middleware, context *middleware.Context) bool
 }
 
 func updateStatus(mw *middleware.Middleware, context *middleware.Context) bool {
-	// TODO: Unit test this
 	username := context.Request.PostFormValue(symbols.Username)
 	isAdmin := context.Request.PostFormValue(symbols.IsAdmin) == "on"
 	isEnabled := context.Request.PostFormValue(symbols.IsEnabled) == "on"
@@ -146,7 +140,6 @@ func updateStatus(mw *middleware.Middleware, context *middleware.Context) bool {
 }
 
 func deleteARPSpoofInterface(mw *middleware.Middleware, context *middleware.Context) bool {
-	// TODO: Unit test this
 	username := context.Request.PostFormValue(symbols.Username)
 	i := context.Request.PostFormValue(symbols.Interface)
 	mw.AdminDeleteARPSpoofInterfacePrivilege(context.Request, username, i)
@@ -155,7 +148,6 @@ func deleteARPSpoofInterface(mw *middleware.Middleware, context *middleware.Cont
 }
 
 func addARPSpoofInterface(mw *middleware.Middleware, context *middleware.Context) bool {
-	// TODO: Unit test this
 	username := context.Request.PostFormValue(symbols.Username)
 	i := context.Request.PostFormValue(symbols.Interface)
 	mw.AdminAddARPSpoofInterfacePrivilege(context.Request, username, i)
@@ -164,7 +156,6 @@ func addARPSpoofInterface(mw *middleware.Middleware, context *middleware.Context
 }
 
 func deleteARPScanInterface(mw *middleware.Middleware, context *middleware.Context) bool {
-	// TODO: Unit test this
 	username := context.Request.PostFormValue(symbols.Username)
 	i := context.Request.PostFormValue(symbols.Interface)
 	mw.AdminDeleteARPScanInterfacePrivilege(context.Request, username, i)
@@ -173,7 +164,6 @@ func deleteARPScanInterface(mw *middleware.Middleware, context *middleware.Conte
 }
 
 func addARPScanInterface(mw *middleware.Middleware, context *middleware.Context) bool {
-	// TODO: Unit test this
 	username := context.Request.PostFormValue(symbols.Username)
 	i := context.Request.PostFormValue(symbols.Interface)
 	mw.AdminAddARPScanInterfacePrivilege(context.Request, username, i)
@@ -182,7 +172,6 @@ func addARPScanInterface(mw *middleware.Middleware, context *middleware.Context)
 }
 
 func deleteCaptureInterface(mw *middleware.Middleware, context *middleware.Context) bool {
-	// TODO: Unit test this
 	username := context.Request.PostFormValue(symbols.Username)
 	i := context.Request.PostFormValue(symbols.Interface)
 	mw.AdminDeleteCaptureInterfacePrivilege(context.Request, username, i)
@@ -191,7 +180,6 @@ func deleteCaptureInterface(mw *middleware.Middleware, context *middleware.Conte
 }
 
 func addCaptureInterface(mw *middleware.Middleware, context *middleware.Context) bool {
-	// TODO: Unit test this
 	username := context.Request.PostFormValue(symbols.Username)
 	i := context.Request.PostFormValue(symbols.Interface)
 	mw.AdminAddCaptureInterfacePrivilege(context.Request, username, i)
