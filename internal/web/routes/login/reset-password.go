@@ -28,7 +28,7 @@ func resetPasswordGetQuestion(mw *middleware.Middleware, context *middleware.Con
 		go mw.LogError(context.Request, err)
 		context.Redirect = symbols.Login
 		return false
-	} else if !found{
+	} else if !found {
 		go mw.LogUserNotFound(context.Request, context.Request.PostFormValue(symbols.Username))
 		context.Redirect = symbols.Login
 		return false

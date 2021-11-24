@@ -1,22 +1,110 @@
-<link href="/static/css/user-edit.css" rel="stylesheet" type="text/css">
-<h2>{{.Username}}</h2>
-<div class="container">
-    <h3>Password</h3>
-    <form action="/admin/user?action=update-password" method="post">
-        <label for="password"></label>
-        <input class="text-input" id="password" placeholder="Password" type="password">
-        <button class="button" type="submit">Update</button>
+<div style="display: none;">
+    <form id="reload-submit" action="/admin/user?action=edit-user" method="post">
+        <label for="resubmit-username" style="display: none;">{{.Username}}</label>
+        <input class="description" id="resubmit-username" name="username" readonly style="display: none;"
+               type="text"
+               value="{{.Username}}">
+        <button class="button" type="submit">Edit</button>
     </form>
 </div>
-<div class="container">
-    <h3>User status</h3>
+<link href="/static/css/admin/user-edit.css" rel="stylesheet" type="text/css">
+<div class="master-container">
+    <h2 class="username">{{.Username}}</h2>
+    <div class="container">
+        <h3 class="container-title">Password</h3>
+        <form action="/admin/user?action=update-password" method="post" onsubmit="return reloadPage();">
+            <label for="username-1"></label>
+            <input id="username-1" name="username" style="display: none;" value="{{.Username}}">
+            <label for="password"></label>
+            <input class="text-input" id="password" placeholder="Password" type="password">
+            <button class="button" type="submit">Update</button>
+        </form>
+    </div>
+    <div class="container">
+        <h3 class="container-title">User status</h3>
+        <form action="/admin/user?action=update-status" method="post" onsubmit="return reloadPage();">
+            <label for="username-2"></label>
+            <input id="username-2" name="username" style="display: none;" value="{{.Username}}">
+            <label for="is-admin"></label>
+            {{if .IsAdmin}}
+            <input checked id="is-admin" name="is-admin" readonly style="display: none;" type="checkbox">
+            {{else}}
+            <input id="is-admin" name="is-admin" readonly style="display: none;" type="checkbox">
+            {{end}}
+            <label for="enabled-disabled"></label>
+            {{if .IsEnabled}}
+            <input checked id="enabled-disabled" name="is-enabled" readonly style="display: none;" type="checkbox">
+            {{else}}
+            <input id="enabled-disabled" name="is-enabled" readonly style="display: none;" type="checkbox">
+            {{end}}
+            <button class="unchecked-checkbox" id="is-admin-checkbox" onclick="toggleIsAdmin()" type="button">User
+            </button>
+            <button class="unchecked-checkbox" id="enabled-disabled-checkbox" onclick="toggleEnabledDisabled()"
+                    type="button">Disabled
+            </button>
+            <button class="button" type="submit">Update</button>
+        </form>
+    </div>
+    <div class="container">
+        <h3 class="container-title">Capture permissions</h3>
+    </div>
+    <div class="container">
+        <h3 class="container-title">ARP Scan permissions</h3>
+    </div>
+    <div class="container">
+        <h3 class="container-title">ARP Spoof permissions</h3>
+    </div>
 </div>
-<div class="container">
-    <h3>Capture permissions</h3>
-</div>
-<div class="container">
-    <h3>ARP Scan permissions</h3>
-</div>
-<div class="container">
-    <h3>ARP Spoof permissions</h3>
-</div>
+<script>
+    const isAdmin = document.getElementById("is-admin");
+    const enabledDisabled = document.getElementById("enabled-disabled");
+    if (isAdmin.checked) {
+        const isAdminCheckbox = document.getElementById("is-admin-checkbox");
+        isAdminCheckbox.classList.remove("unchecked-checkbox");
+        isAdminCheckbox.classList.add("checked-checkbox");
+        isAdminCheckbox.textContent = "Admin";
+    }
+
+    if (enabledDisabled.checked) {
+        const enabledDisabledCheckbox = document.getElementById("enabled-disabled-checkbox");
+        enabledDisabledCheckbox.classList.remove("unchecked-checkbox");
+        enabledDisabledCheckbox.classList.add("checked-checkbox");
+        enabledDisabledCheckbox.textContent = "Enabled";
+    }
+
+    function toggleIsAdmin() {
+        const isAdmin = document.getElementById("is-admin");
+        isAdmin.checked = !isAdmin.checked;
+        const isAdminCheckbox = document.getElementById("is-admin-checkbox");
+        if (isAdmin.checked) {
+            isAdminCheckbox.classList.remove("unchecked-checkbox");
+            isAdminCheckbox.classList.add("checked-checkbox");
+            isAdminCheckbox.textContent = "Admin";
+        } else {
+            isAdminCheckbox.classList.add("unchecked-checkbox");
+            isAdminCheckbox.classList.remove("checked-checkbox");
+            isAdminCheckbox.textContent = "User";
+        }
+    }
+
+    function toggleEnabledDisabled() {
+        const enabledDisabled = document.getElementById("enabled-disabled");
+        enabledDisabled.checked = !enabledDisabled.checked;
+        const enabledDisabledCheckbox = document.getElementById("enabled-disabled-checkbox");
+        if (enabledDisabled.checked) {
+            enabledDisabledCheckbox.classList.remove("unchecked-checkbox");
+            enabledDisabledCheckbox.classList.add("checked-checkbox");
+            enabledDisabledCheckbox.textContent = "Enabled";
+        } else {
+            enabledDisabledCheckbox.classList.remove("checked-checkbox");
+            enabledDisabledCheckbox.classList.add("unchecked-checkbox");
+            enabledDisabledCheckbox.textContent = "Disabled";
+        }
+    }
+
+    function reloadPage() {
+        const reload = document.getElementById("reload-submit");
+        reload.submit();
+        return false;
+    }
+</script>

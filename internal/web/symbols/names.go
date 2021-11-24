@@ -5,7 +5,7 @@ const (
 	Username     = "username"
 	Password     = "password"
 	Old          = "old"
-	New          = "New"
+	New          = "new"
 	Key          = "key"
 	Confirmation = "confirmation"
 	Question     = "question"

@@ -68,6 +68,7 @@ func requiresAdminPrivilege(mw *middleware.Middleware, context *middleware.Conte
 		return true
 	}
 	go mw.LogAdminRequired(context.Request, context.User.Username)
+	context.Redirect = symbols.Dashboard
 	return false
 }
 
