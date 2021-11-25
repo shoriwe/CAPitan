@@ -10,7 +10,7 @@ import (
 
 const initScript = `
 def packetChecker(packet)
-	if packet.Contains("TransportLayer")
+	if "TransportLayer" in packet
 		println(packet.Index("TransportLayer"))
 	end
 	return False
