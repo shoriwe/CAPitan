@@ -20,6 +20,30 @@ var admin = &objects.User{
 type NoAuth struct {
 }
 
+func (noAuth *NoAuth) DeleteCaptureInterfacePrivilege(username string, i string) (bool, error) {
+	panic("implement me")
+}
+
+func (noAuth *NoAuth) DeleteARPScanInterfacePrivilege(username string, i string) (bool, error) {
+	panic("implement me")
+}
+
+func (noAuth *NoAuth) DeleteARPSpoofInterfacePrivilege(username string, i string) (bool, error) {
+	panic("implement me")
+}
+
+func (noAuth *NoAuth) AddCaptureInterfacePrivilege(username string, i string) (bool, error) {
+	panic("implement me")
+}
+
+func (noAuth *NoAuth) AddARPScanInterfacePrivilege(username string, i string) (bool, error) {
+	panic("implement me")
+}
+
+func (noAuth *NoAuth) AddARPSpoofInterfacePrivilege(username string, i string) (bool, error) {
+	panic("implement me")
+}
+
 func (noAuth *NoAuth) UpdateUserStatus(username string, isAdmin, isEnabled bool) (succeed bool, updateError error) {
 	return true, nil
 }
