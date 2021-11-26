@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	defaultSnapLen = 1024 * 32
+	defaultSnapLen = 65536
 )
 
 var (
@@ -111,13 +111,6 @@ func engineFeatures(engine *Engine) vm.Feature {
 	}
 }
 
-type Output struct {
-	Completed bool
-	Packet    gopacket.Packet
-	Stream    []byte
-	Error     error
-}
-
 type securedFileSystem struct {
 }
 
@@ -158,8 +151,7 @@ func (s *securedFileSystem) RelativePwd() string {
 }
 
 type tcpStreamFactory struct {
-	*Engine
-	outputChannel chan Output
+	TCPStreamChannel chan []byte
 }
 
 func (t *tcpStreamFactory) New(_, _ gopacket.Flow) tcpassembly.Stream {
@@ -174,42 +166,20 @@ func (t *tcpStreamFactory) New(_, _ gopacket.Flow) tcpassembly.Stream {
 			}
 			chunk.Write(tempChunk[:numberOfBytesRead])
 		}
-		bytesToSend := chunk.Bytes()
-		succeed, err := t.tcpStreamFilter(bytesToSend)
-		if err != nil {
-			t.controlMutex.Lock()
-			t.completed = true
-			t.controlMutex.Unlock()
-			t.outputChannel <- Output{
-				Completed: true,
-				Packet:    nil,
-				Stream:    nil,
-				Error:     err,
-			}
-			return
-		}
-		if succeed {
-			t.outputChannel <- Output{
-				Completed: false,
-				Packet:    nil,
-				Stream:    bytesToSend,
-				Error:     nil,
-			}
-		}
+		t.TCPStreamChannel <- chunk.Bytes()
 	}(&stream)
 	return &stream
 }
 
 type Engine struct {
-	controlMutex     *sync.Mutex
-	started          bool
-	paused           bool
-	resume           chan bool
-	completed        bool
-	packetFilter     func(packet gopacket.Packet) (bool, error)
-	tcpStreamFilter  func(bytes []byte) (bool, error)
-	VirtualMachine   *gplasma.VirtualMachine
-	machineContext   *vm.Context
+	controlMutex    *sync.Mutex
+	paused          bool
+	resume          chan bool
+	packetFilter    func(packet gopacket.Packet) (bool, error)
+	tcpStreamFilter func(bytes []byte) (bool, error)
+	VirtualMachine  *gplasma.VirtualMachine
+	machineContext  *vm.Context
+	// Interface Configuration
 	Promiscuous      bool
 	NetworkInterface string
 	PcapFile         *os.File
@@ -232,137 +202,174 @@ func (engine *Engine) InitScript(script string) (bool, error) {
 	return true, nil
 }
 
-func (engine *Engine) mainLoop(outputChannel chan Output) {
-	if !engine.started {
-		return
+func (engine *Engine) mainLoop(finalPackets, packetChannel chan gopacket.Packet, finalTCPStreams, tcpStreamChannel chan []byte) {
+	if finalPackets == packetChannel {
+		defer close(packetChannel)
+	}
+	if finalTCPStreams == tcpStreamChannel {
+		defer close(tcpStreamChannel)
 	}
 	source := gopacket.NewPacketSource(engine.handle, engine.handle.LinkType())
-	sourceChannel := source.Packets()
+	packets := source.Packets()
 
-	ticker := time.Tick(500 * time.Millisecond)
-
-	streamFactory := &tcpStreamFactory{Engine: engine, outputChannel: outputChannel}
+	streamFactory := &tcpStreamFactory{
+		TCPStreamChannel: tcpStreamChannel,
+	}
 	streamPool := tcpassembly.NewStreamPool(streamFactory)
 	assembler := tcpassembly.NewAssembler(streamPool)
-	for !engine.completed {
-		if engine.paused {
-			<-engine.resume
+
+	tick := time.Tick(500 * time.Nanosecond)
+
+	for packet := range packets {
+		<-tick
+		if packet.NetworkLayer() != nil && packet.TransportLayer() != nil {
+			if packet.TransportLayer().LayerType() == layers.LayerTypeTCP {
+				assembler.AssembleWithTimestamp(packet.NetworkLayer().NetworkFlow(), packet.TransportLayer().(*layers.TCP), packet.Metadata().Timestamp)
+			}
 		}
-		select {
-		case packet, isOpen := <-sourceChannel:
-			if !isOpen {
-				engine.controlMutex.Lock()
-				engine.completed = true
-				engine.controlMutex.Unlock()
-				return
-			}
-			if packet == nil {
-				break
-			}
-			if packet.NetworkLayer() != nil && packet.TransportLayer() != nil {
-				if packet.TransportLayer().LayerType() == layers.LayerTypeTCP {
-					go assembler.AssembleWithTimestamp(packet.NetworkLayer().NetworkFlow(), packet.TransportLayer().(*layers.TCP), packet.Metadata().Timestamp)
-				}
-			}
-			go func() {
-				capture, err := engine.packetFilter(packet)
-				if err != nil {
-					engine.controlMutex.Lock()
-					engine.completed = true
-					engine.controlMutex.Unlock()
-					outputChannel <- Output{
-						Completed: true,
-						Packet:    nil,
-						Stream:    nil,
-						Error:     err,
-					}
-					return
-				}
-				if capture {
-					// Finally, forward the packet
-					outputChannel <- Output{
-						Completed: false,
-						Packet:    packet,
-						Stream:    nil,
-						Error:     nil,
-					}
-				}
-			}()
-			break
-		}
-		<-ticker
-	}
-	outputChannel <- Output{
-		Completed: true,
-		Packet:    nil,
-		Stream:    nil,
-		Error:     nil,
+		packetChannel <- packet
+		assembler.FlushOlderThan(time.Now())
 	}
 }
 
-func (engine *Engine) Start() (chan Output, error) {
-	engine.controlMutex.Lock()
-	defer engine.controlMutex.Unlock()
-	if engine.started {
-		return nil, nil
-	} else if engine.completed {
-		return nil, nil
-	} else if engine.paused {
-		return nil, nil
-	}
-	var (
-		openError error
-	)
+func (engine *Engine) Start() (chan gopacket.Packet, chan []byte, error) {
+	var openError error
 	if engine.NetworkInterface != "" {
-		engine.handle, openError = pcap.OpenLive(engine.NetworkInterface, defaultSnapLen, engine.Promiscuous, 24*time.Hour)
+		engine.handle, openError = pcap.OpenLive(engine.NetworkInterface, defaultSnapLen, engine.Promiscuous, 0)
 	} else if engine.PcapFile != nil {
 		engine.handle, openError = pcap.OpenOfflineFile(engine.PcapFile)
 	}
 	if openError != nil {
-		return nil, openError
+		return nil, nil, openError
 	}
-	outputChannel := make(chan Output, 1000)
-	engine.started = true
-	go engine.mainLoop(outputChannel)
-	return outputChannel, nil
+	packetChannel := make(chan gopacket.Packet, 1000)
+	streamChannel := make(chan []byte, 1000)
+
+	var (
+		filterPackedChannel = packetChannel
+		filterStreamChannel = streamChannel
+	)
+	if engine.packetFilter != nil {
+		filterPackedChannel = make(chan gopacket.Packet, 1000)
+	}
+	if engine.tcpStreamFilter != nil {
+		filterStreamChannel = make(chan []byte, 1000)
+	}
+	if engine.packetFilter != nil && engine.tcpStreamFilter != nil {
+		go func() {
+			defer close(packetChannel)
+			defer close(streamChannel)
+			defer close(filterPackedChannel)
+			defer close(filterStreamChannel)
+
+			tick := time.Tick(500 * time.Nanosecond)
+			for {
+				<-tick
+				select {
+				case packet, isOpen := <-filterPackedChannel:
+					if isOpen {
+						succeed, err := engine.packetFilter(packet)
+						if err != nil {
+							return
+						}
+						if succeed {
+							packetChannel <- packet
+						}
+					} else {
+						return
+					}
+				default:
+					break
+				}
+				select {
+				case stream, isOpen := <-filterStreamChannel:
+					if isOpen {
+						succeed, err := engine.tcpStreamFilter(stream)
+						if err != nil {
+							return
+						}
+						if succeed {
+							streamChannel <- stream
+						}
+					} else {
+						return
+					}
+				default:
+					break
+				}
+			}
+		}()
+	} else if engine.packetFilter != nil {
+		go func() {
+			defer close(packetChannel)
+			defer close(streamChannel)
+			defer close(filterPackedChannel)
+			defer close(filterStreamChannel)
+
+			tick := time.Tick(500 * time.Nanosecond)
+			for {
+				<-tick
+				select {
+				case packet, isOpen := <-filterPackedChannel:
+					if isOpen {
+						succeed, err := engine.packetFilter(packet)
+						if err != nil {
+							return
+						}
+						if succeed {
+							packetChannel <- packet
+						}
+					} else {
+						return
+					}
+				default:
+					break
+				}
+			}
+		}()
+	} else if engine.tcpStreamFilter != nil {
+		go func() {
+			defer close(packetChannel)
+			defer close(streamChannel)
+			defer close(filterPackedChannel)
+			defer close(filterStreamChannel)
+
+			tick := time.Tick(500 * time.Nanosecond)
+			for {
+				<-tick
+				select {
+				case stream, isOpen := <-filterStreamChannel:
+					if isOpen {
+						succeed, err := engine.tcpStreamFilter(stream)
+						if err != nil {
+							return
+						}
+						if succeed {
+							streamChannel <- stream
+						}
+					} else {
+						return
+					}
+				default:
+					break
+				}
+			}
+		}()
+	}
+	go engine.mainLoop(packetChannel, filterPackedChannel, streamChannel, filterStreamChannel)
+	return packetChannel, streamChannel, nil
 }
 
 func (engine *Engine) Resume() {
-	engine.controlMutex.Lock()
-	defer engine.controlMutex.Unlock()
-	if engine.completed {
-		return
-	} else if !engine.paused {
-		return
-	} else if !engine.started {
-		return
-	}
-	engine.paused = false
-	engine.resume <- true
+
 }
 
 func (engine *Engine) Pause() {
-	engine.controlMutex.Lock()
-	defer engine.controlMutex.Unlock()
-	if engine.paused {
-		return
-	} else if engine.completed {
-		return
-	} else if !engine.started {
-		return
-	}
-	engine.paused = true
+
 }
 
 func (engine *Engine) Close() {
-	engine.controlMutex.Lock()
-	defer engine.controlMutex.Unlock()
-	if engine.completed {
-		return
-	} else if !engine.started {
-		return
-	}
-	engine.completed = true
+
 }
 
 func interpretJSON(context *vm.Context, p *vm.Plasma, i interface{}) *vm.Value {
@@ -462,21 +469,15 @@ func (engine *Engine) transformPacketToHashMap(packet gopacket.Packet) *vm.Value
 func NewEngine(netInterface string) *Engine {
 	engine := &Engine{
 		controlMutex:     new(sync.Mutex),
-		started:          false,
 		resume:           make(chan bool, 1),
 		paused:           false,
-		completed:        false,
 		NetworkInterface: netInterface,
-		packetFilter: func(_ gopacket.Packet) (bool, error) {
-			return true, nil
-		},
-		tcpStreamFilter: func(_ []byte) (bool, error) {
-			return true, nil
-		},
-		VirtualMachine: nil,
-		Promiscuous:    false,
-		PcapFile:       nil,
-		handle:         nil,
+		packetFilter:     nil,
+		tcpStreamFilter:  nil,
+		VirtualMachine:   nil,
+		Promiscuous:      false,
+		PcapFile:         nil,
+		handle:           nil,
 	}
 	engine.VirtualMachine = gplasma.NewVirtualMachine()
 	engine.VirtualMachine.LoadFeature(engineFeatures(engine))

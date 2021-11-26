@@ -6,24 +6,22 @@ import (
 	"github.com/shoriwe/CAPitan/internal/capture"
 	"net"
 	"os"
+	"time"
 )
 
 const initScript = `
 def packetChecker(packet)
-	if "TransportLayer" in packet
-		println(packet.Index("TransportLayer"))
-	end
 	return False
 end
 
-# def tcpStreamChecker(stream)
-# 	println(stream.ToString())
-# 	return False
-# end
+def tcpStreamChecker(stream)
+	println(stream.ToString())
+	return True
+end
 
 
 LoadPacketFilter(packetChecker)
-# LoadTCPStreamFilter(tcpStreamChecker)
+LoadTCPStreamFilter(tcpStreamChecker)
 `
 
 func main() {
@@ -46,29 +44,47 @@ func main() {
 	engine := capture.NewEngine(targetDevice)
 	engine.VirtualMachine.Stdout = os.Stdout
 	engine.Promiscuous = true
-	succeed, initError := engine.InitScript(initScript)
-	if initError != nil {
-		panic(initError)
-	}
-	if !succeed {
-		panic("Failed to init with script")
-	}
-	outputChannel, startError := engine.Start()
+	// succeed, initError := engine.InitScript(initScript)
+	// if initError != nil {
+	// 	panic(initError)
+	// }
+	// if !succeed {
+	// 	panic("Failed to init with script")
+	// }
+	packetChannel, streamChannel, startError := engine.Start()
 	if startError != nil {
 		panic(startError)
 	}
-	for output := range outputChannel {
-		if output.Stream != nil {
-			fmt.Println(string(output.Stream))
+	tick := time.Tick(time.Millisecond)
+	for {
+		<-tick
+	captureLoop:
+		for i := 0; i < 1000; i++ {
+			select {
+			case _, isOpen := <-packetChannel:
+				if !isOpen {
+					return
+				}
+				// fmt.Println(packet)
+				// if packet.LinkLayer() != nil && packet.NetworkLayer() != nil {
+				// 	fmt.Println(packet.LinkLayer().LinkFlow())
+				// 	fmt.Println(packet.NetworkLayer().NetworkFlow())
+				// }
+			default:
+				break captureLoop
+			}
 		}
-		if output.Packet != nil {
-			fmt.Println(output.Packet)
-		}
-		if output.Error != nil {
-			panic(output.Error)
-		}
-		if output.Completed {
-			break
+	streamLoop:
+		for i := 0; i < 1000; i++ {
+			select {
+			case stream, isOpen := <-streamChannel:
+				if !isOpen {
+					return
+				}
+				fmt.Println(string(stream))
+			default:
+				break streamLoop
+			}
 		}
 	}
 }
