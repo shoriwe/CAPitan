@@ -155,6 +155,14 @@ func (logger *Logger) LogAdminDeleteARPSpoofPrivilege(request *http.Request, use
 	}
 }
 
+func (logger *Logger) LogListUserCaptures(request *http.Request, username string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully to list captures for  user %s by %s", username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to list captures for user %s by %s", username, request.RemoteAddr)
+	}
+}
+
 func NewLogger(logWriter io.Writer) *Logger {
 	return &Logger{
 		errorLogger: log.New(logWriter, "ERROR: ", log.Ldate|log.Ltime),

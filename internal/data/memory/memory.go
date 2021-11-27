@@ -19,10 +19,30 @@ type Memory struct {
 	arpScanInterfacePermissions       map[uint]*objects.ARPScanPermission
 	arpSpoofInterfacePermissionsMutex *sync.Mutex
 	arpSpoofInterfacePermissions      map[uint]*objects.ARPSpoofPermission
+	captureSessions                   map[uint]*objects.CaptureSession
+	captureSessionsMutex              *sync.Mutex
 	nextUserId                        uint
 	nextCapturePermissionId           uint
 	nextARPScanPermissionId           uint
 	nextARPSpoofPermissionId          uint
+}
+
+func (memory *Memory) ListUserCaptures(username string) (bool, []*objects.CaptureSession, error) {
+	memory.usersMutex.Lock()
+	user, found := memory.users[username]
+	memory.usersMutex.Unlock()
+	if !found {
+		return false, nil, nil
+	}
+	memory.captureSessionsMutex.Lock()
+	defer memory.captureSessionsMutex.Unlock()
+	var result []*objects.CaptureSession
+	for _, captureSession := range memory.captureSessions {
+		if captureSession.UserId == user.Id {
+			result = append(result, captureSession)
+		}
+	}
+	return true, result, nil
 }
 
 func (memory *Memory) DeleteCaptureInterfacePrivilege(username string, i string) (bool, error) {
@@ -325,10 +345,12 @@ func NewInMemoryDB() data.Database {
 		captureInterfacePermissionsMutex:  new(sync.Mutex),
 		arpScanInterfacePermissionsMutex:  new(sync.Mutex),
 		arpSpoofInterfacePermissionsMutex: new(sync.Mutex),
+		captureSessionsMutex:              new(sync.Mutex),
 		users:                             map[string]*objects.User{},
 		captureInterfacePermissions:       map[uint]*objects.CapturePermission{},
 		arpScanInterfacePermissions:       map[uint]*objects.ARPScanPermission{},
 		arpSpoofInterfacePermissions:      map[uint]*objects.ARPSpoofPermission{},
+		captureSessions:                   map[uint]*objects.CaptureSession{},
 		nextUserId:                        2,
 		nextCapturePermissionId:           1,
 		nextARPScanPermissionId:           1,

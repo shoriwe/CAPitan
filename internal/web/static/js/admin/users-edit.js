@@ -80,7 +80,7 @@ function submitUpdatePassword() {
             body: formBody.join("&")
         }
     ).then(_ => {
-        
+
     });
 }
 

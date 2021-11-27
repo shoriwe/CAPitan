@@ -30,7 +30,7 @@ type (
 	}
 	CaptureSession struct {
 		Id           uint
-		UsersId      uint
+		UserId       uint
 		Interface    string
 		Name         string
 		Description  string

@@ -1,0 +1,29 @@
+<link href="/static/css/user/capture-own-menu.css" rel="stylesheet" type="text/css">
+<div class="master-container">
+    <div class="new-button-container">
+        <a class="capture-menu-button">Import</a>
+        <a class="capture-menu-button">New</a>
+    </div>
+    <div class="old-capture-container">
+        <div class="list-container">
+            {{range $capture := .Captures}}
+            <div class="list-entry">
+                <h3 class="capture-name">{{$capture.Name}}</h3>
+                <h3 class="capture-start">{{$capture.Started.Format "2006 Jan 02 15:04:05 UTC"}}</h3>
+                <h3 class="capture-end">{{$capture.Ended.Format "2006 Jan 02 15:04:05 UTC"}}</h3>
+                <form action="/packet/captures?action=view" method="post">
+                    <label for="capture-id-{{$capture.Id}}" style="display: none;">{{$capture.Id}}</label>
+                    <input id="capture-id-{{$capture.Id}}" name="username" readonly style="display: none;"
+                           type="text"
+                           value="{{$capture.Id}}">
+                    <label for="owner-{{$.Username}}" style="display: none;">{{$.Username}}</label>
+                    <input id="owner-{{$.Username}}" name="username" readonly style="display: none;"
+                           type="text"
+                           value="{{$.Username}}">
+                    <button class="capture-menu-button" type="submit">Edit</button>
+                </form>
+            </div>
+            {{end}}
+        </div>
+    </div>
+</div>

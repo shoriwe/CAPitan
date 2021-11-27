@@ -7,10 +7,10 @@
         <h3 id="user-already-taken" style="display: none; color: #e74c3c; font-family: Arial, serif;">User already
             taken</h3>
         <h3 id="user-not-taken" style="display: none; color: #2ecc71; font-family: Arial, serif;">User not taken</h3>
-        <form id="create-user" action="/admin/user?action=new-user" method="post" onsubmit="return false;">
+        <form action="/admin/user?action=new-user" id="create-user" method="post" onsubmit="return false;">
             <label for="username"></label>
             <div>
-                <input required class="username-input" id="username" name="username" placeholder="Username" type="text">
+                <input class="username-input" id="username" name="username" placeholder="Username" required type="text">
                 <button class="button" onclick="checkUsername()" type="button">Test</button>
             </div>
             <div style="margin-top: 2%;">

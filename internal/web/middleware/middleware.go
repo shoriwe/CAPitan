@@ -393,3 +393,14 @@ func (middleware *Middleware) AdminAddCaptureInterfacePrivilege(request *http.Re
 	go middleware.LogAdminAddCapturePrivilege(request, username, i, succeed)
 	return succeed
 }
+
+func (middleware *Middleware) ListUserCaptures(request *http.Request, username string) (bool, []*objects.CaptureSession) {
+	succeed, captures, listError := middleware.Database.ListUserCaptures(username)
+	if listError != nil {
+		go middleware.LogError(request, listError)
+		go middleware.LogListUserCaptures(request, username, false)
+		return false, nil
+	}
+	go middleware.LogListUserCaptures(request, username, succeed)
+	return succeed, captures
+}

@@ -12,12 +12,16 @@ type DatabaseAdminFeatures interface {
 	CreateUser(username string) (bool, error)
 	GetUserByUsername(username string) (bool, *objects.User, error)
 	UpdateUserStatus(username string, isAdmin, isEnabled bool) (succeed bool, updateError error)
-	DeleteCaptureInterfacePrivilege(username string, i string) (bool, error)
-	DeleteARPScanInterfacePrivilege(username string, i string) (bool, error)
-	DeleteARPSpoofInterfacePrivilege(username string, i string) (bool, error)
-	AddCaptureInterfacePrivilege(username string, i string) (bool, error)
-	AddARPScanInterfacePrivilege(username string, i string) (bool, error)
-	AddARPSpoofInterfacePrivilege(username string, i string) (bool, error)
+	DeleteCaptureInterfacePrivilege(username, i string) (bool, error)
+	DeleteARPScanInterfacePrivilege(username, i string) (bool, error)
+	DeleteARPSpoofInterfacePrivilege(username, i string) (bool, error)
+	AddCaptureInterfacePrivilege(username, i string) (bool, error)
+	AddARPScanInterfacePrivilege(username, i string) (bool, error)
+	AddARPSpoofInterfacePrivilege(username, i string) (bool, error)
+}
+
+type DatabaseUserFeatures interface {
+	ListUserCaptures(username string) (bool, []*objects.CaptureSession, error)
 }
 
 type DatabaseGlobalFeatures interface {
@@ -27,5 +31,6 @@ type DatabaseGlobalFeatures interface {
 
 type Database interface {
 	DatabaseAdminFeatures
+	DatabaseUserFeatures
 	DatabaseGlobalFeatures
 }

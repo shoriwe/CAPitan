@@ -14,4 +14,5 @@ const (
 	AdminPanel             = "/admin"
 	AdminEditUsers         = "/admin/user"
 	UserPacket             = "/packet"
+	UserPacketCaptures     = "/packet/captures"
 )
