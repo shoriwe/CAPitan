@@ -79,7 +79,9 @@ function submitUpdatePassword() {
             },
             body: formBody.join("&")
         }
-    );
+    ).then(_ => {
+        
+    });
 }
 
 function submitUpdateStatus() {
@@ -99,11 +101,12 @@ function submitUpdateStatus() {
             },
             body: formBody.join("&")
         }
-    );
+    ).then(_ => {
+    });
 }
 
 function addCaptureInterface(id) {
-    const i = document.getElementById(id).textContent;
+    const i = id.replace("capture-interface-", "");
     const username = document.getElementById("resubmit-username").value;
     const formBody = [];
     formBody.push("username=" + encodeURIComponent(username));
@@ -117,8 +120,11 @@ function addCaptureInterface(id) {
             },
             body: formBody.join("&")
         }
+    ).then(
+        _ => {
+            reloadPage("capture-permissions");
+        }
     );
-    reloadPage("capture-permissions");
 }
 
 function deleteCaptureInterface(id) {
@@ -136,12 +142,15 @@ function deleteCaptureInterface(id) {
             },
             body: formBody.join("&")
         }
+    ).then(
+        _ => {
+            reloadPage("capture-permissions");
+        }
     );
-    reloadPage("capture-permissions");
 }
 
 function addARPScanInterface(id) {
-    const i = document.getElementById(id).textContent;
+    const i = id.replace("arp-scan-interface-", "");
     const username = document.getElementById("resubmit-username").value;
     const formBody = [];
     formBody.push("username=" + encodeURIComponent(username));
@@ -155,8 +164,11 @@ function addARPScanInterface(id) {
             },
             body: formBody.join("&")
         }
+    ).then(
+        _ => {
+            reloadPage("arp-scan-permissions");
+        }
     );
-    reloadPage("arp-scan-permissions");
 }
 
 function deleteARPScanInterface(id) {
@@ -174,12 +186,15 @@ function deleteARPScanInterface(id) {
             },
             body: formBody.join("&")
         }
+    ).then(
+        _ => {
+            reloadPage("arp-scan-permissions")
+        }
     );
-    reloadPage("arp-scan-permissions");
 }
 
 function addARPSpoofInterface(id) {
-    const i = document.getElementById(id).textContent;
+    const i = id.replace("arp-spoof-interface-", "");
     const username = document.getElementById("resubmit-username").value;
     const formBody = [];
     formBody.push("username=" + encodeURIComponent(username));
@@ -193,8 +208,11 @@ function addARPSpoofInterface(id) {
             },
             body: formBody.join("&")
         }
+    ).then(
+        _ => {
+            reloadPage("arp-spoof-permissions");
+        }
     );
-    reloadPage("arp-spoof-permissions");
 }
 
 function deleteARPSpoofInterface(id) {
@@ -212,6 +230,9 @@ function deleteARPSpoofInterface(id) {
             },
             body: formBody.join("&")
         }
+    ).then(
+        _ => {
+            reloadPage("arp-spoof-permissions");
+        }
     );
-    reloadPage("arp-spoof-permissions");
 }

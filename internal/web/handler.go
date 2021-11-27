@@ -10,6 +10,7 @@ import (
 	"github.com/shoriwe/CAPitan/internal/web/routes/dashboard"
 	login2 "github.com/shoriwe/CAPitan/internal/web/routes/login"
 	settings2 "github.com/shoriwe/CAPitan/internal/web/routes/settings"
+	"github.com/shoriwe/CAPitan/internal/web/routes/user/packet"
 	"github.com/shoriwe/CAPitan/internal/web/symbols"
 	"html/template"
 	"net/http"
@@ -104,15 +105,20 @@ func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 			},
 		),
 	)
+	// Anyone
 	handler.Handle(symbols.Static, http.FileServer(http.FS(staticFS)))
 	handler.HandleFunc(symbols.Login, mw.Handle(logVisit, loadCredentials, login2.Login))
 	handler.HandleFunc(symbols.Logout, mw.Handle(logVisit, loadCredentials, requiresLogin, login2.Logout))
 	handler.HandleFunc(symbols.ResetPassword, mw.Handle(logVisit, loadCredentials, login2.ResetPassword))
+	// Any loged user
 	handler.HandleFunc(symbols.Dashboard, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, dashboard.Dashboard))
 	handler.HandleFunc(symbols.Settings, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings2.Settings))
 	handler.HandleFunc(symbols.UpdatePassword, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings2.UpdatePassword))
 	handler.HandleFunc(symbols.UpdateSecurityQuestion, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings2.UpdateSecurityQuestion))
+	// Admin
 	handler.HandleFunc(symbols.AdminPanel, mw.Handle(logVisit, loadCredentials, requiresLogin, requiresAdminPrivilege, setNavigationBar, admin.Panel))
 	handler.HandleFunc(symbols.AdminEditUsers, mw.Handle(logVisit, loadCredentials, requiresLogin, requiresAdminPrivilege, setNavigationBar, admin.EditUsers))
+	// User
+	handler.HandleFunc(symbols.UserPacket, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, packet.Panel))
 	return handler
 }

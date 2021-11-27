@@ -325,9 +325,11 @@ func (middleware *Middleware) AdminDeleteARPSpoofInterfacePrivilege(request *htt
 func (middleware *Middleware) AdminAddARPSpoofInterfacePrivilege(request *http.Request, username string, i string) bool {
 	interfaces := middleware.ListNetInterfaces(request)
 	if interfaces == nil {
+		go middleware.LogAdminAddARPSpoofPrivilege(request, username, i, false)
 		return false
 	}
 	if _, found := interfaces[i]; !found {
+		go middleware.LogAdminAddARPSpoofPrivilege(request, username, i, false)
 		return false
 	}
 	succeed, grantError := middleware.Database.AddARPSpoofInterfacePrivilege(username, i)
@@ -350,9 +352,11 @@ func (middleware *Middleware) AdminDeleteARPScanInterfacePrivilege(request *http
 func (middleware *Middleware) AdminAddARPScanInterfacePrivilege(request *http.Request, username string, i string) bool {
 	interfaces := middleware.ListNetInterfaces(request)
 	if interfaces == nil {
+		go middleware.LogAdminAddARPScanPrivilege(request, username, i, false)
 		return false
 	}
 	if _, found := interfaces[i]; !found {
+		go middleware.LogAdminAddARPScanPrivilege(request, username, i, false)
 		return false
 	}
 	succeed, grantError := middleware.Database.AddARPScanInterfacePrivilege(username, i)
@@ -375,9 +379,11 @@ func (middleware *Middleware) AdminDeleteCaptureInterfacePrivilege(request *http
 func (middleware *Middleware) AdminAddCaptureInterfacePrivilege(request *http.Request, username string, i string) bool {
 	interfaces := middleware.ListNetInterfaces(request)
 	if interfaces == nil {
+		go middleware.LogAdminAddCapturePrivilege(request, username, i, false)
 		return false
 	}
 	if _, found := interfaces[i]; !found {
+		go middleware.LogAdminAddCapturePrivilege(request, username, i, false)
 		return false
 	}
 	succeed, grantError := middleware.Database.AddCaptureInterfacePrivilege(username, i)

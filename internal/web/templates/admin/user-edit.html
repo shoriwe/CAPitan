@@ -54,20 +54,20 @@
                 <div class="dropdown-content" id="dropDownMenu-capture">
                     {{range $interface := .CaptureUnsetInterfaces}}
                     <form onsubmit="return false;">
-                        <a id="capture-interface-{{$interface}}" onclick="addCaptureInterface(this.id)"
+                        <a id="capture-interface-{{$interface.Name}}" onclick="addCaptureInterface(this.id)"
                            onsubmit="addCaptureInterface(this.id)"
-                           type="submit">{{$interface}}</a>
+                           type="submit">{{$interface.Name}} {{$interface.Address}}</a>
                     </form>
                     {{end}}
                 </div>
             </div>
         </div>
-        {{range $interface, $nothing := .CaptureInterfaces}}
+        {{range $interface := .CaptureInterfaces}}
         <div class="interface-container">
-            <h3 class="interface-name">{{$interface}}</h3>
+            <h3 class="interface-name">{{$interface.Name}} {{$interface.Address}}</h3>
             <span style="width: 1%;"></span>
             <form onsubmit="return false;">
-                <button class="delete-button" id="capture-interface-to-delete-{{$interface}}"
+                <button class="delete-button" id="capture-interface-to-delete-{{$interface.Name}}"
                         onclick="deleteCaptureInterface(this.id)" onsubmit="deleteCaptureInterface(this.id)"
                         type="submit">Delete
                 </button>
@@ -84,20 +84,20 @@
                 <div class="dropdown-content" id="dropDownMenu-arp-scan">
                     {{range $interface := .ARPScanUnsetInterfaces}}
                     <form onsubmit="return false;">
-                        <a id="arp-scan-interface-{{$interface}}" onclick="addARPScanInterface(this.id)"
+                        <a id="arp-scan-interface-{{$interface.Name}}" onclick="addARPScanInterface(this.id)"
                            onsubmit="addARPScanInterface(this.id)"
-                           type="submit">{{$interface}}</a>
+                           type="submit">{{$interface.Name}} {{$interface.Address}}</a>
                     </form>
                     {{end}}
                 </div>
             </div>
         </div>
-        {{range $interface, $nothing := .ARPScanInterfaces}}
+        {{range $interface := .ARPScanInterfaces}}
         <div class="interface-container">
-            <h3 class="interface-name">{{$interface}}</h3>
+            <h3 class="interface-name">{{$interface.Name}} {{$interface.Address}}</h3>
             <span style="width: 1%;"></span>
             <form onsubmit="return false;">
-                <button class="delete-button" id="arp-scan-interface-to-delete-{{$interface}}"
+                <button class="delete-button" id="arp-scan-interface-to-delete-{{$interface.Name}}"
                         onclick="deleteARPScanInterface(this.id)" onsubmit="deleteARPScanInterface()"
                         type="submit">
                     Delete
@@ -115,20 +115,20 @@
                 <div class="dropdown-content" id="dropDownMenu-arp-spoof">
                     {{range $interface := .ARPSpoofUnsetInterfaces}}
                     <form onsubmit="return false;">
-                        <a id="arp-spoof-interface-{{$interface}}" onclick="addARPSpoofInterface(this.id)"
+                        <a id="arp-spoof-interface-{{$interface.Name}}" onclick="addARPSpoofInterface(this.id)"
                            onsubmit="addARPSpoofInterface(this.id)"
-                           type="submit">{{$interface}}</a>
+                           type="submit">{{$interface.Name}} {{$interface.Address}}</a>
                     </form>
                     {{end}}
                 </div>
             </div>
         </div>
-        {{range $interface, $nothing := .ARPSpoofInterfaces}}
+        {{range $interface := .ARPSpoofInterfaces}}
         <div class="interface-container">
-            <h3 class="interface-name">{{$interface}}</h3>
+            <h3 class="interface-name">{{$interface.Name}} {{$interface.Address}}</h3>
             <span style="width: 1%;"></span>
             <form onsubmit="return false;">
-                <button class="delete-button" id="arp-spoof-interface-to-delete-{{$interface}}"
+                <button class="delete-button" id="arp-spoof-interface-to-delete-{{$interface.Name}}"
                         onclick="deleteARPSpoofInterface(this.id)" onsubmit="deleteARPSpoofInterface()"
                         type="submit">
                     Delete

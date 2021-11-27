@@ -17,6 +17,11 @@ type succeedResponse struct {
 	Succeed bool
 }
 
+type interfaceInformation struct {
+	Name    string
+	Address string
+}
+
 func listUsers(mw *middleware.Middleware, context *middleware.Context) bool {
 	t, _ := mw.Templates.ReadFile("templates/admin/users.html")
 	users, succeed := mw.AdminListUsers(context.Request, context.User.Username)
@@ -92,18 +97,15 @@ func editUser(mw *middleware.Middleware, context *middleware.Context) bool {
 	}
 	var data struct {
 		*objects.User
-		CaptureInterfaces       map[string]struct{}
-		CaptureUnsetInterfaces  []string
-		ARPScanInterfaces       map[string]struct{}
-		ARPScanUnsetInterfaces  []string
-		ARPSpoofInterfaces      map[string]struct{}
-		ARPSpoofUnsetInterfaces []string
+		CaptureInterfaces       []interfaceInformation
+		CaptureUnsetInterfaces  []interfaceInformation
+		ARPScanInterfaces       []interfaceInformation
+		ARPScanUnsetInterfaces  []interfaceInformation
+		ARPSpoofInterfaces      []interfaceInformation
+		ARPSpoofUnsetInterfaces []interfaceInformation
 	}
 
 	data.User = user
-	data.CaptureInterfaces = captureInterfaces
-	data.ARPScanInterfaces = arpScanInterfaces
-	data.ARPSpoofInterfaces = arpSpoofInterfaces
 
 	connectedInterfaces := mw.ListNetInterfaces(context.Request)
 	if connectedInterfaces == nil {
@@ -111,15 +113,29 @@ func editUser(mw *middleware.Middleware, context *middleware.Context) bool {
 		return false
 	}
 
-	for interfaceName := range connectedInterfaces {
+	for interfaceName, networkInterface := range connectedInterfaces {
+		var iAddress string
+		for _, address := range networkInterface.Addresses {
+			iAddress = address.IP.String()
+		}
+		information := interfaceInformation{
+			Name:    interfaceName,
+			Address: iAddress,
+		}
 		if _, found := captureInterfaces[interfaceName]; !found {
-			data.CaptureUnsetInterfaces = append(data.CaptureUnsetInterfaces, interfaceName)
+			data.CaptureUnsetInterfaces = append(data.CaptureUnsetInterfaces, information)
+		} else {
+			data.CaptureInterfaces = append(data.CaptureInterfaces, information)
 		}
 		if _, found := arpScanInterfaces[interfaceName]; !found {
-			data.ARPScanUnsetInterfaces = append(data.ARPScanUnsetInterfaces, interfaceName)
+			data.ARPScanUnsetInterfaces = append(data.ARPScanUnsetInterfaces, information)
+		} else {
+			data.ARPScanInterfaces = append(data.ARPScanInterfaces, information)
 		}
 		if _, found := arpSpoofInterfaces[interfaceName]; !found {
-			data.ARPSpoofUnsetInterfaces = append(data.ARPSpoofUnsetInterfaces, interfaceName)
+			data.ARPSpoofUnsetInterfaces = append(data.ARPSpoofUnsetInterfaces, information)
+		} else {
+			data.ARPSpoofInterfaces = append(data.ARPSpoofInterfaces, information)
 		}
 	}
 	rawTemplate, _ := mw.Templates.ReadFile("templates/admin/user-edit.html")
