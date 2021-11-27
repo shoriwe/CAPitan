@@ -7,15 +7,15 @@
         <h3 id="user-already-taken" style="display: none; color: #e74c3c; font-family: Arial, serif;">User already
             taken</h3>
         <h3 id="user-not-taken" style="display: none; color: #2ecc71; font-family: Arial, serif;">User not taken</h3>
-        <form action="/admin/user?action=new-user" method="post">
+        <form id="create-user" action="/admin/user?action=new-user" method="post" onsubmit="return false;">
             <label for="username"></label>
             <div>
-                <input class="username-input" id="username" name="username" placeholder="Username" type="text">
+                <input required class="username-input" id="username" name="username" placeholder="Username" type="text">
                 <button class="button" onclick="checkUsername()" type="button">Test</button>
             </div>
             <div style="margin-top: 2%;">
                 <button class="cancel-button" onclick="hideDialog()" type="button">Cancel</button>
-                <button class="button" type="submit">Create User</button>
+                <button class="button" onclick="createUsername(); return false;" type="submit">Create User</button>
             </div>
         </form>
     </div>
@@ -59,34 +59,5 @@
         {{end}}
     </div>
 </div>
-<script>
-    function checkUsername() {
-        fetch("/admin/user?action=test-user", {
-            method: "POST",
-            body: JSON.stringify({Username: document.getElementById("username").value}),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then(response => {
-                response.json().then(data => {
-                        if (data.Found) {
-                            document.getElementById("user-already-taken").style.display = "block";
-                            document.getElementById("user-not-taken").style.display = "none";
-                        } else {
-                            document.getElementById("user-already-taken").style.display = "none";
-                            document.getElementById("user-not-taken").style.display = "block";
-                        }
-                    }
-                );
-            }
-        );
-    }
-
-    function showDialog() {
-        document.getElementById("new-user-dialog").style.display = "block";
-    }
-
-    function hideDialog() {
-        document.getElementById("new-user-dialog").style.display = "none";
-    }
+<script src="/static/js/admin/users.js">
 </script>

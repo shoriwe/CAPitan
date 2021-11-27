@@ -254,34 +254,37 @@ func (middleware *Middleware) AdminListUsers(request *http.Request, username str
 	return users, true
 }
 
-func (middleware *Middleware) AdminCreateUser(request *http.Request, username string) {
+func (middleware *Middleware) AdminCreateUser(request *http.Request, username string) bool {
 	if !validUsername.MatchString(username) {
-		return
+		return false
 	}
 	succeed, userCreationError := middleware.Database.CreateUser(username)
 	if userCreationError != nil {
 		go middleware.LogError(request, userCreationError)
 	}
 	go middleware.LogUserCreation(request, succeed, username)
+	return succeed
 }
 
-func (middleware *Middleware) AdminUpdatePassword(request *http.Request, username, password string) {
+func (middleware *Middleware) AdminUpdatePassword(request *http.Request, username, password string) bool {
 	if !validPassword.MatchString(password) {
-		return
+		return false
 	}
 	succeed, updateError := middleware.Database.UpdatePasswordAndSetExpiration(username, password, symbols.LoginSessionDuration)
 	if updateError != nil {
 		go middleware.LogError(request, updateError)
 	}
 	go middleware.LogAdminUpdatePassword(request, username, succeed)
+	return succeed
 }
 
-func (middleware *Middleware) AdminUpdateStatus(request *http.Request, username string, isAdmin, isEnabled bool) {
+func (middleware *Middleware) AdminUpdateStatus(request *http.Request, username string, isAdmin, isEnabled bool) bool {
 	succeed, updateError := middleware.Database.UpdateUserStatus(username, isAdmin, isEnabled)
 	if updateError != nil {
 		go middleware.LogError(request, updateError)
 	}
 	go middleware.LogAdminUpdateUserStatus(request, username, isAdmin, isEnabled, succeed)
+	return succeed
 }
 
 func (middleware *Middleware) ListNetInterfaces(request *http.Request) map[string]pcap.Interface {
@@ -310,71 +313,77 @@ func (middleware *Middleware) QueryUserPermissions(request *http.Request, userna
 	return user, captureInterfaces, arpScanInterfaces, arpSpoofInterfaces, succeed
 }
 
-func (middleware *Middleware) AdminDeleteARPSpoofInterfacePrivilege(request *http.Request, username string, i string) {
+func (middleware *Middleware) AdminDeleteARPSpoofInterfacePrivilege(request *http.Request, username string, i string) bool {
 	succeed, grantError := middleware.Database.DeleteARPSpoofInterfacePrivilege(username, i)
 	if grantError != nil {
 		go middleware.LogError(request, grantError)
 	}
 	go middleware.LogAdminDeleteARPSpoofPrivilege(request, username, i, succeed)
+	return succeed
 }
 
-func (middleware *Middleware) AdminAddARPSpoofInterfacePrivilege(request *http.Request, username string, i string) {
+func (middleware *Middleware) AdminAddARPSpoofInterfacePrivilege(request *http.Request, username string, i string) bool {
 	interfaces := middleware.ListNetInterfaces(request)
 	if interfaces == nil {
-		return
+		return false
 	}
 	if _, found := interfaces[i]; !found {
-		return
+		return false
 	}
 	succeed, grantError := middleware.Database.AddARPSpoofInterfacePrivilege(username, i)
 	if grantError != nil {
 		go middleware.LogError(request, grantError)
 	}
 	go middleware.LogAdminAddARPSpoofPrivilege(request, username, i, succeed)
+	return succeed
 }
 
-func (middleware *Middleware) AdminDeleteARPScanInterfacePrivilege(request *http.Request, username string, i string) {
+func (middleware *Middleware) AdminDeleteARPScanInterfacePrivilege(request *http.Request, username string, i string) bool {
 	succeed, grantError := middleware.Database.DeleteARPScanInterfacePrivilege(username, i)
 	if grantError != nil {
 		go middleware.LogError(request, grantError)
 	}
 	go middleware.LogAdminDeleteARPScanPrivilege(request, username, i, succeed)
+	return succeed
 }
 
-func (middleware *Middleware) AdminAddARPScanInterfacePrivilege(request *http.Request, username string, i string) {
+func (middleware *Middleware) AdminAddARPScanInterfacePrivilege(request *http.Request, username string, i string) bool {
 	interfaces := middleware.ListNetInterfaces(request)
 	if interfaces == nil {
-		return
+		return false
 	}
 	if _, found := interfaces[i]; !found {
-		return
+		return false
 	}
 	succeed, grantError := middleware.Database.AddARPScanInterfacePrivilege(username, i)
 	if grantError != nil {
 		go middleware.LogError(request, grantError)
 	}
 	go middleware.LogAdminAddARPScanPrivilege(request, username, i, succeed)
+	return succeed
 }
 
-func (middleware *Middleware) AdminDeleteCaptureInterfacePrivilege(request *http.Request, username string, i string) {
+func (middleware *Middleware) AdminDeleteCaptureInterfacePrivilege(request *http.Request, username string, i string) bool {
 	succeed, grantError := middleware.Database.DeleteCaptureInterfacePrivilege(username, i)
 	if grantError != nil {
 		go middleware.LogError(request, grantError)
 	}
 	go middleware.LogAdminDeleteCapturePrivilege(request, username, i, succeed)
+	return succeed
 }
 
-func (middleware *Middleware) AdminAddCaptureInterfacePrivilege(request *http.Request, username string, i string) {
+func (middleware *Middleware) AdminAddCaptureInterfacePrivilege(request *http.Request, username string, i string) bool {
 	interfaces := middleware.ListNetInterfaces(request)
 	if interfaces == nil {
-		return
+		return false
 	}
 	if _, found := interfaces[i]; !found {
-		return
+		return false
 	}
 	succeed, grantError := middleware.Database.AddCaptureInterfacePrivilege(username, i)
 	if grantError != nil {
 		go middleware.LogError(request, grantError)
 	}
 	go middleware.LogAdminAddCapturePrivilege(request, username, i, succeed)
+	return succeed
 }
