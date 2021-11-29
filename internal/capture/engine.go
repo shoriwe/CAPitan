@@ -404,9 +404,18 @@ func interpretJSON(context *vm.Context, p *vm.Plasma, i interface{}) *vm.Value {
 }
 
 func (engine *Engine) transformPacketToHashMap(packet gopacket.Packet) *vm.Value {
+	// TODO: This function should also fill the map in those scenarios that the layer are nil
 	result := map[string]interface{}{
 		"Data": packet.Data(),
 		"Dump": packet.Dump(),
+	}
+	if packet.Metadata() != nil {
+		result["Metadata"] = map[string]interface{}{
+			"Length":         packet.Metadata().Length,
+			"CaptureLength":  packet.Metadata().CaptureLength,
+			"Truncated":      packet.Metadata().Truncated,
+			"InterfaceIndex": packet.Metadata().InterfaceIndex,
+		}
 	}
 	if packet.TransportLayer() != nil {
 		result["TransportLayer"] = map[string]interface{}{
@@ -419,14 +428,6 @@ func (engine *Engine) transformPacketToHashMap(packet gopacket.Packet) *vm.Value
 				"Dst":          packet.TransportLayer().TransportFlow().Dst().String(),
 				"EndpointType": packet.TransportLayer().TransportFlow().EndpointType().String(),
 			},
-		}
-	}
-	if packet.Metadata() != nil {
-		result["Metadata"] = map[string]interface{}{
-			"Length":         packet.Metadata().Length,
-			"CaptureLength":  packet.Metadata().CaptureLength,
-			"Truncated":      packet.Metadata().Truncated,
-			"InterfaceIndex": packet.Metadata().InterfaceIndex,
 		}
 	}
 	if packet.ApplicationLayer() != nil {

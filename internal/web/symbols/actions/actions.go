@@ -6,8 +6,8 @@ const (
 	AnswerQuestion          = "answer-question"
 	EditUser                = "edit-user"
 	NewUser                 = "new-user"
-	New                     = "new"
-	Import                  = "import"
+	NewCapture              = "new"
+	ImportCapture           = "import"
 	TestUser                = "test-user"
 	AddCaptureInterface     = "add-capture-interface"
 	DeleteCaptureInterface  = "delete-capture-interface"
@@ -17,4 +17,5 @@ const (
 	DeleteARPSpoofInterface = "delete-arp-spoof-interface"
 	UpdateStatus            = "update-status"
 	UpdatePassword          = "update-password"
+	TestCaptureArguments    = "test"
 )

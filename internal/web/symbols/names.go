@@ -13,4 +13,7 @@ const (
 	IsAdmin      = "is-admin"
 	IsEnabled    = "is-enabled"
 	Interface    = "interface"
+	CaptureName  = "capture-name"
+	Description  = "description"
+	Script       = "script"
 )
