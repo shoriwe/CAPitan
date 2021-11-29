@@ -39,10 +39,14 @@ type (
 		Pcap         []byte
 		FilterScript []byte
 	}
+	TCPStreamType struct {
+		Id         uint
+		StreamType string
+	}
 	TCPStream struct {
 		Id               uint
 		CaptureSessionId uint
-		StartingPacketId uint
+		TCPStreamTypesId uint
 		Contents         []byte
 	}
 	Packet struct {

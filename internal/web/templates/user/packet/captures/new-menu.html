@@ -1,0 +1,42 @@
+<link href="/static/vendor/css/prism.css" rel="stylesheet"/>
+<link href="/static/vendor/css/prism-live.css" rel="stylesheet"/>
+<link href="/static/css/user/capture-new.css" rel="stylesheet"/>
+<div class="master-container">
+    <div id="new-config-container">
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <label for="capture-name"></label>
+            <input class="capture-name" type="text" id="capture-name" placeholder="Capture name">
+            <button class="new-button" onclick="newCapture();">New</button>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <div style="width: 45%;">
+                <label for="description"></label>
+                <textarea id="description" class="description" maxlength="1000" placeholder="Description"></textarea>
+                <br>
+                <div style="float: right; margin-right: 4%;">
+                    <div class="dropdown">
+                        <button class="dropbtn" id="capture" onclick="showMenu(this.id)">Interface</button>
+                        <div class="dropdown-content" id="dropDownMenu-capture">
+                            {{range $interface, $nothing := .CaptureInterfaces}}
+                            <form onsubmit="return false;">
+                                <a id="{{$interface}}" onclick="selectCaptureInterface(this.id)"
+                                   onsubmit="selectCaptureInterface(this.id)"
+                                   type="submit">{{$interface}}</a>
+                            </form>
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="width: 55%;">
+                <pre>
+                    <label for="filter-script"></label>
+                    <textarea id="filter-script" class="prism-live language-ruby line-numbers fill prism-live-source"
+                              style="height: 65vh;border: 1px solid gray; border-radius: 2px;"></textarea>
+                </pre>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/vendor/js/prism.js"></script>
+<script src="/static/vendor/js/prism-live.js?load=ruby"></script>

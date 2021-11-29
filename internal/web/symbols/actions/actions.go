@@ -6,6 +6,8 @@ const (
 	AnswerQuestion          = "answer-question"
 	EditUser                = "edit-user"
 	NewUser                 = "new-user"
+	New                     = "new"
+	Import                  = "import"
 	TestUser                = "test-user"
 	AddCaptureInterface     = "add-capture-interface"
 	DeleteCaptureInterface  = "delete-capture-interface"
