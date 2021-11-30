@@ -16,6 +16,7 @@ import (
 	"net"
 	"net/http"
 	"regexp"
+	"sync"
 	"time"
 )
 
@@ -38,10 +39,12 @@ type (
 		data.Database
 		*logs.Logger
 		*limit.Limiter
-		devices       map[string]pcap.Interface
-		Templates     embed.FS
-		LoginSessions *sessions.Sessions
-		ResetSessions *sessions.Sessions
+		devices               map[string]pcap.Interface
+		reservedCaptures      map[string]map[string]struct{}
+		reservedCapturesMutex *sync.Mutex
+		Templates             embed.FS
+		LoginSessions         *sessions.Sessions
+		ResetSessions         *sessions.Sessions
 	}
 )
 
@@ -70,13 +73,15 @@ func NewContext(responseWriter http.ResponseWriter, request *http.Request) *Cont
 
 func New(c data.Database, l *logs.Logger, t embed.FS) *Middleware {
 	return &Middleware{
-		Database:      c,
-		Logger:        l,
-		Templates:     t,
-		Limiter:       limit.NewLimiter(),
-		LoginSessions: sessions.NewSessions(),
-		ResetSessions: sessions.NewSessions(),
-		devices:       nil,
+		Database:              c,
+		Logger:                l,
+		Templates:             t,
+		reservedCaptures:      map[string]map[string]struct{}{},
+		reservedCapturesMutex: new(sync.Mutex),
+		Limiter:               limit.NewLimiter(),
+		LoginSessions:         sessions.NewSessions(),
+		ResetSessions:         sessions.NewSessions(),
+		devices:               nil,
 	}
 }
 
@@ -403,4 +408,57 @@ func (middleware *Middleware) ListUserCaptures(request *http.Request, username s
 	}
 	go middleware.LogListUserCaptures(request, username, succeed)
 	return succeed, captures
+}
+
+func (middleware *Middleware) userCaptureNameIsReserved(username, captureName string) bool {
+	middleware.reservedCapturesMutex.Lock()
+	defer middleware.reservedCapturesMutex.Unlock()
+	user, found := middleware.reservedCaptures[username]
+	if !found {
+		return false
+	}
+	_, found = user[captureName]
+	return found
+}
+
+func (middleware *Middleware) UserCaptureNameAlreadyTaken(request *http.Request, username, captureName string) bool {
+	if middleware.userCaptureNameIsReserved(username, captureName) {
+		return false
+	}
+	succeed, checkError := middleware.Database.CheckIfUserCaptureNameWasAlreadyTaken(username, captureName)
+	if checkError != nil {
+		go middleware.LogError(request, checkError)
+		return false
+	}
+	return succeed
+}
+
+func (middleware *Middleware) ReserveUserCaptureName(request *http.Request, username, captureName string) bool {
+	if middleware.userCaptureNameIsReserved(username, captureName) {
+		go middleware.LogReserveCaptureNameForUser(request, username, captureName, false)
+		return false
+	}
+	middleware.reservedCapturesMutex.Lock()
+	defer middleware.reservedCapturesMutex.Unlock()
+	_, found := middleware.reservedCaptures[username]
+	if !found {
+		go middleware.LogReserveCaptureNameForUser(request, username, captureName, true)
+		middleware.reservedCaptures[username] = map[string]struct{}{captureName: {}}
+		return true
+	}
+	go middleware.LogReserveCaptureNameForUser(request, username, captureName, true)
+	middleware.reservedCaptures[username][captureName] = struct{}{}
+	return true
+}
+
+func (middleware *Middleware) RemoveReservedCaptureName(request *http.Request, username, captureName string) bool {
+	if !middleware.userCaptureNameIsReserved(username, captureName) {
+		go middleware.LogRemoveReserveCaptureNameForUser(request, username, captureName, false)
+		return false
+	}
+	middleware.reservedCapturesMutex.Lock()
+	defer middleware.reservedCapturesMutex.Unlock()
+	delete(middleware.reservedCaptures[username], captureName)
+	go middleware.LogRemoveReserveCaptureNameForUser(request, username, captureName, true)
+	return true
 }

@@ -18,4 +18,5 @@ const (
 	UpdateStatus            = "update-status"
 	UpdatePassword          = "update-password"
 	TestCaptureArguments    = "test"
+	Start                   = "start"
 )

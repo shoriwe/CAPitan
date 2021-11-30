@@ -3,6 +3,9 @@ package packet
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"github.com/gorilla/websocket"
+	"github.com/shoriwe/CAPitan/internal/capture"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
 	"github.com/shoriwe/CAPitan/internal/web/base"
 	"github.com/shoriwe/CAPitan/internal/web/http405"
@@ -19,6 +22,12 @@ import (
 
 var (
 	stringChecker = regexp.MustCompile("\\w+[\\w\\s]*")
+	upgrade       = websocket.Upgrader{
+		ReadBufferSize:    0, /* 1 megabyte*/
+		WriteBufferSize:   0, /* 1 megabyte*/
+		EnableCompression: true,
+		Subprotocols:      []string{"PacketCaptureSession"},
+	}
 )
 
 func listCaptures(mw *middleware.Middleware, context *middleware.Context) bool {
@@ -48,79 +57,130 @@ func listCaptures(mw *middleware.Middleware, context *middleware.Context) bool {
 	return false
 }
 
-func Captures(mw *middleware.Middleware, context *middleware.Context) bool {
-	switch context.Request.FormValue("action") {
-	case actions.NewCapture:
-		return newCapture(mw, context)
-	case actions.ImportCapture:
-		break
-	case actions.TestCaptureArguments:
-		return testCaptureArguments(mw, context)
-	}
-	return listCaptures(mw, context)
-}
-
-func testCaptureArguments(mw *middleware.Middleware, context *middleware.Context) bool {
-	if context.Request.Method != http.MethodPost {
-		return http405.MethodNotAllowed(mw, context)
-	}
+func checkCaptureInput(mw *middleware.Middleware, context *middleware.Context) (bool, string) {
 	if context.Request.Header.Get("Content-Type") != "application/x-www-form-urlencoded" {
 		// TODO: Better handling?
-		return false
+		return false, ""
 	}
-	var response struct {
-		Succeed bool
-		Error   string
-	}
+
 	interfaceName := context.Request.FormValue(symbols.Interface)
 	captureName := context.Request.FormValue(symbols.CaptureName)
 	description := context.Request.FormValue(symbols.Description)
 	script := context.Request.FormValue(symbols.Script)
-	// Test that the script successfully compiles to plasma bytecode
-	finalProgram, parsingError := parser.NewParser(lexer.NewLexer(reader.NewStringReader(script))).Parse()
-	if parsingError != nil {
-		go mw.LogError(context.Request, parsingError.Error())
-		response.Succeed = false
-		response.Error = parsingError.String()
-		result, _ := json.Marshal(response)
-		context.Body = string(result)
-		return false
+
+	if len(script) > 0 {
+		// Test that the script successfully compiles to plasma bytecode
+		finalProgram, parsingError := parser.NewParser(lexer.NewLexer(reader.NewStringReader(script))).Parse()
+		if parsingError != nil {
+			go mw.LogError(context.Request, parsingError.Error())
+			return false, parsingError.String()
+		}
+		_, compileError := finalProgram.Compile()
+		if compileError != nil {
+			go mw.LogError(context.Request, compileError.Error())
+			return false, compileError.String()
+		}
 	}
-	_, compileError := finalProgram.Compile()
-	if compileError != nil {
-		go mw.LogError(context.Request, compileError.Error())
-		response.Succeed = false
-		response.Error = compileError.String()
-		result, _ := json.Marshal(response)
-		context.Body = string(result)
-		return false
-	}
+	// Check the interface name is a valid string
 	if !stringChecker.MatchString(interfaceName) {
-		response.Succeed = false
-		response.Error = "Please, select only the interfaces you have permission to use, if this is a CVE, report it to the github repo, I will try to fixit and give you a month of VIP in HTB"
-		result, _ := json.Marshal(response)
-		context.Body = string(result)
-		return false
+		return false, "Please, select only the interfaces you have permission to use, if this is a CVE, report it to the github repo, I will try to fixit and give you a month of VIP in HTB"
 	}
-	// TODO: Check if interface exists and is related to the user
+	// Check the interface is associated with the user
+	succeed, _, captureInterfaces, _, _, getError := mw.GetUserInterfacePermissions(context.User.Username)
+	if getError != nil {
+		go mw.LogError(context.Request, getError)
+		return false, "Something goes wrong"
+	}
+	if !succeed {
+		return false, "Could not confirm user capture interfaces"
+	}
+	if _, found := captureInterfaces[interfaceName]; !found {
+		return false, "User do not have permission for the selected interface"
+	}
+	// Check the capture is a valid string
 	if !stringChecker.MatchString(captureName) {
-		response.Succeed = false
-		response.Error = "Capture name does not accomplish \\w+[\\w\\s]*"
-		result, _ := json.Marshal(response)
-		context.Body = string(result)
-		return false
+		return false, "Capture name does not accomplish \\w+[\\w\\s]*"
 	}
-	// TODO: Check if the name was already taken by the same user
+	// Check the capture is unique for the user
+	if mw.UserCaptureNameAlreadyTaken(context.Request, context.User.Username, captureName) {
+		return false, "Capture name is already in use"
+	}
+	// Check the description is a valid string
 	if !stringChecker.MatchString(description) {
-		response.Succeed = false
-		response.Error = "Description does not accomplish \\w+[\\w\\s]*"
-		result, _ := json.Marshal(response)
-		context.Body = string(result)
+		return false, "Description does not accomplish \\w+[\\w\\s]*"
+	}
+	return true, "succeed"
+}
+
+func testCaptureArguments(mw *middleware.Middleware, context *middleware.Context) bool {
+	var response struct {
+		Succeed bool
+		Error   string
+	}
+	response.Succeed, response.Error = checkCaptureInput(mw, context)
+	body, marshalError := json.Marshal(response)
+	if marshalError != nil {
+		go mw.LogError(context.Request, marshalError)
 		return false
 	}
-	response.Succeed = true
-	result, _ := json.Marshal(response)
-	context.Body = string(result)
+	context.Body = string(body)
+	return false
+}
+
+func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Context) bool {
+	connection, upgradeError := upgrade.Upgrade(context.ResponseWriter, context.Request, context.ResponseWriter.Header())
+	if upgradeError != nil {
+		go mw.LogError(context.Request, upgradeError)
+		context.Redirect = symbols.UserPacketCaptures
+		return false
+	}
+	fmt.Println(0)
+	context.WriteBody = false
+	defer func() {
+		closeError := connection.Close()
+		go mw.LogError(context.Request, closeError)
+	}()
+
+	var configuration struct {
+		Promiscuous   bool
+		Script        string
+		Description   string
+		CaptureName   string
+		InterfaceName string
+	}
+	fmt.Println(1)
+	readError := connection.ReadJSON(&configuration)
+	if readError != nil {
+		go mw.LogError(context.Request, readError)
+		// TODO: Send this to client
+		return false
+	}
+	fmt.Println(2)
+	if !mw.ReserveUserCaptureName(context.Request, context.User.Username, configuration.CaptureName) {
+		context.Redirect = symbols.UserPacketCaptures
+		return false
+	}
+	fmt.Println(3)
+	engine := capture.NewEngine(configuration.InterfaceName)
+	engine.Promiscuous = configuration.Promiscuous
+	if len(configuration.Script) > 0 {
+		initError := engine.InitScript(configuration.Script)
+		if initError != nil {
+			go mw.LogError(context.Request, initError)
+			// TODO: Return this to the client
+			return false
+		}
+	}
+	packetChannel, tcpStreamChannel, startError := engine.Start()
+	if startError != nil {
+		go mw.LogError(context.Request, startError)
+		// TODO: Return this to the client
+		return false
+	}
+	defer engine.Close()
+
+	fmt.Println(packetChannel, tcpStreamChannel, configuration.Description)
+
 	return false
 }
 
@@ -147,8 +207,20 @@ func newCapture(mw *middleware.Middleware, context *middleware.Context) bool {
 		)
 		context.Body = base.NewPage("Packet", context.NavigationBar, menu.String())
 		return false
-	case http.MethodConnect:
-		break
 	}
 	return http405.MethodNotAllowed(mw, context)
+}
+
+func Captures(mw *middleware.Middleware, context *middleware.Context) bool {
+	switch context.Request.FormValue("action") {
+	case actions.NewCapture:
+		return newCapture(mw, context)
+	case actions.ImportCapture:
+		break
+	case actions.TestCaptureArguments:
+		return testCaptureArguments(mw, context)
+	case actions.Start:
+		return prepareCaptureSession(mw, context)
+	}
+	return listCaptures(mw, context)
 }

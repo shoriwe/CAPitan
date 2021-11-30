@@ -163,6 +163,22 @@ func (logger *Logger) LogListUserCaptures(request *http.Request, username string
 	}
 }
 
+func (logger *Logger) LogReserveCaptureNameForUser(request *http.Request, username, captureName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully reserved capture name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to reserve capture name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogRemoveReserveCaptureNameForUser(request *http.Request, username, captureName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully removed reserved capture name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed removed reserved capture name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	}
+}
+
 func NewLogger(logWriter io.Writer) *Logger {
 	return &Logger{
 		errorLogger: log.New(logWriter, "ERROR: ", log.Ldate|log.Ltime),

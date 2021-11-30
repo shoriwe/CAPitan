@@ -22,6 +22,7 @@ type DatabaseAdminFeatures interface {
 
 type DatabaseUserFeatures interface {
 	ListUserCaptures(username string) (bool, []*objects.CaptureSession, error)
+	CheckIfUserCaptureNameWasAlreadyTaken(username string, name string) (bool, error)
 }
 
 type DatabaseGlobalFeatures interface {

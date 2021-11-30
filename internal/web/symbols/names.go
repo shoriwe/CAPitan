@@ -16,4 +16,5 @@ const (
 	CaptureName  = "capture-name"
 	Description  = "description"
 	Script       = "script"
+	Promiscuous  = "promiscuous"
 )

@@ -27,6 +27,23 @@ type Memory struct {
 	nextARPSpoofPermissionId          uint
 }
 
+func (memory *Memory) CheckIfUserCaptureNameWasAlreadyTaken(username string, name string) (bool, error) {
+	memory.usersMutex.Lock()
+	user, found := memory.users[username]
+	memory.usersMutex.Unlock()
+	if !found {
+		return false, nil
+	}
+	memory.captureSessionsMutex.Lock()
+	defer memory.captureSessionsMutex.Unlock()
+	for _, capture := range memory.captureSessions {
+		if capture.UserId == user.Id && capture.Name == name {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func (memory *Memory) ListUserCaptures(username string) (bool, []*objects.CaptureSession, error) {
 	memory.usersMutex.Lock()
 	user, found := memory.users[username]

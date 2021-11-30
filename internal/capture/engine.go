@@ -186,20 +186,20 @@ type Engine struct {
 	handle           *pcap.Handle
 }
 
-func (engine *Engine) InitScript(script string) (bool, error) {
+func (engine *Engine) InitScript(script string) error {
 	result, succeed := engine.VirtualMachine.ExecuteMain(script)
 	if !succeed {
 		toString, getError := result.Get(engine.VirtualMachine.Plasma, engine.VirtualMachine.BuiltInContext, vm.ToString)
 		if getError != nil {
-			return false, FailedToConvertErrorToString
+			return FailedToConvertErrorToString
 		}
 		asString, callSucceed := engine.VirtualMachine.CallFunction(engine.VirtualMachine.BuiltInContext, toString)
 		if !callSucceed {
-			return false, FailedToConvertErrorToString
+			return FailedToConvertErrorToString
 		}
-		return false, errors.New(asString.String)
+		return errors.New(asString.String)
 	}
-	return true, nil
+	return nil
 }
 
 func (engine *Engine) mainLoop(finalPackets, packetChannel chan gopacket.Packet, finalTCPStreams, tcpStreamChannel chan []byte) {
@@ -404,12 +404,18 @@ func interpretJSON(context *vm.Context, p *vm.Plasma, i interface{}) *vm.Value {
 }
 
 func (engine *Engine) transformPacketToHashMap(packet gopacket.Packet) *vm.Value {
-	// TODO: This function should also fill the map in those scenarios that the layer are nil
 	result := map[string]interface{}{
 		"Data": packet.Data(),
 		"Dump": packet.Dump(),
 	}
-	if packet.Metadata() != nil {
+	if packet.Metadata() == nil {
+		result["Metadata"] = map[string]interface{}{
+			"Length":         0,
+			"CaptureLength":  0,
+			"Truncated":      false,
+			"InterfaceIndex": 0,
+		}
+	} else {
 		result["Metadata"] = map[string]interface{}{
 			"Length":         packet.Metadata().Length,
 			"CaptureLength":  packet.Metadata().CaptureLength,
@@ -417,7 +423,19 @@ func (engine *Engine) transformPacketToHashMap(packet gopacket.Packet) *vm.Value
 			"InterfaceIndex": packet.Metadata().InterfaceIndex,
 		}
 	}
-	if packet.TransportLayer() != nil {
+	if packet.TransportLayer() == nil {
+		result["TransportLayer"] = map[string]interface{}{
+			"LayerType":     "",
+			"LayerPayload":  nil,
+			"LayerContents": nil,
+			"TransportFlow": map[string]interface{}{
+				"String":       "",
+				"Src":          "",
+				"Dst":          "",
+				"EndpointType": "",
+			},
+		}
+	} else {
 		result["TransportLayer"] = map[string]interface{}{
 			"LayerType":     packet.TransportLayer().LayerType().String(),
 			"LayerPayload":  packet.TransportLayer().LayerPayload(),
@@ -430,7 +448,14 @@ func (engine *Engine) transformPacketToHashMap(packet gopacket.Packet) *vm.Value
 			},
 		}
 	}
-	if packet.ApplicationLayer() != nil {
+	if packet.ApplicationLayer() == nil {
+		result["ApplicationLayer"] = map[string]interface{}{
+			"LayerType":     "",
+			"LayerPayload":  nil,
+			"LayerContents": nil,
+			"Payload":       nil,
+		}
+	} else {
 		result["ApplicationLayer"] = map[string]interface{}{
 			"LayerType":     packet.ApplicationLayer().LayerType().String(),
 			"LayerPayload":  packet.ApplicationLayer().LayerPayload(),
@@ -438,7 +463,19 @@ func (engine *Engine) transformPacketToHashMap(packet gopacket.Packet) *vm.Value
 			"Payload":       packet.ApplicationLayer().Payload(),
 		}
 	}
-	if packet.NetworkLayer() != nil {
+	if packet.NetworkLayer() == nil {
+		result["NetworkLayer"] = map[string]interface{}{
+			"LayerType":     "",
+			"LayerPayload":  nil,
+			"LayerContents": nil,
+			"LinkFlow": map[string]interface{}{
+				"Src":          "",
+				"Dst":          "",
+				"String":       "",
+				"EndpointType": "",
+			},
+		}
+	} else {
 		result["NetworkLayer"] = map[string]interface{}{
 			"LayerType":     packet.NetworkLayer().LayerType().String(),
 			"LayerPayload":  packet.NetworkLayer().LayerPayload(),
@@ -451,7 +488,19 @@ func (engine *Engine) transformPacketToHashMap(packet gopacket.Packet) *vm.Value
 			},
 		}
 	}
-	if packet.LinkLayer() != nil {
+	if packet.LinkLayer() == nil {
+		result["LinkLayer"] = map[string]interface{}{
+			"LayerType":     "",
+			"LayerPayload":  nil,
+			"LayerContents": nil,
+			"LinkFlow": map[string]interface{}{
+				"Src":          "",
+				"Dst":          "",
+				"String":       "",
+				"EndpointType": "",
+			},
+		}
+	} else {
 		result["LinkLayer"] = map[string]interface{}{
 			"LayerType":     packet.LinkLayer().LayerType().String(),
 			"LayerPayload":  packet.LinkLayer().LayerPayload(),
@@ -462,6 +511,28 @@ func (engine *Engine) transformPacketToHashMap(packet gopacket.Packet) *vm.Value
 				"String":       packet.LinkLayer().LinkFlow().String(),
 				"EndpointType": packet.LinkLayer().LinkFlow().EndpointType().String(),
 			},
+		}
+	}
+	if packet.ErrorLayer() == nil {
+		result["ErrorLayer"] = map[string]interface{}{
+			"LayerType":     "",
+			"LayerPayload":  nil,
+			"LayerContents": nil,
+			"ErrorFlow":     "",
+		}
+	} else if packet.ErrorLayer().Error() == nil {
+		result["ErrorLayer"] = map[string]interface{}{
+			"LayerType":     packet.ErrorLayer().LayerType().String(),
+			"LayerPayload":  packet.ErrorLayer().LayerPayload(),
+			"LayerContents": packet.ErrorLayer().LayerContents(),
+			"ErrorFlow":     nil,
+		}
+	} else {
+		result["ErrorLayer"] = map[string]interface{}{
+			"LayerType":     packet.ErrorLayer().LayerType().String(),
+			"LayerPayload":  packet.ErrorLayer().LayerPayload(),
+			"LayerContents": packet.ErrorLayer().LayerContents(),
+			"ErrorFlow":     "",
 		}
 	}
 	return interpretJSON(engine.machineContext, engine.VirtualMachine.Plasma, result)
