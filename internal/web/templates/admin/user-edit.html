@@ -1,28 +1,27 @@
-<link href="/static/css/nav-bar.css" rel="stylesheet" type="text/css">
 <div style="display: none;">
     <form action="/admin/user?action=edit-user" id="reload-submit" method="post">
         <label for="resubmit-username" style="display: none;">{{.Username}}</label>
         <input class="description" id="resubmit-username" name="username" readonly style="display: none;"
                type="text"
                value="{{.Username}}">
-        <button class="button" type="submit">Edit</button>
+        <button class="green-button" type="submit">Edit</button>
     </form>
 </div>
-<link href="/static/css/admin/user-edit.css" rel="stylesheet" type="text/css">
 <div class="master-container">
-    <h2 class="username">{{.Username}}</h2>
-    <div class="container">
-        <h3 class="container-title">Password</h3>
+    <h2 class="black-text">{{.Username}}</h2>
+    <div class="page-container">
+        <h3 class="black-text">Password</h3>
         <form onsubmit="return false;">
             <label for="password"></label>
-            <input class="text-input" id="password" placeholder="Password" type="password">
-            <button class="button" onclick="submitUpdatePassword()" onsubmit="submitUpdatePassword()" type="submit">
+            <input class="basic-text-input" id="password" placeholder="Password" type="password">
+            <button class="green-button" onclick="submitUpdatePassword()" onsubmit="submitUpdatePassword()"
+                    type="submit">
                 Update
             </button>
         </form>
     </div>
-    <div class="container">
-        <h3 class="container-title">User status</h3>
+    <div class="page-container">
+        <h3 class="black-text">User status</h3>
         <form onsubmit="return false;">
             <label for="is-admin"></label>
             {{if .IsAdmin}}
@@ -41,13 +40,14 @@
             <button class="unchecked-checkbox" id="enabled-disabled-checkbox" onclick="toggleEnabledDisabled()"
                     type="button">Disabled
             </button>
-            <button class="button" onclick="submitUpdateStatus()" onsubmit="submitUpdateStatus()" type="submit">Update
+            <button class="green-button" onclick="submitUpdateStatus()" onsubmit="submitUpdateStatus()" type="submit">
+                Update
             </button>
         </form>
     </div>
-    <div class="container" id="capture-permissions">
-        <div class="sub-container">
-            <h3 class="container-title">Capture permissions</h3>
+    <div class="page-container" id="capture-permissions">
+        <div class="align-left-container">
+            <h3 class="black-text">Capture permissions</h3>
             <span style="width: 1%;"></span>
             <div class="dropdown">
                 <button class="dropbtn" id="capture" onclick="showMenu(this.id)">Add</button>
@@ -63,11 +63,11 @@
             </div>
         </div>
         {{range $interface := .CaptureInterfaces}}
-        <div class="interface-container">
-            <h3 class="interface-name">{{$interface.Name}} {{$interface.Address}}</h3>
+        <div class="list-entry">
+            <h3 class="black-text">{{$interface.Name}} {{$interface.Address}}</h3>
             <span style="width: 1%;"></span>
             <form onsubmit="return false;">
-                <button class="delete-button" id="capture-interface-to-delete-{{$interface.Name}}"
+                <button class="red-button" id="capture-interface-to-delete-{{$interface.Name}}"
                         onclick="deleteCaptureInterface(this.id)" onsubmit="deleteCaptureInterface(this.id)"
                         type="submit">Delete
                 </button>
@@ -75,9 +75,9 @@
         </div>
         {{end}}
     </div>
-    <div class="container" id="arp-scan-permissions">
-        <div class="sub-container">
-            <h3 class="container-title">ARP Scan permissions</h3>
+    <div class="page-container" id="arp-scan-permissions">
+        <div class="align-left-container">
+            <h3 class="black-text">ARP Scan permissions</h3>
             <span style="width: 1%;"></span>
             <div class="dropdown">
                 <button class="dropbtn" id="arp-scan" onclick="showMenu(this.id)">Add</button>
@@ -93,11 +93,11 @@
             </div>
         </div>
         {{range $interface := .ARPScanInterfaces}}
-        <div class="interface-container">
-            <h3 class="interface-name">{{$interface.Name}} {{$interface.Address}}</h3>
+        <div class="list-entry">
+            <h3 class="black-text">{{$interface.Name}} {{$interface.Address}}</h3>
             <span style="width: 1%;"></span>
             <form onsubmit="return false;">
-                <button class="delete-button" id="arp-scan-interface-to-delete-{{$interface.Name}}"
+                <button class="red-button" id="arp-scan-interface-to-delete-{{$interface.Name}}"
                         onclick="deleteARPScanInterface(this.id)" onsubmit="deleteARPScanInterface()"
                         type="submit">
                     Delete
@@ -106,9 +106,9 @@
         </div>
         {{end}}
     </div>
-    <div class="container" id="arp-spoof-permissions">
-        <div class="sub-container">
-            <h3 class="container-title">ARP Spoof permissions</h3>
+    <div class="page-container" id="arp-spoof-permissions">
+        <div class="align-left-container">
+            <h3 class="black-text">ARP Spoof permissions</h3>
             <span style="width: 1%;"></span>
             <div class="dropdown">
                 <button class="dropbtn" id="arp-spoof" onclick="showMenu(this.id)">Add</button>
@@ -124,11 +124,11 @@
             </div>
         </div>
         {{range $interface := .ARPSpoofInterfaces}}
-        <div class="interface-container">
-            <h3 class="interface-name">{{$interface.Name}} {{$interface.Address}}</h3>
+        <div class="list-entry">
+            <h3 class="black-text">{{$interface.Name}} {{$interface.Address}}</h3>
             <span style="width: 1%;"></span>
             <form onsubmit="return false;">
-                <button class="delete-button" id="arp-spoof-interface-to-delete-{{$interface.Name}}"
+                <button class="red-button" id="arp-spoof-interface-to-delete-{{$interface.Name}}"
                         onclick="deleteARPSpoofInterface(this.id)" onsubmit="deleteARPSpoofInterface()"
                         type="submit">
                     Delete

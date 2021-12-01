@@ -1,17 +1,22 @@
-<link href="/static/css/nav-bar.css" rel="stylesheet" type="text/css">
-<div class="navigation-container">
-    <div class="navigation-bar">
-        <div style="width: 95%;">
-            <a class="title" href="/dashboard">CAPitan</a>
-            <a class="navigation-button" href="/packet">Packet</a>
-            <a class="navigation-button" href="/arp">ARP</a>
-            <a class="navigation-button" href="/admin">Admin</a>
+<link href="/static/css/text.css" rel="stylesheet" type="text/css">
+<link href="/static/css/buttons.css" rel="stylesheet" type="text/css">
+<link href="/static/css/containers.css" rel="stylesheet" type="text/css">
+<link href="/static/css/dropdown.css" rel="stylesheet" type="text/css">
+<div class="page-container">
+    <div class="flex-container">
+        <div class="align-left-container" style="width: 95%;">
+            <a class="home-page-title" href="/dashboard">CAPitan</a>
+            <a class="blue-button" href="/packet">Packet</a>
+            <a class="blue-button" href="/arp">ARP</a>
+            <a class="blue-button" href="/admin">Admin</a>
         </div>
-        <div class="dropdown">
-            <button class="dropbtn" id="nav-bar" onclick="showMenu(this.id)">{{.Username}}</button>
-            <div class="dropdown-content" id="dropDownMenu-nav-bar">
-                <a href="/settings">Settings</a>
-                <a href="/logout">Logout</a>
+        <div class="align-right-container">
+            <div class="dropdown">
+                <button class="dropbtn" id="nav-bar" onclick="showMenu(this.id)">{{.Username}}</button>
+                <div class="dropdown-content" id="dropDownMenu-nav-bar">
+                    <a href="/settings">Settings</a>
+                    <a href="/logout">Logout</a>
+                </div>
             </div>
         </div>
     </div>

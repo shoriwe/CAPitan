@@ -1,62 +1,72 @@
-<link href="/static/css/admin/users.css" rel="stylesheet" type="text/css">
-<div class="admin-panel">
-    <div class="new-button-container">
-        <a class="button" onclick="showDialog()">New</a>
-    </div>
-    <div class="new-user-dialog" id="new-user-dialog" style="display: none;">
-        <h3 id="user-already-taken" style="display: none; color: #e74c3c; font-family: Arial, serif;">User already
-            taken</h3>
-        <h3 id="user-not-taken" style="display: none; color: #2ecc71; font-family: Arial, serif;">User not taken</h3>
-        <form action="/admin/user?action=new-user" id="create-user" method="post" onsubmit="return false;">
-            <label for="username"></label>
-            <div>
-                <input class="username-input" id="username" name="username" placeholder="Username" required type="text">
-                <button class="button" onclick="checkUsername()" type="button">Test</button>
-            </div>
-            <div style="margin-top: 2%;">
-                <button class="cancel-button" onclick="hideDialog()" type="button">Cancel</button>
-                <button class="button" onclick="createUsername(); return false;" type="submit">Create User</button>
-            </div>
-        </form>
-    </div>
-    <div class="list-container">
-        {{range $index, $user := .Users}}
-        {{if $user.IsEnabled}}
-        <div class="list-entry">
-            <h3 class="description">{{$user.Username}}</h3>
-            <h3 class="description" style="color: #2ecc71">Enabled</h3>
-            {{if $user.IsAdmin}}
-            <h3 class="description" style="color: #3498db">Admin</h3>
-            {{else}}
-            <h3 class="description">Basic</h3>
-            {{end}}
-            <form action="/admin/user?action=edit-user" method="post">
-                <label for="{{$index}}" style="display: none;">{{$user.Username}}</label>
-                <input class="description" id="{{$index}}" name="username" readonly style="display: none;"
-                       type="text"
-                       value="{{$user.Username}}">
-                <button class="button" type="submit">Edit</button>
+<div class="master-container">
+    <div class="page-container">
+        <div class="align-right-container">
+            <a class="green-button" onclick="showDialog()">New</a>
+        </div>
+        <div class="dialog-container" id="new-user-dialog" style="display: none;">
+            <h3 id="user-already-taken" style="display: none; color: #e74c3c; font-family: Arial, serif;">User already
+                taken</h3>
+            <h3 id="user-not-taken" style="display: none; color: #2ecc71; font-family: Arial, serif;">User not
+                taken</h3>
+            <form action="/admin/user?action=new-user" id="create-user" method="post" onsubmit="return false;">
+                <label for="username"></label>
+                <div>
+                    <input class="basic-text-input" id="username" name="username" placeholder="Username" required
+                           type="text">
+                    <button class="green-button" onclick="checkUsername()" type="button">Test</button>
+                </div>
+                <div style="margin-top: 2%;">
+                    <button class="red-button" onclick="hideDialog()" type="button">Cancel</button>
+                    <button class="green-button" onclick="createUsername(); return false;" type="submit">Create User
+                    </button>
+                </div>
             </form>
         </div>
-        {{else}}
-        <div class="list-entry">
-            <h3 class="description">{{$user.Username}}</h3>
-            <h3 class="description" style="color: #e74c3c">Disabled</h3>
-            {{if $user.IsAdmin}}
-            <h3 class="description" style="color: #3498db">Admin</h3>
+        <div class="list-container">
+            {{range $index, $user := .Users}}
+            {{if $user.IsEnabled}}
+            <div class="list-entry">
+                <h3 class="black-text">{{$user.Username}}</h3>
+                <span style="width: 1vw;"></span>
+                <h3 class="green-text">Enabled</h3>
+                <span style="width: 1vw;"></span>
+                {{if $user.IsAdmin}}
+                <h3 class="blue-text">Admin</h3>
+                {{else}}
+                <h3 class="black-text">Basic</h3>
+                {{end}}
+                <span style="width: 1vw;"></span>
+                <form action="/admin/user?action=edit-user" method="post">
+                    <label for="{{$index}}" style="display: none;">{{$user.Username}}</label>
+                    <input class="black-text" id="{{$index}}" name="username" readonly style="display: none;"
+                           type="text"
+                           value="{{$user.Username}}">
+                    <button class="green-button" type="submit">Edit</button>
+                </form>
+            </div>
             {{else}}
-            <h3 class="description">Basic</h3>
+            <div class="list-entry">
+                <h3 class="black-text">{{$user.Username}}</h3>
+                <span style="width: 1vw;"></span>
+                <h3 class="red-text">Disabled</h3>
+                <span style="width: 1vw;"></span>
+                {{if $user.IsAdmin}}
+                <h3 class="blue-text">Admin</h3>
+                {{else}}
+                <h3 class="black-text">Basic</h3>
+                {{end}}
+                <span style="width: 1vw;"></span>
+                <form action="/admin/user?action=edit-user" method="post">
+                    <label for="{{$index}}" style="display: none;">{{$user.Username}}</label>
+                    <input class="black-text" id="{{$index}}" name="username" readonly style="display: none;"
+                           type="text"
+                           value="{{$user.Username}}">
+                    <button class="green-button" type="submit">Edit</button>
+                </form>
+            </div>
             {{end}}
-            <form action="/admin/user?action=edit-user" method="post">
-                <label for="{{$index}}" style="display: none;">{{$user.Username}}</label>
-                <input class="description" id="{{$index}}" name="username" readonly style="display: none;"
-                       type="text"
-                       value="{{$user.Username}}">
-                <button class="button" type="submit">Edit</button>
-            </form>
+            {{end}}
         </div>
-        {{end}}
-        {{end}}
     </div>
 </div>
 <script src="/static/js/admin/users.js">

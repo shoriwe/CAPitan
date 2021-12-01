@@ -1,0 +1,82 @@
+.master-container {
+    margin-top: 1%;
+}
+
+.page-container {
+    box-shadow: 1px 1px 1px 1px gray;
+    border: 1px solid gray;
+    padding: 1%;
+}
+
+.dialog-container {
+    position: absolute;
+    width: 25%;
+    z-index: 10;
+    padding: 1%;
+
+    box-shadow: 1px 1px 1px 1px gray;
+    border: 1px solid gray;
+    background: white;
+
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+}
+
+.flex-container {
+    display: flex;
+    align-items: center;
+}
+
+.align-right-container {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+
+.align-left-container {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.centered-container {
+    width: 50%;
+    margin: auto;
+    text-align: center;
+    align-content: center;
+    justify-content: center;
+}
+
+.centered-flex-container {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.list-container {
+    box-shadow: 1px 1px 1px 1px gray;
+    border: 1px solid gray;
+    padding: 1%;
+
+    margin-top: 1%;
+}
+
+.list-entry {
+    max-width: 50%;
+    margin: 0.25% auto;
+    padding: 1%;
+    box-shadow: 1px 1px 2px 1px gray;
+    border: 0 solid gray;
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+}
+
+.list-entry:hover {
+    background: #f5f6fa;
+}

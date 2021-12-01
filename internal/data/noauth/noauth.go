@@ -20,6 +20,10 @@ var admin = &objects.User{
 type NoAuth struct {
 }
 
+func (noAuth *NoAuth) CheckIfUserCaptureNameWasAlreadyTaken(username string, name string) (bool, error) {
+	panic("implement me")
+}
+
 func (noAuth *NoAuth) ListUserCaptures(username string) (bool, []*objects.CaptureSession, error) {
 	return true, []*objects.CaptureSession{
 		&objects.CaptureSession{

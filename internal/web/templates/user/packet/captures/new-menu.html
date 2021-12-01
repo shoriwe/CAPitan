@@ -1,46 +1,52 @@
 <link href="/static/vendor/css/prism.css" rel="stylesheet"/>
 <link href="/static/vendor/css/prism-live.css" rel="stylesheet"/>
-<link href="/static/css/user/capture-new.css" rel="stylesheet"/>
 <div class="master-container">
-    <div id="new-config-container">
-        <h3 id="error-message"
-            style="text-align: center; font-family: Arial, serif; color: #e74c3c; display: none;"></h3>
-        <div style="display: flex; justify-content: center; align-items: center;">
+    <div class="page-container" id="new-config-container">
+        <h3 class="error-block"
+            id="error-message" style="display: none;"></h3>
+        <div class="centered-flex-container">
             <label for="capture-name"></label>
-            <input class="capture-name" id="capture-name" placeholder="Capture name" type="text">
-            <button class="new-button" onclick="newCapture();">New</button>
+            <input class="basic-text-input" id="capture-name" placeholder="Capture name" type="text">
+            <button class="green-button" onclick="newCapture();">New</button>
         </div>
-        <div style="display: flex; justify-content: center; align-items: center;">
-            <div style="width: 45%;">
-                <label for="promiscuous"></label>
-                <input checked id="promiscuous" name="promiscuous" readonly style="display: none;" type="checkbox">
-                <button class="unchecked-checkbox" id="promiscuous-checkbox" onclick="togglePromiscuous()"
-                        type="button">Promiscuous
-                </button>
-                <label for="description"></label>
-                <textarea class="description" id="description" maxlength="1000" placeholder="Description"></textarea>
-                <br>
-                <div style="float: right; margin-right: 4%;">
-                    <div class="dropdown">
-                        <button class="dropbtn" id="capture" onclick="showMenu(this.id)">Interface</button>
-                        <div class="dropdown-content" id="dropDownMenu-capture">
-                            {{range $interface, $nothing := .CaptureInterfaces}}
-                            <form onsubmit="return false;">
-                                <a id="{{$interface}}" onclick="selectCaptureInterface(this.id)"
-                                   onsubmit="selectCaptureInterface(this.id)"
-                                   type="submit">{{$interface}}</a>
-                            </form>
-                            {{end}}
+        <div class="master-container">
+            <div class="centered-flex-container">
+                <div style="width: 45%; margin-right: 1%;">
+                    <div class="align-right-container">
+                        <label for="promiscuous"></label>
+                        <input checked id="promiscuous" name="promiscuous" readonly style="display: none;"
+                               type="checkbox">
+                        <button class="checked-checkbox" id="promiscuous-checkbox" onclick="togglePromiscuous()"
+                                type="button">Promiscuous
+                        </button>
+                        <div class="dropdown">
+                            <button class="dropbtn" id="capture" onclick="showMenu(this.id)"
+                                    style="padding: 0.6vh 1vw;">Interface
+                            </button>
+                            <div class="dropdown-content" id="dropDownMenu-capture">
+                                {{range $interface, $nothing := .CaptureInterfaces}}
+                                <form onsubmit="return false;">
+                                    <a id="{{$interface}}" onclick="selectCaptureInterface(this.id)"
+                                       onsubmit="selectCaptureInterface(this.id)"
+                                       type="submit">{{$interface}}</a>
+                                </form>
+                                {{end}}
+                            </div>
                         </div>
                     </div>
+                    <br>
+                    <br>
+                    <label for="description"></label>
+                    <textarea class="basic-text-input" id="description" maxlength="1000"
+                              placeholder="Description" style="resize: none; width: 90%; height: 50%;"></textarea>
                 </div>
-            </div>
-            <div style="width: 55%;">
+                <div style="width: 55%;">
                 <pre>
                     <label for="filter-script"></label>
                     <textarea class="prism-live language-ruby line-numbers fill prism-live-source" id="filter-script"
                               style="height: 65vh;border: 1px solid gray; border-radius: 2px;"></textarea>
                 </pre>
+                </div>
             </div>
         </div>
     </div>
