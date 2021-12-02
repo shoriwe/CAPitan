@@ -21,7 +21,7 @@ const (
 var (
 	HTTPRequestPattern    = regexp.MustCompile("(?m)^[A-Z]+\\s\\S+\\sHTTP/\\d+(\\.\\d)*")
 	HTTPResponsePattern   = regexp.MustCompile("(?m)^HTTP/\\d+(\\.\\d)*\\s\\d+\\s[A-Z]+")
-	PlainTextPattern      = regexp.MustCompile("(?m)^([[:graph:]]|[[:space:]])+$")
+	PlainTextPattern      = regexp.MustCompile("([[:graph:]]|[[:space:]])+")
 	ExtractRawContentType = regexp.MustCompile("[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+")
 )
 
@@ -163,7 +163,7 @@ func DetectChunkFormat(content []byte) ([]Data, error) {
 		return nil, matchError
 	}
 	if contentType == filetype.Unknown {
-		if PlainTextPattern.Match(content) {
+		if len(PlainTextPattern.Find(content)) == len(content) {
 			return []Data{
 				NewData(PlainText, content),
 			}, nil

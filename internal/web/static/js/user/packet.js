@@ -102,7 +102,7 @@ async function loadPacket(packet) {
 function createParentDiv() {
     const result = document.createElement("div");
     result.style.margin = "1%";
-    result.style.width = "45vw";
+    result.style.minWidth = "45vw";
     result.style.height = "50vh";
     return result;
 }
@@ -291,7 +291,7 @@ async function newCapture() {
                 InterfaceName: selectedInterface,
                 CaptureName: captureName.value,
                 Description: description.value,
-                FilterScript: filterScript.value,
+                Script: filterScript.value,
                 Promiscuous: promiscuousCheckbox.checked
             }
         );

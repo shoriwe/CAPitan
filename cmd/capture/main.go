@@ -15,10 +15,8 @@ def packetChecker(packet)
 end
 
 def tcpStreamChecker(contentType, stream)
-	println(contentType == "unknown")
-	return False
+	return contentType != "unknown"
 end
-
 
 LoadPacketFilter(packetChecker)
 LoadTCPStreamFilter(tcpStreamChecker)
@@ -69,7 +67,7 @@ func main() {
 				if !isOpen {
 					return
 				}
-				fmt.Println(data)
+				fmt.Println(data.Type)
 			case <-tick:
 				break
 			}

@@ -162,6 +162,7 @@ func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Contex
 	}
 	engine := capture.NewEngine(configuration.InterfaceName)
 	engine.Promiscuous = configuration.Promiscuous
+
 	if len(configuration.Script) > 0 {
 		initError := engine.InitScript(configuration.Script)
 		if initError != nil {
