@@ -7,7 +7,7 @@ import (
 
 type DatabaseAdminFeatures interface {
 	UpdatePasswordAndSetExpiration(username, newPassword string, duration time.Duration) (bool, error)
-	GetUserInterfacePermissions(username string) (succeed bool, user *objects.User, captureInterfaces map[string]struct{}, arpScanInterfaces map[string]struct{}, arpSpoofInterfaces map[string]struct{}, err error)
+	GetUserInterfacePermissions(username string) (succeed bool, user *objects.User, captureInterfaces map[string]*objects.CapturePermission, arpScanInterfaces map[string]*objects.ARPScanPermission, arpSpoofInterfaces map[string]*objects.ARPSpoofPermission, err error)
 	ListUsers(username string) ([]*objects.User, error)
 	CreateUser(username string) (bool, error)
 	GetUserByUsername(username string) (bool, *objects.User, error)

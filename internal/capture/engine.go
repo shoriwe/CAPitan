@@ -37,7 +37,10 @@ func engineFeatures(engine *Engine) vm.Feature {
 				vm.NewBuiltInFunction(1,
 					func(self *vm.Value, arguments ...*vm.Value) (*vm.Value, bool) {
 						engine.packetFilter = func(packet gopacket.Packet) (bool, error) {
-							result, succeed := engine.VirtualMachine.Plasma.CallFunction(engine.machineContext, arguments[0], engine.transformPacketToHashMap(packet))
+							result, succeed := engine.VirtualMachine.Plasma.CallFunction(
+								engine.machineContext,
+								arguments[0],
+								interpretToPlasmaMap(engine.machineContext, engine.VirtualMachine.Plasma, TransformPacketToMap(packet)))
 							if !succeed {
 								toString, getError := result.Get(engine.VirtualMachine.Plasma, engine.machineContext, vm.ToString)
 								if getError != nil {
@@ -74,8 +77,13 @@ func engineFeatures(engine *Engine) vm.Feature {
 			return plasma.NewFunction(context, true, plasma.BuiltInSymbols(),
 				vm.NewBuiltInFunction(1,
 					func(self *vm.Value, arguments ...*vm.Value) (*vm.Value, bool) {
-						engine.tcpStreamFilter = func(tcpStream []byte) (bool, error) {
-							result, succeed := engine.VirtualMachine.Plasma.CallFunction(engine.machineContext, arguments[0], engine.VirtualMachine.NewBytes(engine.machineContext, false, tcpStream))
+						engine.tcpStreamFilter = func(tcpStream Data) (bool, error) {
+							result, succeed := engine.VirtualMachine.Plasma.CallFunction(
+								engine.machineContext,
+								arguments[0],
+								engine.VirtualMachine.NewString(engine.machineContext, false, tcpStream.Type),
+								engine.VirtualMachine.NewBytes(engine.machineContext, false, tcpStream.Content),
+							)
 							if !succeed {
 								toString, getError := result.Get(engine.VirtualMachine.Plasma, engine.machineContext, vm.ToString)
 								if getError != nil {
@@ -151,22 +159,32 @@ func (s *securedFileSystem) RelativePwd() string {
 }
 
 type tcpStreamFactory struct {
-	TCPStreamChannel chan []byte
+	TCPStreamChannel chan Data
 }
 
 func (t *tcpStreamFactory) New(_, _ gopacket.Flow) tcpassembly.Stream {
 	stream := tcpreader.NewReaderStream()
 	go func(s io.Reader) {
+		defer func() {
+			if r := recover(); r != nil {
+
+			}
+		}()
 		chunk := bytes.NewBuffer(nil)
-		tempChunk := make([]byte, 1024*1024*32)
+		tempChunk := make([]byte, defaultSnapLen)
 		for {
 			numberOfBytesRead, readError := s.Read(tempChunk)
-			if readError != nil {
+			if readError == io.EOF {
 				break
 			}
 			chunk.Write(tempChunk[:numberOfBytesRead])
 		}
-		t.TCPStreamChannel <- chunk.Bytes()
+		data, detectionError := DetectChunkFormat(chunk.Bytes())
+		if detectionError == nil {
+			for _, d := range data {
+				t.TCPStreamChannel <- d
+			}
+		}
 	}(&stream)
 	return &stream
 }
@@ -176,7 +194,7 @@ type Engine struct {
 	paused          bool
 	resume          chan bool
 	packetFilter    func(packet gopacket.Packet) (bool, error)
-	tcpStreamFilter func(bytes []byte) (bool, error)
+	tcpStreamFilter func(bytes Data) (bool, error)
 	VirtualMachine  *gplasma.VirtualMachine
 	machineContext  *vm.Context
 	// Interface Configuration
@@ -202,37 +220,47 @@ func (engine *Engine) InitScript(script string) error {
 	return nil
 }
 
-func (engine *Engine) mainLoop(finalPackets, packetChannel chan gopacket.Packet, finalTCPStreams, tcpStreamChannel chan []byte) {
-	if finalPackets == packetChannel {
-		defer close(packetChannel)
+func (engine *Engine) mainLoop(outPacketChannel, filterPacketChannel chan gopacket.Packet, outTCPStreamChannel, filterTCPStreamChannel chan Data) {
+	if outPacketChannel == filterPacketChannel {
+		defer close(filterPacketChannel)
 	}
-	if finalTCPStreams == tcpStreamChannel {
-		defer close(tcpStreamChannel)
+	if outTCPStreamChannel == filterTCPStreamChannel {
+		defer close(filterTCPStreamChannel)
 	}
 	source := gopacket.NewPacketSource(engine.handle, engine.handle.LinkType())
 	packets := source.Packets()
+	defer close(packets)
 
 	streamFactory := &tcpStreamFactory{
-		TCPStreamChannel: tcpStreamChannel,
+		TCPStreamChannel: filterTCPStreamChannel,
 	}
 	streamPool := tcpassembly.NewStreamPool(streamFactory)
 	assembler := tcpassembly.NewAssembler(streamPool)
+	assembler.MaxBufferedPagesPerConnection = 500
+	assembler.MaxBufferedPagesTotal = 100000
 
-	tick := time.Tick(500 * time.Nanosecond)
+	tick := time.Tick(time.Second * 2)
 
-	for packet := range packets {
-		<-tick
-		if packet.NetworkLayer() != nil && packet.TransportLayer() != nil {
-			if packet.TransportLayer().LayerType() == layers.LayerTypeTCP {
-				assembler.AssembleWithTimestamp(packet.NetworkLayer().NetworkFlow(), packet.TransportLayer().(*layers.TCP), packet.Metadata().Timestamp)
+	for {
+		select {
+		case packet, isOpen := <-packets:
+			if isOpen {
+				if packet != nil {
+					if packet.NetworkLayer() != nil && packet.TransportLayer() != nil {
+						if packet.TransportLayer().LayerType() == layers.LayerTypeTCP {
+							assembler.AssembleWithTimestamp(packet.NetworkLayer().NetworkFlow(), packet.TransportLayer().(*layers.TCP), packet.Metadata().Timestamp)
+						}
+					}
+					filterPacketChannel <- packet
+				}
 			}
+		case <-tick:
+			assembler.FlushOlderThan(time.Now().Add(time.Second * -5))
 		}
-		packetChannel <- packet
-		assembler.FlushOlderThan(time.Now())
 	}
 }
 
-func (engine *Engine) Start() (chan gopacket.Packet, chan []byte, error) {
+func (engine *Engine) Start() (chan gopacket.Packet, chan Data, chan error, error) {
 	var openError error
 	if engine.NetworkInterface != "" {
 		engine.handle, openError = pcap.OpenLive(engine.NetworkInterface, defaultSnapLen, engine.Promiscuous, 0)
@@ -240,10 +268,10 @@ func (engine *Engine) Start() (chan gopacket.Packet, chan []byte, error) {
 		engine.handle, openError = pcap.OpenOfflineFile(engine.PcapFile)
 	}
 	if openError != nil {
-		return nil, nil, openError
+		return nil, nil, nil, openError
 	}
 	packetChannel := make(chan gopacket.Packet, 1000)
-	streamChannel := make(chan []byte, 1000)
+	streamChannel := make(chan Data, 1000)
 
 	var (
 		filterPackedChannel = packetChannel
@@ -253,8 +281,9 @@ func (engine *Engine) Start() (chan gopacket.Packet, chan []byte, error) {
 		filterPackedChannel = make(chan gopacket.Packet, 1000)
 	}
 	if engine.tcpStreamFilter != nil {
-		filterStreamChannel = make(chan []byte, 1000)
+		filterStreamChannel = make(chan Data, 1000)
 	}
+	errorChannel := make(chan error)
 	if engine.packetFilter != nil && engine.tcpStreamFilter != nil {
 		go func() {
 			defer close(packetChannel)
@@ -262,40 +291,46 @@ func (engine *Engine) Start() (chan gopacket.Packet, chan []byte, error) {
 			defer close(filterPackedChannel)
 			defer close(filterStreamChannel)
 
-			tick := time.Tick(500 * time.Nanosecond)
+			tick := time.Tick(time.Second * 2)
 			for {
-				<-tick
 				select {
-				case packet, isOpen := <-filterPackedChannel:
-					if isOpen {
-						succeed, err := engine.packetFilter(packet)
-						if err != nil {
-							return
+				case <-tick:
+					for i := 0; i < 1000; i++ {
+						select {
+						case packet, isOpen := <-filterPackedChannel:
+							if isOpen {
+								succeed, err := engine.packetFilter(packet)
+								if err != nil {
+									errorChannel <- err
+									return
+								}
+								if succeed {
+									packetChannel <- packet
+								}
+							} else {
+								return
+							}
+						default:
+							break
 						}
-						if succeed {
-							packetChannel <- packet
+						select {
+						case stream, isOpen := <-filterStreamChannel:
+							if isOpen {
+								succeed, err := engine.tcpStreamFilter(stream)
+								if err != nil {
+									errorChannel <- err
+									return
+								}
+								if succeed {
+									streamChannel <- stream
+								}
+							} else {
+								return
+							}
+						default:
+							break
 						}
-					} else {
-						return
 					}
-				default:
-					break
-				}
-				select {
-				case stream, isOpen := <-filterStreamChannel:
-					if isOpen {
-						succeed, err := engine.tcpStreamFilter(stream)
-						if err != nil {
-							return
-						}
-						if succeed {
-							streamChannel <- stream
-						}
-					} else {
-						return
-					}
-				default:
-					break
 				}
 			}
 		}()
@@ -306,24 +341,29 @@ func (engine *Engine) Start() (chan gopacket.Packet, chan []byte, error) {
 			defer close(filterPackedChannel)
 			defer close(filterStreamChannel)
 
-			tick := time.Tick(500 * time.Nanosecond)
+			tick := time.Tick(time.Second * 2)
 			for {
-				<-tick
 				select {
-				case packet, isOpen := <-filterPackedChannel:
-					if isOpen {
-						succeed, err := engine.packetFilter(packet)
-						if err != nil {
-							return
+				case <-tick:
+					for i := 0; i < 1000; i++ {
+						select {
+						case packet, isOpen := <-filterPackedChannel:
+							if isOpen {
+								succeed, err := engine.packetFilter(packet)
+								if err != nil {
+									errorChannel <- err
+									return
+								}
+								if succeed {
+									packetChannel <- packet
+								}
+							} else {
+								return
+							}
+						default:
+							break
 						}
-						if succeed {
-							packetChannel <- packet
-						}
-					} else {
-						return
 					}
-				default:
-					break
 				}
 			}
 		}()
@@ -334,45 +374,42 @@ func (engine *Engine) Start() (chan gopacket.Packet, chan []byte, error) {
 			defer close(filterPackedChannel)
 			defer close(filterStreamChannel)
 
-			tick := time.Tick(500 * time.Nanosecond)
+			tick := time.Tick(time.Second * 2)
 			for {
-				<-tick
 				select {
-				case stream, isOpen := <-filterStreamChannel:
-					if isOpen {
-						succeed, err := engine.tcpStreamFilter(stream)
-						if err != nil {
-							return
+				case <-tick:
+					for i := 0; i < 1000; i++ {
+						select {
+						case stream, isOpen := <-filterStreamChannel:
+							if isOpen {
+								succeed, err := engine.tcpStreamFilter(stream)
+								if err != nil {
+									errorChannel <- err
+									return
+								}
+								if succeed {
+									streamChannel <- stream
+								}
+							} else {
+								return
+							}
+						default:
+							break
 						}
-						if succeed {
-							streamChannel <- stream
-						}
-					} else {
-						return
 					}
-				default:
-					break
 				}
 			}
 		}()
 	}
 	go engine.mainLoop(packetChannel, filterPackedChannel, streamChannel, filterStreamChannel)
-	return packetChannel, streamChannel, nil
-}
-
-func (engine *Engine) Resume() {
-
-}
-
-func (engine *Engine) Pause() {
-
+	return packetChannel, streamChannel, errorChannel, nil
 }
 
 func (engine *Engine) Close() {
-
+	engine.handle.Close()
 }
 
-func interpretJSON(context *vm.Context, p *vm.Plasma, i interface{}) *vm.Value {
+func interpretToPlasmaMap(context *vm.Context, p *vm.Plasma, i interface{}) *vm.Value {
 	switch i.(type) {
 	case []byte:
 		return p.NewBytes(context, false, i.([]byte))
@@ -389,13 +426,13 @@ func interpretJSON(context *vm.Context, p *vm.Plasma, i interface{}) *vm.Value {
 	case map[string]interface{}:
 		result := p.NewHashTable(context, false)
 		for key, value := range i.(map[string]interface{}) {
-			p.HashIndexAssign(context, result, p.NewString(context, false, key), interpretJSON(context, p, value))
+			p.HashIndexAssign(context, result, p.NewString(context, false, key), interpretToPlasmaMap(context, p, value))
 		}
 		return result
 	case []interface{}:
 		var elements []*vm.Value
 		for _, element := range i.([]interface{}) {
-			elements = append(elements, interpretJSON(context, p, element))
+			elements = append(elements, interpretToPlasmaMap(context, p, element))
 		}
 		return p.NewArray(context, false, elements)
 	default:
@@ -403,7 +440,7 @@ func interpretJSON(context *vm.Context, p *vm.Plasma, i interface{}) *vm.Value {
 	}
 }
 
-func (engine *Engine) transformPacketToHashMap(packet gopacket.Packet) *vm.Value {
+func TransformPacketToMap(packet gopacket.Packet) map[string]interface{} {
 	result := map[string]interface{}{
 		"Data": packet.Data(),
 		"Dump": packet.Dump(),
@@ -535,7 +572,7 @@ func (engine *Engine) transformPacketToHashMap(packet gopacket.Packet) *vm.Value
 			"ErrorFlow":     "",
 		}
 	}
-	return interpretJSON(engine.machineContext, engine.VirtualMachine.Plasma, result)
+	return result
 }
 
 func NewEngine(netInterface string) *Engine {

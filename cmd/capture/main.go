@@ -14,9 +14,9 @@ def packetChecker(packet)
 	return False
 end
 
-def tcpStreamChecker(stream)
-	println(stream.ToString())
-	return True
+def tcpStreamChecker(contentType, stream)
+	println(contentType == "unknown")
+	return False
 end
 
 
@@ -44,46 +44,34 @@ func main() {
 	engine := capture.NewEngine(targetDevice)
 	engine.VirtualMachine.Stdout = os.Stdout
 	engine.Promiscuous = true
-	// succeed, initError := engine.InitScript(initScript)
-	// if initError != nil {
-	// 	panic(initError)
-	// }
-	// if !succeed {
-	// 	panic("Failed to init with script")
-	// }
-	packetChannel, streamChannel, startError := engine.Start()
+	initError := engine.InitScript(initScript)
+	if initError != nil {
+		panic(initError)
+	}
+	packetChannel, streamChannel, _, startError := engine.Start()
 	if startError != nil {
 		panic(startError)
 	}
 	tick := time.Tick(time.Millisecond)
 	for {
-		<-tick
-	captureLoop:
 		for i := 0; i < 1000; i++ {
 			select {
 			case _, isOpen := <-packetChannel:
 				if !isOpen {
 					return
 				}
-				// fmt.Println(packet)
-				// if packet.LinkLayer() != nil && packet.NetworkLayer() != nil {
-				// 	fmt.Println(packet.LinkLayer().LinkFlow())
-				// 	fmt.Println(packet.NetworkLayer().NetworkFlow())
-				// }
-			default:
-				break captureLoop
-			}
-		}
-	streamLoop:
-		for i := 0; i < 1000; i++ {
-			select {
-			case stream, isOpen := <-streamChannel:
+			// fmt.Println(packet)
+			// if packet.LinkLayer() != nil && packet.NetworkLayer() != nil {
+			// 	fmt.Println(packet.LinkLayer().LinkFlow())
+			// 	fmt.Println(packet.NetworkLayer().NetworkFlow())
+			// }
+			case data, isOpen := <-streamChannel:
 				if !isOpen {
 					return
 				}
-				fmt.Println(string(stream))
-			default:
-				break streamLoop
+				fmt.Println(data)
+			case <-tick:
+				break
 			}
 		}
 	}

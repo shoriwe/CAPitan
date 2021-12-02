@@ -306,7 +306,7 @@ func (middleware *Middleware) ListNetInterfaces(request *http.Request) map[strin
 	return middleware.devices
 }
 
-func (middleware *Middleware) QueryUserPermissions(request *http.Request, username string) (user *objects.User, captureInterfaces map[string]struct{}, arpScanInterfaces map[string]struct{}, arpSpoofInterfaces map[string]struct{}, succeed bool) {
+func (middleware *Middleware) QueryUserPermissions(request *http.Request, username string) (user *objects.User, captureInterfaces map[string]*objects.CapturePermission, arpScanInterfaces map[string]*objects.ARPScanPermission, arpSpoofInterfaces map[string]*objects.ARPSpoofPermission, succeed bool) {
 	var getError error
 	succeed, user, captureInterfaces, arpScanInterfaces, arpSpoofInterfaces, getError = middleware.Database.GetUserInterfacePermissions(username)
 	if getError != nil {
@@ -410,20 +410,20 @@ func (middleware *Middleware) ListUserCaptures(request *http.Request, username s
 	return succeed, captures
 }
 
-func (middleware *Middleware) userCaptureNameIsReserved(username, captureName string) bool {
+func (middleware *Middleware) isCapturenameAlreadyTaken(username, captureName string) bool {
 	middleware.reservedCapturesMutex.Lock()
 	defer middleware.reservedCapturesMutex.Unlock()
 	user, found := middleware.reservedCaptures[username]
-	if !found {
-		return false
+	if found {
+		_, found = user[captureName]
+		return found
 	}
-	_, found = user[captureName]
-	return found
+	return false
 }
 
 func (middleware *Middleware) UserCaptureNameAlreadyTaken(request *http.Request, username, captureName string) bool {
-	if middleware.userCaptureNameIsReserved(username, captureName) {
-		return false
+	if middleware.isCapturenameAlreadyTaken(username, captureName) {
+		return true
 	}
 	succeed, checkError := middleware.Database.CheckIfUserCaptureNameWasAlreadyTaken(username, captureName)
 	if checkError != nil {
@@ -434,7 +434,7 @@ func (middleware *Middleware) UserCaptureNameAlreadyTaken(request *http.Request,
 }
 
 func (middleware *Middleware) ReserveUserCaptureName(request *http.Request, username, captureName string) bool {
-	if middleware.userCaptureNameIsReserved(username, captureName) {
+	if middleware.isCapturenameAlreadyTaken(username, captureName) {
 		go middleware.LogReserveCaptureNameForUser(request, username, captureName, false)
 		return false
 	}
@@ -452,7 +452,7 @@ func (middleware *Middleware) ReserveUserCaptureName(request *http.Request, user
 }
 
 func (middleware *Middleware) RemoveReservedCaptureName(request *http.Request, username, captureName string) bool {
-	if !middleware.userCaptureNameIsReserved(username, captureName) {
+	if !middleware.isCapturenameAlreadyTaken(username, captureName) {
 		go middleware.LogRemoveReserveCaptureNameForUser(request, username, captureName, false)
 		return false
 	}

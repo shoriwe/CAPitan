@@ -24,11 +24,11 @@
                                     style="padding: 0.6vh 1vw;">Interface
                             </button>
                             <div class="dropdown-content" id="dropDownMenu-capture">
-                                {{range $interface, $nothing := .CaptureInterfaces}}
+                                {{range $interface := .CaptureInterfaces}}
                                 <form onsubmit="return false;">
-                                    <a id="{{$interface}}" onclick="selectCaptureInterface(this.id)"
+                                    <a id="{{$interface.Name}}" onclick="selectCaptureInterface(this.id)"
                                        onsubmit="selectCaptureInterface(this.id)"
-                                       type="submit">{{$interface}}</a>
+                                       type="submit">{{$interface.Name}} {{$interface.Address}}</a>
                                 </form>
                                 {{end}}
                             </div>
@@ -51,7 +51,54 @@
         </div>
     </div>
     <div id="capture-session-container" style="display: none;">
+        <div class="master-container">
+            <div class="page-container">
+                <div class="centered-flex-container">
+                    <h3 class="black-text" id="title"></h3>
+                    <button class="red-button" onclick="stopCapture();">Stop</button>
+                </div>
+                <div class="master-container">
+                    <div class="centered-flex-container">
+                        <button class="green-button" onclick="tcpStreamMenu()">TCP streams</button>
+                        <button class="green-button" onclick="packetMenu()">Packets</button>
+                        <button class="green-button" onclick="dataAnalysisMenu()">Data analysis</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="tcp-stream-menu" style="display: none;">
+            <div class="master-container">
+                <div id="streams-container" style="display: flex; flex-wrap: wrap;">
+                </div>
+            </div>
+        </div>
+        <div id="packet-menu" style="display: block;">
+            <div class="master-container">
+                <div class="dialog-container" id="packet-dialog" role="dialog"
+                     style="display: none; width: 70vw; height: 75vh;">
+                    <pre class="language-json" style="height: 60vh;">
+                        <code id="packet-as-json"></code>
+                    </pre>
+                    <div class="centered-container">
+                        <button class="red-button"
+                                onclick="(function() {document.getElementById('packet-dialog').style.display = 'none';})()">
+                            Close
+                        </button>
+                    </div>
+                </div>
+                <div class="list-container" id="packets-list">
 
+                </div>
+            </div>
+        </div>
+        <div id="data-analysis-menu" style="display: none;">
+            <div class="master-container">
+                <div class="page-container">
+                    <div class="centered-flex-container">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <script src="/static/vendor/js/prism.js"></script>

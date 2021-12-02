@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"github.com/shoriwe/CAPitan/internal/data"
+	"github.com/shoriwe/CAPitan/internal/data/memory"
 	"github.com/shoriwe/CAPitan/internal/logs"
 	"github.com/shoriwe/CAPitan/internal/web/middleware"
 	"github.com/shoriwe/CAPitan/internal/web/routes/admin"
@@ -121,5 +122,11 @@ func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 	// User
 	handler.HandleFunc(symbols.UserPacket, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, packet.Panel))
 	handler.HandleFunc(symbols.UserPacketCaptures, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, packet.Captures))
+	if _, ok := database.(*memory.Memory); ok {
+		request, _ := http.NewRequest(http.MethodGet, "/", nil)
+		for netInterface := range mw.ListNetInterfaces(request) {
+			mw.AdminAddCaptureInterfacePrivilege(request, "admin", netInterface)
+		}
+	}
 	return handler
 }

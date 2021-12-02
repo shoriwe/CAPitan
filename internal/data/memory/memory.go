@@ -31,14 +31,13 @@ func (memory *Memory) CheckIfUserCaptureNameWasAlreadyTaken(username string, nam
 	memory.usersMutex.Lock()
 	user, found := memory.users[username]
 	memory.usersMutex.Unlock()
-	if !found {
-		return false, nil
-	}
-	memory.captureSessionsMutex.Lock()
-	defer memory.captureSessionsMutex.Unlock()
-	for _, capture := range memory.captureSessions {
-		if capture.UserId == user.Id && capture.Name == name {
-			return true, nil
+	if found {
+		memory.captureSessionsMutex.Lock()
+		defer memory.captureSessionsMutex.Unlock()
+		for _, capture := range memory.captureSessions {
+			if capture.UserId == user.Id && capture.Name == name {
+				return true, nil
+			}
 		}
 	}
 	return false, nil
@@ -136,7 +135,7 @@ func (memory *Memory) AddCaptureInterfacePrivilege(username string, i string) (b
 		Interface: i,
 	}
 	memory.nextCapturePermissionId++
-	return false, nil
+	return true, nil
 }
 
 func (memory *Memory) AddARPScanInterfacePrivilege(username string, i string) (bool, error) {
@@ -159,7 +158,7 @@ func (memory *Memory) AddARPScanInterfacePrivilege(username string, i string) (b
 		Interface: i,
 	}
 	memory.nextARPScanPermissionId++
-	return false, nil
+	return true, nil
 }
 
 func (memory *Memory) AddARPSpoofInterfacePrivilege(username string, i string) (bool, error) {
@@ -182,7 +181,7 @@ func (memory *Memory) AddARPSpoofInterfacePrivilege(username string, i string) (
 		Interface: i,
 	}
 	memory.nextARPSpoofPermissionId++
-	return false, nil
+	return true, nil
 }
 
 func (memory *Memory) UpdateUserStatus(username string, isAdmin, isEnabled bool) (succeed bool, updateError error) {
@@ -197,7 +196,7 @@ func (memory *Memory) UpdateUserStatus(username string, isAdmin, isEnabled bool)
 	return true, nil
 }
 
-func (memory *Memory) GetUserInterfacePermissions(username string) (succeed bool, user *objects.User, captureInterfaces map[string]struct{}, arpScanInterfaces map[string]struct{}, arpSpoofInterfaces map[string]struct{}, err error) {
+func (memory *Memory) GetUserInterfacePermissions(username string) (succeed bool, user *objects.User, captureInterfaces map[string]*objects.CapturePermission, arpScanInterfaces map[string]*objects.ARPScanPermission, arpSpoofInterfaces map[string]*objects.ARPSpoofPermission, err error) {
 	memory.usersMutex.Lock()
 	user, succeed = memory.users[username]
 	memory.usersMutex.Unlock()
@@ -205,28 +204,34 @@ func (memory *Memory) GetUserInterfacePermissions(username string) (succeed bool
 		return false, nil, nil, nil, nil, nil
 	}
 
-	captureInterfaces = map[string]struct{}{}
-	arpScanInterfaces = map[string]struct{}{}
-	arpSpoofInterfaces = map[string]struct{}{}
+	captureInterfaces = map[string]*objects.CapturePermission{}
+	arpScanInterfaces = map[string]*objects.ARPScanPermission{}
+	arpSpoofInterfaces = map[string]*objects.ARPSpoofPermission{}
 
 	// Capture
 	memory.captureInterfacePermissionsMutex.Lock()
 	for _, permission := range memory.captureInterfacePermissions {
-		captureInterfaces[permission.Interface] = struct{}{}
+		if permission.UsersId == user.Id {
+			captureInterfaces[permission.Interface] = permission
+		}
 	}
 	memory.captureInterfacePermissionsMutex.Unlock()
 
 	// ARP Scan
 	memory.arpScanInterfacePermissionsMutex.Lock()
 	for _, permission := range memory.arpScanInterfacePermissions {
-		arpScanInterfaces[permission.Interface] = struct{}{}
+		if permission.UsersId == user.Id {
+			arpScanInterfaces[permission.Interface] = permission
+		}
 	}
 	memory.arpScanInterfacePermissionsMutex.Unlock()
 
 	// ARP Spoof
 	memory.arpSpoofInterfacePermissionsMutex.Lock()
 	for _, permission := range memory.arpSpoofInterfacePermissions {
-		arpSpoofInterfaces[permission.Interface] = struct{}{}
+		if permission.UsersId == user.Id {
+			arpSpoofInterfaces[permission.Interface] = permission
+		}
 	}
 	memory.arpSpoofInterfacePermissionsMutex.Unlock()
 

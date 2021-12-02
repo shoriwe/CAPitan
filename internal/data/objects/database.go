@@ -3,6 +3,10 @@ package objects
 import "time"
 
 type (
+	InterfaceInformation struct {
+		Name    string
+		Address string
+	}
 	User struct {
 		Id                     uint
 		Username               string

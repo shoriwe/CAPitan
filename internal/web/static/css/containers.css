@@ -9,8 +9,7 @@
 }
 
 .dialog-container {
-    position: absolute;
-    width: 25%;
+    position: fixed;
     z-index: 10;
     padding: 1%;
 
@@ -20,6 +19,10 @@
 
     margin-left: auto;
     margin-right: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+    top: 0;
+    bottom: 0;
     left: 0;
     right: 0;
     text-align: center;
@@ -66,7 +69,7 @@
 }
 
 .list-entry {
-    max-width: 50%;
+    width: 90%;
     margin: 0.25% auto;
     padding: 1%;
     box-shadow: 1px 1px 2px 1px gray;

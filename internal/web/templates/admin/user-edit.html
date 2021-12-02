@@ -64,7 +64,7 @@
         </div>
         {{range $interface := .CaptureInterfaces}}
         <div class="list-entry">
-            <h3 class="black-text">{{$interface.Name}} {{$interface.Address}}</h3>
+            <h3 class="black-text" style="width: 90%;">{{$interface.Name}} {{$interface.Address}}</h3>
             <span style="width: 1%;"></span>
             <form onsubmit="return false;">
                 <button class="red-button" id="capture-interface-to-delete-{{$interface.Name}}"
@@ -94,7 +94,7 @@
         </div>
         {{range $interface := .ARPScanInterfaces}}
         <div class="list-entry">
-            <h3 class="black-text">{{$interface.Name}} {{$interface.Address}}</h3>
+            <h3 class="black-text" style="width: 90%;">{{$interface.Name}} {{$interface.Address}}</h3>
             <span style="width: 1%;"></span>
             <form onsubmit="return false;">
                 <button class="red-button" id="arp-scan-interface-to-delete-{{$interface.Name}}"
@@ -125,7 +125,7 @@
         </div>
         {{range $interface := .ARPSpoofInterfaces}}
         <div class="list-entry">
-            <h3 class="black-text">{{$interface.Name}} {{$interface.Address}}</h3>
+            <h3 class="black-text" style="width: 90%;">{{$interface.Name}} {{$interface.Address}}</h3>
             <span style="width: 1%;"></span>
             <form onsubmit="return false;">
                 <button class="red-button" id="arp-spoof-interface-to-delete-{{$interface.Name}}"

@@ -3,7 +3,6 @@ package packet
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/shoriwe/CAPitan/internal/capture"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
@@ -18,6 +17,7 @@ import (
 	"html/template"
 	"net/http"
 	"regexp"
+	"time"
 )
 
 var (
@@ -29,6 +29,11 @@ var (
 		Subprotocols:      []string{"PacketCaptureSession"},
 	}
 )
+
+type serverResponse struct {
+	Type    string
+	Payload interface{}
+}
 
 func listCaptures(mw *middleware.Middleware, context *middleware.Context) bool {
 	succeed, userCaptures := mw.ListUserCaptures(context.Request, context.User.Username)
@@ -134,7 +139,6 @@ func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Contex
 		context.Redirect = symbols.UserPacketCaptures
 		return false
 	}
-	fmt.Println(0)
 	context.WriteBody = false
 	defer func() {
 		closeError := connection.Close()
@@ -148,39 +152,125 @@ func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Contex
 		CaptureName   string
 		InterfaceName string
 	}
-	fmt.Println(1)
 	readError := connection.ReadJSON(&configuration)
 	if readError != nil {
 		go mw.LogError(context.Request, readError)
-		// TODO: Send this to client
 		return false
 	}
-	fmt.Println(2)
 	if !mw.ReserveUserCaptureName(context.Request, context.User.Username, configuration.CaptureName) {
-		context.Redirect = symbols.UserPacketCaptures
 		return false
 	}
-	fmt.Println(3)
 	engine := capture.NewEngine(configuration.InterfaceName)
 	engine.Promiscuous = configuration.Promiscuous
 	if len(configuration.Script) > 0 {
 		initError := engine.InitScript(configuration.Script)
 		if initError != nil {
 			go mw.LogError(context.Request, initError)
-			// TODO: Return this to the client
 			return false
 		}
 	}
-	packetChannel, tcpStreamChannel, startError := engine.Start()
+	packetChannel, tcpStreamChannel, errorChannel, startError := engine.Start()
 	if startError != nil {
 		go mw.LogError(context.Request, startError)
-		// TODO: Return this to the client
 		return false
 	}
-	defer engine.Close()
+	defer func() {
+		engine.Close()
+		close(packetChannel)
+		close(tcpStreamChannel)
+		close(errorChannel)
+	}()
 
-	fmt.Println(packetChannel, tcpStreamChannel, configuration.Description)
+	stopChannel := make(chan bool, 1)
+	go func() {
+		var action struct {
+			Action string
+		}
+		err := connection.ReadJSON(&action)
+		if err != nil {
+			go mw.LogError(context.Request, err)
+			errorChannel <- err
+			return
+		}
+		switch action.Action {
+		case "STOP":
+			stopChannel <- true
+		}
+	}()
 
+	tick := time.Tick(time.Second * 2)
+
+masterLoop:
+	for {
+		select {
+		case err, isOpen := <-errorChannel:
+			if isOpen {
+				if err != nil {
+					writeError := connection.WriteJSON(serverResponse{
+						Type:    "error",
+						Payload: err.Error(),
+					})
+					if writeError != nil {
+						go mw.LogError(context.Request, writeError)
+					}
+					return false
+				}
+			} else {
+				break masterLoop
+			}
+		case stop, isOpen := <-stopChannel:
+			if isOpen {
+				if stop {
+					break masterLoop
+				}
+			}
+		case <-tick:
+			for i := 0; i < 1000; i++ {
+				select {
+				case packet, isOpen := <-packetChannel:
+					if isOpen {
+						if packet != nil {
+							// TODO: Do something to temporally store the packet
+							// TODO: Do something to update the graph in the client
+							writeError := connection.WriteJSON(
+								serverResponse{
+									Type:    "packet",
+									Payload: capture.TransformPacketToMap(packet),
+								},
+							)
+							if writeError != nil {
+								go mw.LogError(context.Request, writeError)
+								return false
+							}
+						}
+					} else {
+						break masterLoop
+					}
+					break
+				case data, isOpen := <-tcpStreamChannel:
+					if isOpen {
+						writeError := connection.WriteJSON(
+							serverResponse{
+								Type:    "stream",
+								Payload: data,
+							},
+						)
+						if writeError != nil {
+							go mw.LogError(context.Request, writeError)
+							return false
+						}
+						// TODO: Do something to temporally store the stream
+						// TODO: Do something to update the graph in the client
+					} else {
+						break masterLoop
+					}
+				default:
+					break
+				}
+			}
+		}
+	}
+	// TODO: if the capture reached to here means that it is valid to be stored in the database
 	return false
 }
 
@@ -197,12 +287,30 @@ func newCapture(mw *middleware.Middleware, context *middleware.Context) bool {
 			return false
 		}
 		menuTemplate, _ := mw.Templates.ReadFile("templates/user/packet/captures/new-menu.html")
+
+		var availableInterfaces []objects.InterfaceInformation
+		{
+		}
+		connectedInterfaces := mw.ListNetInterfaces(context.Request)
+		for interfaceName, networkInterface := range connectedInterfaces {
+			if _, found := captureInterfaces[interfaceName]; found {
+				var iAddress string
+				for _, address := range networkInterface.Addresses {
+					iAddress = address.IP.String()
+				}
+				information := objects.InterfaceInformation{
+					Name:    interfaceName,
+					Address: iAddress,
+				}
+				availableInterfaces = append(availableInterfaces, information)
+			}
+		}
 		var menu bytes.Buffer
 		_ = template.Must(template.New("New Capture").Parse(string(menuTemplate))).Execute(&menu,
 			struct {
-				CaptureInterfaces map[string]struct{}
+				CaptureInterfaces []objects.InterfaceInformation
 			}{
-				CaptureInterfaces: captureInterfaces,
+				CaptureInterfaces: availableInterfaces,
 			},
 		)
 		context.Body = base.NewPage("Packet", context.NavigationBar, menu.String())

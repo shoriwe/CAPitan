@@ -17,11 +17,6 @@ type succeedResponse struct {
 	Succeed bool
 }
 
-type interfaceInformation struct {
-	Name    string
-	Address string
-}
-
 func listUsers(mw *middleware.Middleware, context *middleware.Context) bool {
 	t, _ := mw.Templates.ReadFile("templates/admin/users.html")
 	users, succeed := mw.AdminListUsers(context.Request, context.User.Username)
@@ -97,12 +92,12 @@ func editUser(mw *middleware.Middleware, context *middleware.Context) bool {
 	}
 	var data struct {
 		*objects.User
-		CaptureInterfaces       []interfaceInformation
-		CaptureUnsetInterfaces  []interfaceInformation
-		ARPScanInterfaces       []interfaceInformation
-		ARPScanUnsetInterfaces  []interfaceInformation
-		ARPSpoofInterfaces      []interfaceInformation
-		ARPSpoofUnsetInterfaces []interfaceInformation
+		CaptureInterfaces       []objects.InterfaceInformation
+		CaptureUnsetInterfaces  []objects.InterfaceInformation
+		ARPScanInterfaces       []objects.InterfaceInformation
+		ARPScanUnsetInterfaces  []objects.InterfaceInformation
+		ARPSpoofInterfaces      []objects.InterfaceInformation
+		ARPSpoofUnsetInterfaces []objects.InterfaceInformation
 	}
 
 	data.User = user
@@ -118,7 +113,7 @@ func editUser(mw *middleware.Middleware, context *middleware.Context) bool {
 		for _, address := range networkInterface.Addresses {
 			iAddress = address.IP.String()
 		}
-		information := interfaceInformation{
+		information := objects.InterfaceInformation{
 			Name:    interfaceName,
 			Address: iAddress,
 		}
