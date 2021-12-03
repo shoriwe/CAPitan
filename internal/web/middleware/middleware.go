@@ -4,7 +4,9 @@ import (
 	"crypto/rand"
 	"embed"
 	"encoding/hex"
+	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
+	"github.com/shoriwe/CAPitan/internal/capture"
 	"github.com/shoriwe/CAPitan/internal/data"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
 	"github.com/shoriwe/CAPitan/internal/limit"
@@ -461,4 +463,15 @@ func (middleware *Middleware) RemoveReservedCaptureName(request *http.Request, u
 	}
 	go middleware.LogRemoveReserveCaptureNameForUser(request, username, captureName, false)
 	return false
+}
+
+func (middleware *Middleware) SaveInterfaceCapture(request *http.Request, username, captureName, interfaceName, description, script string, promiscuous bool, topology *objects.Topology, hostPacketCount *objects.Counter, layer4Count *objects.Counter, streamTypeCount *objects.Counter, packets []gopacket.Packet, streams []capture.Data, pcapContents []byte, start, finish time.Time) bool {
+	succeed, saveError := middleware.Database.SaveInterfaceCapture(username, captureName, interfaceName, description, script, promiscuous,  topology, hostPacketCount, layer4Count, streamTypeCount, packets, streams, pcapContents, start, finish)
+	if saveError != nil {
+		go middleware.LogError(request, saveError)
+		go middleware.LogSaveInterfaceCapture(request,  username, captureName, interfaceName, false)
+		return false
+	}
+	go middleware.LogSaveInterfaceCapture(request,  username, captureName, interfaceName, succeed)
+	return succeed
 }

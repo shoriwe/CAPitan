@@ -1,6 +1,8 @@
 package data
 
 import (
+	"github.com/google/gopacket"
+	"github.com/shoriwe/CAPitan/internal/capture"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
 	"time"
 )
@@ -23,6 +25,7 @@ type DatabaseAdminFeatures interface {
 type DatabaseUserFeatures interface {
 	ListUserCaptures(username string) (bool, []*objects.CaptureSession, error)
 	CheckIfUserCaptureNameWasAlreadyTaken(username string, name string) (bool, error)
+	SaveInterfaceCapture(username, captureName, interfaceName, description, script string, promiscuous bool, topology *objects.Topology, hostPacketCount *objects.Counter, layer4Count *objects.Counter, streamTypeCount *objects.Counter, packets []gopacket.Packet, streams []capture.Data, pcapContents []byte, start, finish time.Time) (bool, error)
 }
 
 type DatabaseGlobalFeatures interface {

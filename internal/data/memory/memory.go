@@ -3,9 +3,13 @@ package memory
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
+	"github.com/google/gopacket"
+	"github.com/shoriwe/CAPitan/internal/capture"
 	"github.com/shoriwe/CAPitan/internal/data"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
 	"golang.org/x/crypto/bcrypt"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -19,12 +23,116 @@ type Memory struct {
 	arpScanInterfacePermissions       map[uint]*objects.ARPScanPermission
 	arpSpoofInterfacePermissionsMutex *sync.Mutex
 	arpSpoofInterfacePermissions      map[uint]*objects.ARPSpoofPermission
+	nextCaptureSessionId              uint
 	captureSessions                   map[uint]*objects.CaptureSession
 	captureSessionsMutex              *sync.Mutex
+	nextCapturePacketId               uint
+	capturedPackets                   map[uint]*objects.Packet
+	capturedPacketsMutex              *sync.Mutex
+	nextCapturedTCPStreamId           uint
+	capturedTCPStreams                map[uint]*objects.TCPStream
+	capturedTCPStreamsMutex           *sync.Mutex
 	nextUserId                        uint
 	nextCapturePermissionId           uint
 	nextARPScanPermissionId           uint
 	nextARPSpoofPermissionId          uint
+}
+
+func (memory *Memory) SaveInterfaceCapture(username, captureName, interfaceName, description, script string, promiscuous bool, topology *objects.Topology, hostPacketCount *objects.Counter, layer4Count *objects.Counter, streamTypeCount *objects.Counter, packets []gopacket.Packet, streams []capture.Data, pcapContents []byte, start, finish time.Time) (bool, error) {
+	memory.usersMutex.Lock()
+	user, found := memory.users[username]
+	memory.usersMutex.Unlock()
+	if !found {
+		return false, nil
+	}
+	memory.captureSessionsMutex.Lock()
+	defer memory.captureSessionsMutex.Unlock()
+	memory.capturedPacketsMutex.Lock()
+	defer memory.capturedPacketsMutex.Unlock()
+	memory.capturedTCPStreamsMutex.Lock()
+	defer memory.capturedTCPStreamsMutex.Unlock()
+
+	var (
+		topologyEncoded        []byte
+		hostCountEncoded       []byte
+		layerCountEncoded      []byte
+		streamTypeCountEncoded []byte
+		encodeError            error
+	)
+	topologyEncoded, encodeError = json.Marshal(topology)
+	if encodeError != nil {
+		return false, encodeError
+	}
+	hostCountEncoded, encodeError = json.Marshal(hostPacketCount)
+	if encodeError != nil {
+		return false, encodeError
+	}
+	layerCountEncoded, encodeError = json.Marshal(layer4Count)
+	if encodeError != nil {
+		return false, encodeError
+	}
+	streamTypeCountEncoded, encodeError = json.Marshal(streamTypeCount)
+	if encodeError != nil {
+		return false, encodeError
+	}
+
+	session := &objects.CaptureSession{
+		Id:                  memory.nextCapturePacketId,
+		UserId:              user.Id,
+		Interface:           interfaceName,
+		Promiscuous:         promiscuous,
+		Name:                captureName,
+		Description:         description,
+		Started:             start,
+		Ended:               finish,
+		Pcap:                pcapContents,
+		FilterScript:        []byte(script),
+		TopologyJson:        topologyEncoded,
+		HostCountJson:       hostCountEncoded,
+		LayerCountJson:      layerCountEncoded,
+		StreamTypeCountJson: streamTypeCountEncoded,
+	}
+
+	memory.nextCapturePacketId++
+
+	for _, stream := range streams {
+		memory.capturedTCPStreams[memory.nextCapturedTCPStreamId] = &objects.TCPStream{
+			Id:               memory.nextCapturedTCPStreamId,
+			CaptureSessionId: session.Id,
+			TCPStreamType:    stream.Type,
+			Contents:         stream.Content,
+		}
+		memory.nextCapturedTCPStreamId++
+	}
+
+	for _, packet := range packets {
+		srcPort, parseError := strconv.Atoi(packet.TransportLayer().TransportFlow().Src().String())
+		if parseError != nil {
+			srcPort = 0
+		}
+		dstPort, parseError := strconv.Atoi(packet.TransportLayer().TransportFlow().Dst().String())
+		if parseError != nil {
+			dstPort = 0
+		}
+		encodedPacket, marshalError := json.Marshal(capture.TransformPacketToMap(packet))
+		if marshalError != nil {
+			return false, marshalError
+		}
+		memory.capturedPackets[memory.nextCapturePacketId] = &objects.Packet{
+			Id:                 memory.nextCapturePacketId,
+			CaptureSessionsId:  0,
+			TransportLayer:     packet.TransportLayer().LayerType().String(),
+			InternetLayer:      packet.NetworkLayer().LayerType().String(),
+			ApplicationLayer:   packet.ApplicationLayer().LayerType().String(),
+			SourceAddress:      packet.NetworkLayer().NetworkFlow().Src().String(),
+			SourcePort:         uint(srcPort),
+			DestinationAddress: packet.NetworkLayer().NetworkFlow().Dst().String(),
+			DestinationPort:    uint(dstPort),
+			Contents:           encodedPacket,
+		}
+	}
+	memory.captureSessions[session.Id] = session
+	return true, nil
 }
 
 func (memory *Memory) CheckIfUserCaptureNameWasAlreadyTaken(username string, name string) (bool, error) {
@@ -34,8 +142,8 @@ func (memory *Memory) CheckIfUserCaptureNameWasAlreadyTaken(username string, nam
 	if found {
 		memory.captureSessionsMutex.Lock()
 		defer memory.captureSessionsMutex.Unlock()
-		for _, capture := range memory.captureSessions {
-			if capture.UserId == user.Id && capture.Name == name {
+		for _, captureSession := range memory.captureSessions {
+			if captureSession.UserId == user.Id && captureSession.Name == name {
 				return true, nil
 			}
 		}
@@ -368,15 +476,22 @@ func NewInMemoryDB() data.Database {
 		arpScanInterfacePermissionsMutex:  new(sync.Mutex),
 		arpSpoofInterfacePermissionsMutex: new(sync.Mutex),
 		captureSessionsMutex:              new(sync.Mutex),
+		capturedPacketsMutex:              new(sync.Mutex),
+		capturedTCPStreamsMutex:           new(sync.Mutex),
 		users:                             map[string]*objects.User{},
 		captureInterfacePermissions:       map[uint]*objects.CapturePermission{},
 		arpScanInterfacePermissions:       map[uint]*objects.ARPScanPermission{},
 		arpSpoofInterfacePermissions:      map[uint]*objects.ARPSpoofPermission{},
 		captureSessions:                   map[uint]*objects.CaptureSession{},
+		capturedPackets:                   map[uint]*objects.Packet{},
+		capturedTCPStreams:                map[uint]*objects.TCPStream{},
 		nextUserId:                        2,
 		nextCapturePermissionId:           1,
 		nextARPScanPermissionId:           1,
 		nextARPSpoofPermissionId:          1,
+		nextCaptureSessionId:              1,
+		nextCapturePacketId:               1,
+		nextCapturedTCPStreamId:           1,
 	}
 	result.users["admin"] = &objects.User{
 		Id:                     1,

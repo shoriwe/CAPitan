@@ -157,7 +157,7 @@ func (logger *Logger) LogAdminDeleteARPSpoofPrivilege(request *http.Request, use
 
 func (logger *Logger) LogListUserCaptures(request *http.Request, username string, succeed bool) {
 	if succeed {
-		logger.debugLogger.Printf("Successfully to list captures for  user %s by %s", username, request.RemoteAddr)
+		logger.debugLogger.Printf("Successfully listed captures for user %s by %s", username, request.RemoteAddr)
 	} else {
 		logger.debugLogger.Printf("Failed to list captures for user %s by %s", username, request.RemoteAddr)
 	}
@@ -176,6 +176,14 @@ func (logger *Logger) LogRemoveReserveCaptureNameForUser(request *http.Request, 
 		logger.debugLogger.Printf("Successfully removed reserved capture name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
 	} else {
 		logger.debugLogger.Printf("Failed removed reserved capture name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogSaveInterfaceCapture(request *http.Request, username, captureName, interfaceName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully saved capture with name \"%s\" targeting the interface %s started by user %s in %s", captureName, interfaceName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to save capture with name \"%s\" targeting the interface %s started by user %s in %s", captureName, interfaceName, username, request.RemoteAddr)
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/json"
+	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcapgo"
 	"github.com/gorilla/websocket"
 	"github.com/shoriwe/CAPitan/internal/capture"
@@ -201,25 +202,31 @@ func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Contex
 
 	tick := time.Tick(time.Second)
 
-	tempFile, tempFileCreationError := os.CreateTemp("", context.User.Username+configuration.CaptureName+".pcap")
+	tempPcapFile, tempFileCreationError := os.CreateTemp("", context.User.Username+configuration.CaptureName+".pcap")
 	if tempFileCreationError != nil {
 		go mw.LogError(context.Request, tempFileCreationError)
 		return false
 	}
 	defer func() {
-		closeError := tempFile.Close()
+		closeError := tempPcapFile.Close()
 		if closeError != nil {
 			go mw.LogError(context.Request, closeError)
 		}
-		removeError := os.Remove(tempFile.Name())
+		removeError := os.Remove(tempPcapFile.Name())
 		if removeError != nil {
 			go mw.LogError(context.Request, removeError)
 		}
 	}()
 
+	// Temporary storage of streams and packets
+	var (
+		packets []gopacket.Packet
+		streams []capture.Data
+	)
+
 	hashedStreams := map[[16]byte]struct{}{}
 
-	pcapFile := pcapgo.NewWriter(tempFile)
+	pcapFileController := pcapgo.NewWriter(tempPcapFile)
 
 	// Graphs data
 	var (
@@ -229,6 +236,7 @@ func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Contex
 		streamTypeCount = objects.NewCounter()
 	)
 
+	start := time.Now()
 masterLoop:
 	for {
 		select {
@@ -263,7 +271,7 @@ masterLoop:
 				case packet, isOpen := <-engine.Packets:
 					if isOpen {
 						if packet != nil {
-							packetWriteError := pcapFile.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
+							packetWriteError := pcapFileController.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
 							if packetWriteError != nil {
 								go mw.LogError(context.Request, packetWriteError)
 								return false
@@ -290,7 +298,7 @@ masterLoop:
 							hostPacketCount.Count(packet.NetworkLayer().NetworkFlow().Src().String())
 							layer4Count.Count(packet.TransportLayer().LayerType().String())
 
-							// TODO: Do something to temporally store the packet
+							packets = append(packets, packet)
 						}
 					} else {
 						break masterLoop
@@ -313,7 +321,8 @@ masterLoop:
 								return false
 							}
 						}
-						// TODO: Do something to temporally store the stream
+
+						streams = append(streams, data)
 					} else {
 						break masterLoop
 					}
@@ -396,13 +405,37 @@ masterLoop:
 			}
 		}
 	}
-	closeError := tempFile.Close()
+	finish := time.Now()
+
+	closeError := tempPcapFile.Close()
 	if closeError != nil {
 		go mw.LogError(context.Request, closeError)
 		return false
 	}
 
-	// TODO: if the capture reached to here means that it is valid to be stored in the database
+	var pcapContents []byte
+	pcapContents, readError = os.ReadFile(tempPcapFile.Name())
+	if readError != nil {
+		go mw.LogError(context.Request, readError)
+		return false
+	}
+	mw.SaveInterfaceCapture(
+		context.Request,
+		context.User.Username,
+		configuration.CaptureName,
+		configuration.InterfaceName,
+		configuration.Description,
+		configuration.Script,
+		configuration.Promiscuous,
+		topology,
+		hostPacketCount,
+		layer4Count,
+		streamTypeCount,
+		packets,
+		streams,
+		pcapContents,
+		start, finish,
+	)
 	return false
 }
 
@@ -418,7 +451,7 @@ func newCapture(mw *middleware.Middleware, context *middleware.Context) bool {
 			// TODO: Log this
 			return false
 		}
-		menuTemplate, _ := mw.Templates.ReadFile("templates/user/packet/captures/new-menu.html")
+		menuTemplate, _ := mw.Templates.ReadFile("templates/user/packet/captures/new-interface-capture.html")
 
 		var availableInterfaces []objects.InterfaceInformation
 		{
@@ -456,11 +489,15 @@ func Captures(mw *middleware.Middleware, context *middleware.Context) bool {
 	case actions.NewCapture:
 		return newCapture(mw, context)
 	case actions.ImportCapture:
-		break
+		return importCapture(mw, context)
 	case actions.TestCaptureArguments:
 		return testCaptureArguments(mw, context)
 	case actions.Start:
 		return prepareCaptureSession(mw, context)
 	}
 	return listCaptures(mw, context)
+}
+
+func importCapture(mw *middleware.Middleware, context *middleware.Context) bool {
+	return false
 }

@@ -33,15 +33,20 @@ type (
 		Interface string
 	}
 	CaptureSession struct {
-		Id           uint
-		UserId       uint
-		Interface    string
-		Name         string
-		Description  string
-		Started      time.Time
-		Ended        time.Time
-		Pcap         []byte
-		FilterScript []byte
+		Id                  uint
+		UserId              uint
+		Interface           string
+		Promiscuous         bool
+		Name                string
+		Description         string
+		Started             time.Time
+		Ended               time.Time
+		Pcap                []byte
+		FilterScript        []byte
+		TopologyJson        []byte
+		HostCountJson       []byte
+		LayerCountJson      []byte
+		StreamTypeCountJson []byte
 	}
 	TCPStreamType struct {
 		Id         uint
@@ -50,22 +55,20 @@ type (
 	TCPStream struct {
 		Id               uint
 		CaptureSessionId uint
-		TCPStreamTypesId uint
+		TCPStreamType    string
 		Contents         []byte
 	}
 	Packet struct {
-		Id                  uint
-		CaptureSessionsId   uint
-		TransportLayersId   uint
-		InternetLayersId    uint
-		ApplicationLayersId uint
-		SourceAddress       string
-		SourcePort          uint
-		SourceMac           string
-		DestinationAddress  string
-		DestinationPort     uint
-		DestinationMac      string
-		Contents            []byte
+		Id                 uint
+		CaptureSessionsId  uint
+		TransportLayer     string
+		InternetLayer      string
+		ApplicationLayer   string
+		SourceAddress      string
+		SourcePort         uint
+		DestinationAddress string
+		DestinationPort    uint
+		Contents           []byte
 	}
 	TransportLayer struct {
 		Id   uint

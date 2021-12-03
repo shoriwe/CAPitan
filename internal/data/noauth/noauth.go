@@ -1,6 +1,8 @@
 package noauth
 
 import (
+	"github.com/google/gopacket"
+	"github.com/shoriwe/CAPitan/internal/capture"
 	"github.com/shoriwe/CAPitan/internal/data"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
 	"time"
@@ -18,6 +20,10 @@ var admin = &objects.User{
 }
 
 type NoAuth struct {
+}
+
+func (noAuth *NoAuth) SaveInterfaceCapture(username, captureName, interfaceName, description, script string, promiscuous bool, topology *objects.Topology, hostPacketCount *objects.Counter, layer4Count *objects.Counter, streamTypeCount *objects.Counter, packets []gopacket.Packet, streams []capture.Data, pcapContents []byte, start, finish time.Time) (bool, error) {
+	panic("implement me")
 }
 
 func (noAuth *NoAuth) CheckIfUserCaptureNameWasAlreadyTaken(username string, name string) (bool, error) {
