@@ -1,10 +1,10 @@
 {
   "version": "0.8.0-alpha.3",
   "pan": {
-    "X": 441.55255,
-    "Y": 747.54
+    "X": 492.11386,
+    "Y": 471.0327
   },
-  "zoom": 0.40828609466552734,
+  "zoom": 0.6328946948051453,
   "root": {
     "pagecontenttype": "PageContentFolder",
     "name": "New Folder",
@@ -2255,7 +2255,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Plots",
               "filepath": ""
             }
@@ -2315,7 +2315,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Network topology graph",
               "filepath": ""
             }
@@ -2390,7 +2390,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Bar graph of number of packet sent by host",
               "filepath": ""
             }
@@ -2420,7 +2420,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Pie graph of number of packets by layer 4 protocol sent",
               "filepath": ""
             }
@@ -2450,7 +2450,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Pie graph of number of packets by layer 7 protocol sent",
               "filepath": ""
             }
@@ -2467,36 +2467,6 @@
             "properties": {
               "checked": false,
               "description": "Pie graph of number of packets by layer 7 protocol sent",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 179,
-            "rect": {
-              "X": 288,
-              "Y": 1088,
-              "W": 288,
-              "H": 96
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Scatter plot of consumed network bandwidth",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 46,
-            "rect": {
-              "X": -96,
-              "Y": 1120,
-              "W": 288,
-              "H": 96
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Scatter plot of consumed network bandwidth",
               "filepath": ""
             }
           },

@@ -5,14 +5,12 @@ const topologyGraph = echarts.init(document.getElementById("topology-graph"));
 const packetsPerHostGraph = echarts.init(document.getElementById("number-of-packets-send-per-host"));
 const packetsOfLayer4PerHosts = echarts.init(document.getElementById("layer-4"));
 const streamTypeCount = echarts.init(document.getElementById("streams-type"));
-const bandwidth = echarts.init(document.getElementById("bandwidth"));
 
-window.onresize  = function () {
+window.onresize = function () {
     topologyGraph.resize();
     packetsPerHostGraph.resize();
     packetsOfLayer4PerHosts.resize();
     streamTypeCount.resize();
-    bandwidth.resize();
 }
 
 function togglePromiscuous() {
@@ -205,7 +203,7 @@ async function loadStream(stream) {
 async function updateTopology(data) {
     const newTopology = {
         title: {
-            text:  'Network Topology',
+            text: 'Network Topology',
             top: 'top',
             left: 'left',
         },
@@ -249,7 +247,7 @@ async function updateTopology(data) {
 async function updateHostPacketCount(data) {
     const newCount = {
         title: {
-            text:  'Number of packets per host',
+            text: 'Number of packets per host',
             top: 'top',
             left: 'left',
         },
@@ -289,7 +287,7 @@ async function updateHostPacketCount(data) {
 async function updateLayer4CountGraph(data) {
     const newCount = {
         title: {
-            text:  'Layer 4 count',
+            text: 'Layer 4 count',
             top: 'top',
             left: 'left',
         },
@@ -329,7 +327,7 @@ async function updateLayer4CountGraph(data) {
 async function updateStreamTypeCountGraph(data) {
     const newCount = {
         title: {
-            text:  'Stream type count',
+            text: 'Stream type count',
             top: 'top',
             left: 'left',
         },
@@ -434,10 +432,13 @@ async function newCapture() {
 }
 
 function stopCapture() {
-    connection.send({
-            Action: "STOP",
-        }
-    )
+    connection.send(
+        JSON.stringify({
+                Action: "STOP",
+            }
+        )
+    );
+    document.location.href = "/packet/captures";
 }
 
 function selectCaptureInterface(id) {

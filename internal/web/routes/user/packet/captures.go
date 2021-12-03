@@ -207,6 +207,10 @@ func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Contex
 		return false
 	}
 	defer func() {
+		closeError := tempFile.Close()
+		if closeError != nil {
+			go mw.LogError(context.Request, closeError)
+		}
 		removeError := os.Remove(tempFile.Name())
 		if removeError != nil {
 			go mw.LogError(context.Request, removeError)
@@ -390,9 +394,6 @@ masterLoop:
 					return false
 				}
 			}
-			// TODO: Do something to update the layer 4 packet count graph
-			// TODO: Do something to update the  streams type count graph
-			// TODO: Do something to update the bandwidth graph
 		}
 	}
 	closeError := tempFile.Close()
