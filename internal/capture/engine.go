@@ -503,7 +503,7 @@ func TransformPacketToMap(packet gopacket.Packet) map[string]interface{} {
 			"LayerType":     "",
 			"LayerPayload":  nil,
 			"LayerContents": nil,
-			"LinkFlow": map[string]interface{}{
+			"NetworkFlow": map[string]interface{}{
 				"Src":          "",
 				"Dst":          "",
 				"String":       "",
@@ -515,7 +515,7 @@ func TransformPacketToMap(packet gopacket.Packet) map[string]interface{} {
 			"LayerType":     packet.NetworkLayer().LayerType().String(),
 			"LayerPayload":  packet.NetworkLayer().LayerPayload(),
 			"LayerContents": packet.NetworkLayer().LayerContents(),
-			"LinkFlow": map[string]interface{}{
+			"NetworkFlow": map[string]interface{}{
 				"Src":          packet.NetworkLayer().NetworkFlow().Src().String(),
 				"Dst":          packet.NetworkLayer().NetworkFlow().Dst().String(),
 				"String":       packet.NetworkLayer().NetworkFlow().String(),

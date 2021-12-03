@@ -218,8 +218,12 @@ func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Contex
 	pcapFile := pcapgo.NewWriter(tempFile)
 
 	// Graphs data
-	topology := objects.NewTopology()
-	hostPacketCount := objects.NewHostPacketCount()
+	var (
+		topology        = objects.NewTopology()
+		hostPacketCount = objects.NewCounter()
+		layer4Count     = objects.NewCounter()
+		streamTypeCount = objects.NewCounter()
+	)
 
 masterLoop:
 	for {
@@ -248,6 +252,8 @@ masterLoop:
 		case <-tick:
 			updatedTopology := false
 			updatedPacketCountPerHost := false
+			updatedLayer4Count := false
+			updatedStreamTypeCount := false
 			for i := 0; i < 1000; i++ {
 				select {
 				case packet, isOpen := <-engine.Packets:
@@ -258,9 +264,6 @@ masterLoop:
 								go mw.LogError(context.Request, packetWriteError)
 								return false
 							}
-							// TODO: Do something to store the packet in the database
-							// TODO: Do something to update the graph in the client
-
 							//Send the packet to the client
 							writeError := connection.WriteJSON(
 								serverResponse{
@@ -275,10 +278,15 @@ masterLoop:
 
 							// Send the topology graph update
 							updatedPacketCountPerHost = true
+							updatedLayer4Count = true
+
 							if topology.AddEdge(packet.NetworkLayer().NetworkFlow().Src().String(), packet.NetworkLayer().NetworkFlow().Dst().String()) && !updatedTopology {
 								updatedTopology = true
 							}
 							hostPacketCount.Count(packet.NetworkLayer().NetworkFlow().Src().String())
+							layer4Count.Count(packet.TransportLayer().LayerType().String())
+
+							// TODO: Do something to temporally store the packet
 						}
 					} else {
 						break masterLoop
@@ -286,6 +294,9 @@ masterLoop:
 					break
 				case data, isOpen := <-engine.TCPStreams:
 					if isOpen {
+						updatedStreamTypeCount = true
+						streamTypeCount.Count(data.Type)
+
 						if _, found := hashedStreams[md5.Sum(data.Content)]; !found {
 							writeError := connection.WriteJSON(
 								serverResponse{
@@ -299,7 +310,6 @@ masterLoop:
 							}
 						}
 						// TODO: Do something to temporally store the stream
-						// TODO: Do something to update the graph in the client
 					} else {
 						break masterLoop
 					}
@@ -344,6 +354,45 @@ masterLoop:
 					return false
 				}
 			}
+			if updatedLayer4Count {
+				writeError := connection.WriteJSON(
+					serverResponse{
+						Type: "update-graphs",
+						Payload: struct {
+							Target  string
+							Options interface{}
+						}{
+							Target:  "layer-4-graph",
+							Options: layer4Count.Options(),
+						},
+					},
+				)
+				if writeError != nil {
+					go mw.LogError(context.Request, writeError)
+					return false
+				}
+			}
+			if updatedStreamTypeCount {
+				writeError := connection.WriteJSON(
+					serverResponse{
+						Type: "update-graphs",
+						Payload: struct {
+							Target  string
+							Options interface{}
+						}{
+							Target:  "stream-type-graph",
+							Options: streamTypeCount.Options(),
+						},
+					},
+				)
+				if writeError != nil {
+					go mw.LogError(context.Request, writeError)
+					return false
+				}
+			}
+			// TODO: Do something to update the layer 4 packet count graph
+			// TODO: Do something to update the  streams type count graph
+			// TODO: Do something to update the bandwidth graph
 		}
 	}
 	closeError := tempFile.Close()

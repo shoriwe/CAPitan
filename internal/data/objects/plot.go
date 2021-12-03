@@ -16,10 +16,10 @@ type (
 			Category int
 		}
 	}
-	HostPacketCount struct {
+	Counter struct {
 		numberOfHosts int
-		HostOrder     []string
-		Hosts         map[string]int
+		NamesOrder    []string
+		Names         map[string]int
 	}
 )
 
@@ -150,33 +150,33 @@ func (topology *Topology) Options() interface{} {
 	}
 }
 
-func NewHostPacketCount() *HostPacketCount {
-	return &HostPacketCount{
+func NewCounter() *Counter {
+	return &Counter{
 		numberOfHosts: 0,
-		HostOrder:     nil,
-		Hosts:         map[string]int{},
+		NamesOrder:    nil,
+		Names:         map[string]int{},
 	}
 }
-func (hostPacketCount *HostPacketCount) Count(name string) {
-	_, found := hostPacketCount.Hosts[name]
+func (counter *Counter) Count(name string) {
+	_, found := counter.Names[name]
 	if found {
-		hostPacketCount.Hosts[name] = hostPacketCount.Hosts[name] + 1
+		counter.Names[name] = counter.Names[name] + 1
 	} else {
-		hostPacketCount.HostOrder = append(hostPacketCount.HostOrder, name)
-		hostPacketCount.Hosts[name] = 1
+		counter.NamesOrder = append(counter.NamesOrder, name)
+		counter.Names[name] = 1
 	}
 }
 
-func (hostPacketCount *HostPacketCount) Options() interface{} {
+func (counter *Counter) Options() interface{} {
 	var values []int
-	for _, host := range hostPacketCount.HostOrder {
-		values = append(values, hostPacketCount.Hosts[host])
+	for _, name := range counter.NamesOrder {
+		values = append(values, counter.Names[name])
 	}
 	return struct {
-		Hosts    []string
-		Values   []int
+		Names  []string
+		Values []int
 	}{
-		Hosts:    hostPacketCount.HostOrder,
-		Values:   values,
+		Names:  counter.NamesOrder,
+		Values: values,
 	}
 }

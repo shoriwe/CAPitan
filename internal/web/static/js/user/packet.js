@@ -2,16 +2,16 @@ let selectedInterface = "";
 let connection = undefined;
 
 const topologyGraph = echarts.init(document.getElementById("topology-graph"));
-const barPlotNumberOfPacketsPerHost = echarts.init(document.getElementById("number-of-packets-send-per-host"));
-const pieNumberOfPacketsPerLayer4 = echarts.init(document.getElementById("layer-4"));
-const pieNumberOfStreamsPerTypes = echarts.init(document.getElementById("streams-type"));
+const packetsPerHostGraph = echarts.init(document.getElementById("number-of-packets-send-per-host"));
+const packetsOfLayer4PerHosts = echarts.init(document.getElementById("layer-4"));
+const streamTypeCount = echarts.init(document.getElementById("streams-type"));
 const bandwidth = echarts.init(document.getElementById("bandwidth"));
 
 window.onresize  = function () {
     topologyGraph.resize();
-    barPlotNumberOfPacketsPerHost.resize();
-    pieNumberOfPacketsPerLayer4.resize();
-    pieNumberOfStreamsPerTypes.resize();
+    packetsPerHostGraph.resize();
+    packetsOfLayer4PerHosts.resize();
+    streamTypeCount.resize();
     bandwidth.resize();
 }
 
@@ -72,13 +72,13 @@ async function loadPacket(packet) {
     newEntry.style.width = "90%";
 
     const src = document.createElement("h3");
-    src.innerText = `${packet.NetworkLayer.LinkFlow.Src}:${packet.TransportLayer.TransportFlow.Src}`;
+    src.innerText = `${packet.NetworkLayer.NetworkFlow.Src}:${packet.TransportLayer.TransportFlow.Src}`;
     src.classList.add("blue-text");
     src.style.minWidth = "22%";
 
     const dst = document.createElement("h3");
     dst.classList.add("red-text");
-    dst.innerText = `${packet.NetworkLayer.LinkFlow.Dst}:${packet.TransportLayer.TransportFlow.Dst}`;
+    dst.innerText = `${packet.NetworkLayer.NetworkFlow.Dst}:${packet.TransportLayer.TransportFlow.Dst}`;
     dst.style.minWidth = "22%";
 
     const layerType = document.createElement("h3");
@@ -204,10 +204,15 @@ async function loadStream(stream) {
 
 async function updateTopology(data) {
     const newTopology = {
+        title: {
+            text:  'Network Topology',
+            top: 'top',
+            left: 'left',
+        },
         tooltip: {},
         series: [
             {
-                name: 'Les Miserables',
+                name: 'Network Topology',
                 type: 'graph',
                 layout: 'circular',
                 data: data.Vertices,
@@ -243,6 +248,11 @@ async function updateTopology(data) {
 
 async function updateHostPacketCount(data) {
     const newCount = {
+        title: {
+            text:  'Number of packets per host',
+            top: 'top',
+            left: 'left',
+        },
         tooltip: {},
         toolbox: {
             left: 'right',
@@ -256,13 +266,14 @@ async function updateHostPacketCount(data) {
         },
         xAxis: {
             type: 'category',
-            data: data.Hosts
+            data: data.Names
         },
         yAxis: {
             type: 'value'
         },
         series: [
             {
+                name: 'Number of packets per host',
                 data: data.Values,
                 type: 'bar',
                 showBackground: true,
@@ -272,7 +283,87 @@ async function updateHostPacketCount(data) {
             }
         ]
     };
-    barPlotNumberOfPacketsPerHost.setOption(newCount);
+    packetsPerHostGraph.setOption(newCount);
+}
+
+async function updateLayer4CountGraph(data) {
+    const newCount = {
+        title: {
+            text:  'Layer 4 count',
+            top: 'top',
+            left: 'left',
+        },
+        tooltip: {},
+        toolbox: {
+            left: 'right',
+            itemSize: 25,
+            top: 'top',
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+            }
+        },
+        xAxis: {
+            type: 'category',
+            data: data.Names
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                name: 'Layer 4 Count',
+                data: data.Values,
+                type: 'bar',
+                showBackground: true,
+                backgroundStyle: {
+                    color: 'rgba(180, 180, 180, 0.2)'
+                }
+            }
+        ]
+    };
+    packetsOfLayer4PerHosts.setOption(newCount);
+}
+
+async function updateStreamTypeCountGraph(data) {
+    const newCount = {
+        title: {
+            text:  'Stream type count',
+            top: 'top',
+            left: 'left',
+        },
+        tooltip: {},
+        toolbox: {
+            left: 'right',
+            itemSize: 25,
+            top: 'top',
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+            }
+        },
+        xAxis: {
+            type: 'category',
+            data: data.Names
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                name: 'Stream type count',
+                data: data.Values,
+                type: 'bar',
+                showBackground: true,
+                backgroundStyle: {
+                    color: 'rgba(180, 180, 180, 0.2)'
+                }
+            }
+        ]
+    };
+    streamTypeCount.setOption(newCount);
 }
 
 async function updateGraphs(data) {
@@ -282,6 +373,12 @@ async function updateGraphs(data) {
             break;
         case "host-packet-count":
             updateHostPacketCount(data.Options);
+            break;
+        case "layer-4-graph":
+            updateLayer4CountGraph(data.Options);
+            break;
+        case "stream-type-graph":
+            updateStreamTypeCountGraph(data.Options);
             break;
     }
 }
