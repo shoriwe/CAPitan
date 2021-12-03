@@ -16,6 +16,11 @@ type (
 			Category int
 		}
 	}
+	HostPacketCount struct {
+		numberOfHosts int
+		HostOrder     []string
+		Hosts         map[string]int
+	}
 )
 
 func NewTopology() *Topology {
@@ -142,5 +147,36 @@ func (topology *Topology) Options() interface{} {
 		Vertices:   vertices,
 		Edges:      edges,
 		Categories: categories,
+	}
+}
+
+func NewHostPacketCount() *HostPacketCount {
+	return &HostPacketCount{
+		numberOfHosts: 0,
+		HostOrder:     nil,
+		Hosts:         map[string]int{},
+	}
+}
+func (hostPacketCount *HostPacketCount) Count(name string) {
+	_, found := hostPacketCount.Hosts[name]
+	if found {
+		hostPacketCount.Hosts[name] = hostPacketCount.Hosts[name] + 1
+	} else {
+		hostPacketCount.HostOrder = append(hostPacketCount.HostOrder, name)
+		hostPacketCount.Hosts[name] = 1
+	}
+}
+
+func (hostPacketCount *HostPacketCount) Options() interface{} {
+	var values []int
+	for _, host := range hostPacketCount.HostOrder {
+		values = append(values, hostPacketCount.Hosts[host])
+	}
+	return struct {
+		Hosts    []string
+		Values   []int
+	}{
+		Hosts:    hostPacketCount.HostOrder,
+		Values:   values,
 	}
 }

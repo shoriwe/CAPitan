@@ -219,6 +219,7 @@ func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Contex
 
 	// Graphs data
 	topology := objects.NewTopology()
+	hostPacketCount := objects.NewHostPacketCount()
 
 masterLoop:
 	for {
@@ -245,6 +246,8 @@ masterLoop:
 				}
 			}
 		case <-tick:
+			updatedTopology := false
+			updatedPacketCountPerHost := false
 			for i := 0; i < 1000; i++ {
 				select {
 				case packet, isOpen := <-engine.Packets:
@@ -271,24 +274,11 @@ masterLoop:
 							}
 
 							// Send the topology graph update
-							if topology.AddEdge(packet.NetworkLayer().NetworkFlow().Src().String(), packet.NetworkLayer().NetworkFlow().Dst().String()) {
-								writeError = connection.WriteJSON(
-									serverResponse{
-										Type: "update-graphs",
-										Payload: struct {
-											Target  string
-											Options interface{}
-										}{
-											Target:  "topology",
-											Options: topology.Options(),
-										},
-									},
-								)
-								if writeError != nil {
-									go mw.LogError(context.Request, writeError)
-									return false
-								}
+							updatedPacketCountPerHost = true
+							if topology.AddEdge(packet.NetworkLayer().NetworkFlow().Src().String(), packet.NetworkLayer().NetworkFlow().Dst().String()) && !updatedTopology {
+								updatedTopology = true
 							}
+							hostPacketCount.Count(packet.NetworkLayer().NetworkFlow().Src().String())
 						}
 					} else {
 						break masterLoop
@@ -315,6 +305,43 @@ masterLoop:
 					}
 				default:
 					break
+				}
+			}
+			if updatedTopology {
+				// Update graphs
+				writeError := connection.WriteJSON(
+					serverResponse{
+						Type: "update-graphs",
+						Payload: struct {
+							Target  string
+							Options interface{}
+						}{
+							Target:  "topology",
+							Options: topology.Options(),
+						},
+					},
+				)
+				if writeError != nil {
+					go mw.LogError(context.Request, writeError)
+					return false
+				}
+			}
+			if updatedPacketCountPerHost {
+				writeError := connection.WriteJSON(
+					serverResponse{
+						Type: "update-graphs",
+						Payload: struct {
+							Target  string
+							Options interface{}
+						}{
+							Target:  "host-packet-count",
+							Options: hostPacketCount.Options(),
+						},
+					},
+				)
+				if writeError != nil {
+					go mw.LogError(context.Request, writeError)
+					return false
 				}
 			}
 		}

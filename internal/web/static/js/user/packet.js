@@ -1,32 +1,19 @@
 let selectedInterface = "";
 let connection = undefined;
 
-const exampleOption = {
-    xAxis: {
-        type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    },
-    yAxis: {
-        type: 'value'
-    },
-    series: [
-        {
-            data: [150, 230, 224, 218, 135, 147, 260],
-            type: 'line'
-        }
-    ]
-};
-
 const topologyGraph = echarts.init(document.getElementById("topology-graph"));
 const barPlotNumberOfPacketsPerHost = echarts.init(document.getElementById("number-of-packets-send-per-host"));
 const pieNumberOfPacketsPerLayer4 = echarts.init(document.getElementById("layer-4"));
 const pieNumberOfStreamsPerTypes = echarts.init(document.getElementById("streams-type"));
 const bandwidth = echarts.init(document.getElementById("bandwidth"));
-// topologyGraph.setOption(exampleOption);
-// barPlotNumberOfPacketsPerHost.setOption(exampleOption);
-// pieNumberOfPacketsPerLayer4.setOption(exampleOption);
-// pieNumberOfStreamsPerTypes.setOption(exampleOption);
-// bandwidth.setOption(exampleOption);
+
+window.onresize  = function () {
+    topologyGraph.resize();
+    barPlotNumberOfPacketsPerHost.resize();
+    pieNumberOfPacketsPerLayer4.resize();
+    pieNumberOfStreamsPerTypes.resize();
+    bandwidth.resize();
+}
 
 function togglePromiscuous() {
     const promiscuous = document.getElementById("promiscuous");
@@ -216,16 +203,8 @@ async function loadStream(stream) {
 }
 
 async function updateTopology(data) {
-    console.log("HERE");
     const newTopology = {
         tooltip: {},
-        // legend: [
-        //     {
-        //         data: data.Categories.map(function (a) {
-        //             return a.name;
-        //         })
-        //     }
-        // ],
         series: [
             {
                 name: 'Les Miserables',
@@ -259,14 +238,50 @@ async function updateTopology(data) {
             }
         ]
     };
-    console.log(JSON.stringify(newTopology));
     topologyGraph.setOption(newTopology);
+}
+
+async function updateHostPacketCount(data) {
+    const newCount = {
+        tooltip: {},
+        toolbox: {
+            left: 'right',
+            itemSize: 25,
+            top: 'top',
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+            }
+        },
+        xAxis: {
+            type: 'category',
+            data: data.Hosts
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                data: data.Values,
+                type: 'bar',
+                showBackground: true,
+                backgroundStyle: {
+                    color: 'rgba(180, 180, 180, 0.2)'
+                }
+            }
+        ]
+    };
+    barPlotNumberOfPacketsPerHost.setOption(newCount);
 }
 
 async function updateGraphs(data) {
     switch (data.Target) {
         case "topology":
             updateTopology(data.Options);
+            break;
+        case "host-packet-count":
+            updateHostPacketCount(data.Options);
             break;
     }
 }
