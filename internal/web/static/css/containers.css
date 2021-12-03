@@ -2,6 +2,14 @@
     margin-top: 1%;
 }
 
+.round-border-container {
+    padding: 5px;
+    box-shadow: 1px 1px 1px 1px gray;
+    border-radius: 2px;
+    border: 1px solid gray;
+    margin: 5px;
+}
+
 .page-container {
     box-shadow: 1px 1px 1px 1px gray;
     border: 1px solid gray;

@@ -2,7 +2,9 @@ package packet
 
 import (
 	"bytes"
+	"crypto/md5"
 	"encoding/json"
+	"github.com/google/gopacket/pcapgo"
 	"github.com/gorilla/websocket"
 	"github.com/shoriwe/CAPitan/internal/capture"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
@@ -16,6 +18,7 @@ import (
 	"github.com/shoriwe/gplasma/pkg/reader"
 	"html/template"
 	"net/http"
+	"os"
 	"regexp"
 	"time"
 )
@@ -160,6 +163,8 @@ func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Contex
 	if !mw.ReserveUserCaptureName(context.Request, context.User.Username, configuration.CaptureName) {
 		return false
 	}
+	defer mw.RemoveReservedCaptureName(context.Request, context.User.Username, configuration.CaptureName)
+
 	engine := capture.NewEngine(configuration.InterfaceName)
 	defer engine.Close()
 	engine.Promiscuous = configuration.Promiscuous
@@ -196,6 +201,25 @@ func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Contex
 
 	tick := time.Tick(time.Second)
 
+	tempFile, tempFileCreationError := os.CreateTemp("", context.User.Username+configuration.CaptureName+".pcap")
+	if tempFileCreationError != nil {
+		go mw.LogError(context.Request, tempFileCreationError)
+		return false
+	}
+	defer func() {
+		removeError := os.Remove(tempFile.Name())
+		if removeError != nil {
+			go mw.LogError(context.Request, removeError)
+		}
+	}()
+
+	hashedStreams := map[[16]byte]struct{}{}
+
+	pcapFile := pcapgo.NewWriter(tempFile)
+
+	// Graphs data
+	topology := objects.NewTopology()
+
 masterLoop:
 	for {
 		select {
@@ -226,8 +250,15 @@ masterLoop:
 				case packet, isOpen := <-engine.Packets:
 					if isOpen {
 						if packet != nil {
-							// TODO: Do something to temporally store the packet
+							packetWriteError := pcapFile.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
+							if packetWriteError != nil {
+								go mw.LogError(context.Request, packetWriteError)
+								return false
+							}
+							// TODO: Do something to store the packet in the database
 							// TODO: Do something to update the graph in the client
+
+							//Send the packet to the client
 							writeError := connection.WriteJSON(
 								serverResponse{
 									Type:    "packet",
@@ -238,6 +269,26 @@ masterLoop:
 								go mw.LogError(context.Request, writeError)
 								return false
 							}
+
+							// Send the topology graph update
+							if topology.AddEdge(packet.NetworkLayer().NetworkFlow().Src().String(), packet.NetworkLayer().NetworkFlow().Dst().String()) {
+								writeError = connection.WriteJSON(
+									serverResponse{
+										Type: "update-graphs",
+										Payload: struct {
+											Target  string
+											Options interface{}
+										}{
+											Target:  "topology",
+											Options: topology.Options(),
+										},
+									},
+								)
+								if writeError != nil {
+									go mw.LogError(context.Request, writeError)
+									return false
+								}
+							}
 						}
 					} else {
 						break masterLoop
@@ -245,15 +296,17 @@ masterLoop:
 					break
 				case data, isOpen := <-engine.TCPStreams:
 					if isOpen {
-						writeError := connection.WriteJSON(
-							serverResponse{
-								Type:    "stream",
-								Payload: data,
-							},
-						)
-						if writeError != nil {
-							go mw.LogError(context.Request, writeError)
-							return false
+						if _, found := hashedStreams[md5.Sum(data.Content)]; !found {
+							writeError := connection.WriteJSON(
+								serverResponse{
+									Type:    "stream",
+									Payload: data,
+								},
+							)
+							if writeError != nil {
+								go mw.LogError(context.Request, writeError)
+								return false
+							}
 						}
 						// TODO: Do something to temporally store the stream
 						// TODO: Do something to update the graph in the client
@@ -266,6 +319,12 @@ masterLoop:
 			}
 		}
 	}
+	closeError := tempFile.Close()
+	if closeError != nil {
+		go mw.LogError(context.Request, closeError)
+		return false
+	}
+
 	// TODO: if the capture reached to here means that it is valid to be stored in the database
 	return false
 }

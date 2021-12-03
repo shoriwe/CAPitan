@@ -90,7 +90,7 @@ func (noAuth *NoAuth) UpdateUserStatus(username string, isAdmin, isEnabled bool)
 	return true, nil
 }
 
-func (noAuth *NoAuth) GetUserInterfacePermissions(username string) (succeed bool, user *objects.User, captureInterfaces map[string]struct{}, arpScanInterfaces map[string]struct{}, arpSpoofInterfaces map[string]struct{}, err error) {
+func (noAuth *NoAuth) GetUserInterfacePermissions(username string) (succeed bool, user *objects.User, captureInterfaces map[string]*objects.CapturePermission, arpScanInterfaces map[string]*objects.ARPScanPermission, arpSpoofInterfaces map[string]*objects.ARPSpoofPermission, err error) {
 	user = &objects.User{
 		Id:                     1,
 		Username:               "admin",
@@ -101,9 +101,25 @@ func (noAuth *NoAuth) GetUserInterfacePermissions(username string) (succeed bool
 		IsEnabled:              true,
 		PasswordExpirationDate: time.Now().Add(30 * time.Minute),
 	}
-	captureInterfaces = map[string]struct{}{"eth0": {}}
-	arpScanInterfaces = map[string]struct{}{"eth0": {}, "eth1": {}}
-	arpSpoofInterfaces = map[string]struct{}{"eth2": {}}
+	captureInterfaces = map[string]*objects.CapturePermission{"eth0": {
+		Id:        1,
+		UsersId:   1,
+		Interface: "eth0",
+	}}
+	arpScanInterfaces = map[string]*objects.ARPScanPermission{"eth0": {
+		Id:        1,
+		UsersId:   1,
+		Interface: "eth0",
+	}, "eth1": {
+		Id:        2,
+		UsersId:   1,
+		Interface: "eth1",
+	}}
+	arpSpoofInterfaces = map[string]*objects.ARPSpoofPermission{"eth2": {
+		Id:        1,
+		UsersId:   1,
+		Interface: "eth2",
+	}}
 	return true, user, captureInterfaces, arpScanInterfaces, arpSpoofInterfaces, nil
 }
 

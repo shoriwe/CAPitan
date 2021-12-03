@@ -94,7 +94,32 @@
         <div id="data-analysis-menu" style="display: none;">
             <div class="master-container">
                 <div class="page-container">
-                    <div class="centered-flex-container">
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+                        <div class="round-border-container">
+                            <div id="topology-graph" style="width:75vw; height: 80vh;">
+
+                            </div>
+                        </div>
+                        <div class="round-border-container">
+                            <div id="number-of-packets-send-per-host" style="width:75vw; height: 80vh;">
+
+                            </div>
+                        </div>
+                        <div class="round-border-container">
+                            <div id="layer-4" style="width:75vw; height: 80vh;">
+
+                            </div>
+                        </div>
+                        <div class="round-border-container">
+                            <div id="streams-type" style="width:75vw; height: 80vh;">
+
+                            </div>
+                        </div>
+                        <div class="round-border-container">
+                            <div id="bandwidth" style="width:75vw; height: 80vh;">
+
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -103,4 +128,5 @@
 </div>
 <script src="/static/vendor/js/prism.js"></script>
 <script src="/static/vendor/js/prism-live.js?load=ruby"></script>
+<script src="/static/vendor/echarts-5.2.2/dist/echarts.js"></script>
 <script src="/static/js/user/packet.js"></script>

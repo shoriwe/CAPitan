@@ -452,13 +452,13 @@ func (middleware *Middleware) ReserveUserCaptureName(request *http.Request, user
 }
 
 func (middleware *Middleware) RemoveReservedCaptureName(request *http.Request, username, captureName string) bool {
-	if !middleware.isCapturenameAlreadyTaken(username, captureName) {
-		go middleware.LogRemoveReserveCaptureNameForUser(request, username, captureName, false)
-		return false
+	if middleware.isCapturenameAlreadyTaken(username, captureName) {
+		middleware.reservedCapturesMutex.Lock()
+		defer middleware.reservedCapturesMutex.Unlock()
+		delete(middleware.reservedCaptures[username], captureName)
+		go middleware.LogRemoveReserveCaptureNameForUser(request, username, captureName, true)
+		return true
 	}
-	middleware.reservedCapturesMutex.Lock()
-	defer middleware.reservedCapturesMutex.Unlock()
-	delete(middleware.reservedCaptures[username], captureName)
-	go middleware.LogRemoveReserveCaptureNameForUser(request, username, captureName, true)
-	return true
+	go middleware.LogRemoveReserveCaptureNameForUser(request, username, captureName, false)
+	return false
 }

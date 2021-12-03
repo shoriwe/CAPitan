@@ -1,10 +1,10 @@
 {
   "version": "0.8.0-alpha.3",
   "pan": {
-    "X": 278.2413,
-    "Y": 881.4553
+    "X": 441.55255,
+    "Y": 747.54
   },
-  "zoom": 0.28690510988235474,
+  "zoom": 0.40828609466552734,
   "root": {
     "pagecontenttype": "PageContentFolder",
     "name": "New Folder",
@@ -1027,7 +1027,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Captured packets filter",
               "filepath": ""
             }
@@ -1297,7 +1297,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "By capturing from interface",
               "filepath": ""
             }
@@ -1492,7 +1492,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Filter packets by",
               "filepath": ""
             }
@@ -1567,7 +1567,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Web plasma script editor",
               "filepath": ""
             }
@@ -1738,17 +1738,17 @@
             }
           },
           {
-            "id": 27,
+            "id": 28,
             "rect": {
               "X": 288,
               "Y": 416,
               "W": 288,
-              "H": 32
+              "H": 64
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Packet information",
+              "checked": true,
+              "description": "TCP assembled content",
               "filepath": ""
             }
           },
@@ -1813,21 +1813,6 @@
             }
           },
           {
-            "id": 28,
-            "rect": {
-              "X": 288,
-              "Y": 448,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "TCP assembled content",
-              "filepath": ""
-            }
-          },
-          {
             "id": 80,
             "rect": {
               "X": 704,
@@ -1854,6 +1839,21 @@
             "properties": {
               "checked": false,
               "description": "Show packet captured table",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 29,
+            "rect": {
+              "X": 256,
+              "Y": 480,
+              "W": 288,
+              "H": 64
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Packet session controls",
               "filepath": ""
             }
           },
@@ -1899,21 +1899,6 @@
             "properties": {
               "checked": false,
               "description": "Rename",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 29,
-            "rect": {
-              "X": 256,
-              "Y": 512,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Packet session controls",
               "filepath": ""
             }
           },
@@ -1978,6 +1963,21 @@
             }
           },
           {
+            "id": 32,
+            "rect": {
+              "X": 288,
+              "Y": 544,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Stop",
+              "filepath": ""
+            }
+          },
+          {
             "id": 81,
             "rect": {
               "X": 672,
@@ -2023,17 +2023,17 @@
             }
           },
           {
-            "id": 30,
+            "id": 38,
             "rect": {
-              "X": 288,
+              "X": 256,
               "Y": 576,
               "W": 288,
               "H": 32
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Pause",
+              "checked": true,
+              "description": "Render",
               "filepath": ""
             }
           },
@@ -2098,7 +2098,7 @@
             }
           },
           {
-            "id": 31,
+            "id": 39,
             "rect": {
               "X": 288,
               "Y": 608,
@@ -2107,8 +2107,8 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Resume",
+              "checked": true,
+              "description": "Captured images",
               "filepath": ""
             }
           },
@@ -2158,17 +2158,17 @@
             }
           },
           {
-            "id": 32,
+            "id": 40,
             "rect": {
               "X": 288,
               "Y": 640,
               "W": 288,
-              "H": 32
+              "H": 64
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Stop",
+              "checked": true,
+              "description": "Captured plain text content",
               "filepath": ""
             }
           },
@@ -2216,21 +2216,6 @@
             }
           },
           {
-            "id": 38,
-            "rect": {
-              "X": 256,
-              "Y": 672,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Render",
-              "filepath": ""
-            }
-          },
-          {
             "id": 36,
             "rect": {
               "X": 704,
@@ -2261,9 +2246,9 @@
             }
           },
           {
-            "id": 39,
+            "id": 174,
             "rect": {
-              "X": 288,
+              "X": 256,
               "Y": 704,
               "W": 288,
               "H": 32
@@ -2271,7 +2256,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Captured images",
+              "description": "Plots",
               "filepath": ""
             }
           },
@@ -2321,7 +2306,7 @@
             }
           },
           {
-            "id": 40,
+            "id": 175,
             "rect": {
               "X": 288,
               "Y": 736,
@@ -2331,7 +2316,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Captured plain text content",
+              "description": "Network topology graph",
               "filepath": ""
             }
           },
@@ -2396,17 +2381,17 @@
             }
           },
           {
-            "id": 174,
+            "id": 176,
             "rect": {
-              "X": 256,
+              "X": 288,
               "Y": 800,
               "W": 288,
-              "H": 32
+              "H": 96
             },
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Plots",
+              "description": "Bar graph of number of packet sent by host",
               "filepath": ""
             }
           },
@@ -2426,22 +2411,7 @@
             }
           },
           {
-            "id": 175,
-            "rect": {
-              "X": 288,
-              "Y": 832,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Network topology graph",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 176,
+            "id": 177,
             "rect": {
               "X": 288,
               "Y": 896,
@@ -2451,7 +2421,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Bar graph of number of packet sent by host",
+              "description": "Pie graph of number of packets by layer 4 protocol sent",
               "filepath": ""
             }
           },
@@ -2471,7 +2441,7 @@
             }
           },
           {
-            "id": 177,
+            "id": 178,
             "rect": {
               "X": 288,
               "Y": 992,
@@ -2481,7 +2451,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Pie graph of number of packets by layer 4 protocol sent",
+              "description": "Pie graph of number of packets by layer 7 protocol sent",
               "filepath": ""
             }
           },
@@ -2501,25 +2471,10 @@
             }
           },
           {
-            "id": 178,
+            "id": 179,
             "rect": {
               "X": 288,
               "Y": 1088,
-              "W": 288,
-              "H": 96
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Pie graph of number of packets by layer 7 protocol sent",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 46,
-            "rect": {
-              "X": -96,
-              "Y": 1120,
               "W": 288,
               "H": 96
             },
@@ -2531,10 +2486,10 @@
             }
           },
           {
-            "id": 179,
+            "id": 46,
             "rect": {
-              "X": 288,
-              "Y": 1184,
+              "X": -96,
+              "Y": 1120,
               "W": 288,
               "H": 96
             },

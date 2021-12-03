@@ -1,6 +1,33 @@
 let selectedInterface = "";
 let connection = undefined;
 
+const exampleOption = {
+    xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    },
+    yAxis: {
+        type: 'value'
+    },
+    series: [
+        {
+            data: [150, 230, 224, 218, 135, 147, 260],
+            type: 'line'
+        }
+    ]
+};
+
+const topologyGraph = echarts.init(document.getElementById("topology-graph"));
+const barPlotNumberOfPacketsPerHost = echarts.init(document.getElementById("number-of-packets-send-per-host"));
+const pieNumberOfPacketsPerLayer4 = echarts.init(document.getElementById("layer-4"));
+const pieNumberOfStreamsPerTypes = echarts.init(document.getElementById("streams-type"));
+const bandwidth = echarts.init(document.getElementById("bandwidth"));
+// topologyGraph.setOption(exampleOption);
+// barPlotNumberOfPacketsPerHost.setOption(exampleOption);
+// pieNumberOfPacketsPerLayer4.setOption(exampleOption);
+// pieNumberOfStreamsPerTypes.setOption(exampleOption);
+// bandwidth.setOption(exampleOption);
+
 function togglePromiscuous() {
     const promiscuous = document.getElementById("promiscuous");
     promiscuous.checked = !promiscuous.checked;
@@ -174,6 +201,9 @@ async function loadStream(stream) {
     } else if (stream.Type.indexOf("text/") === 0) {
         document.getElementById("streams-container").append(newText(stream.Type, stream.Content));
         return;
+    } else if (stream.Type.indexOf("application/") === 0) {
+        document.getElementById("streams-container").append(newText(stream.Type, stream.Content));
+        return;
     }
     switch (stream.Type) {
         case "unknown":
@@ -181,6 +211,62 @@ async function loadStream(stream) {
             break;
         default:
             console.log(stream.Type);
+            break;
+    }
+}
+
+async function updateTopology(data) {
+    console.log("HERE");
+    const newTopology = {
+        tooltip: {},
+        // legend: [
+        //     {
+        //         data: data.Categories.map(function (a) {
+        //             return a.name;
+        //         })
+        //     }
+        // ],
+        series: [
+            {
+                name: 'Les Miserables',
+                type: 'graph',
+                layout: 'circular',
+                data: data.Vertices,
+                links: data.Edges,
+                categories: data.Categories,
+                roam: true,
+                edgeSymbol: ['circle', 'arrow'],
+                edgeSymbolSize: [4, 10],
+                circular: {
+                    rotateLabel: true
+                },
+                label: {
+                    show: true,
+                    position: 'right',
+                    formatter: '{b}'
+                },
+                labelLayout: {
+                    hideOverlap: true
+                },
+                scaleLimit: {
+                    min: 0.4,
+                    max: 2
+                },
+                lineStyle: {
+                    color: 'source',
+                    curveness: 0.3
+                }
+            }
+        ]
+    };
+    console.log(JSON.stringify(newTopology));
+    topologyGraph.setOption(newTopology);
+}
+
+async function updateGraphs(data) {
+    switch (data.Target) {
+        case "topology":
+            updateTopology(data.Options);
             break;
     }
 }
@@ -227,6 +313,9 @@ async function newCapture() {
                 break;
             case "stream":
                 loadStream(data.Payload);
+                break;
+            case "update-graphs":
+                updateGraphs(data.Payload);
                 break;
         }
     };
