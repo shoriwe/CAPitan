@@ -115,38 +115,23 @@ function createCodeBlock() {
     return result;
 }
 
-function newRequest(content) {
-    const request = createParentDiv();
+function newText(contentType, content) {
+    const subType = contentType.split("/")[1];
+    const textBlock = createParentDiv();
 
     const title = document.createElement("h3");
     title.classList.add("blue-text");
-    title.innerText = "HTTP request";
+    title.innerText = "Text " + subType;
 
     const data = createCodeBlock();
     data.innerHTML = atob(content);
+    data.classList.add("language-" + subType);
     Prism.highlightElement(data);
 
-    request.append(title);
-    request.append(data);
+    textBlock.append(title);
+    textBlock.append(data);
 
-    return request;
-}
-
-function newResponse(content) {
-    const response = createParentDiv();
-
-    const title = document.createElement("h3");
-    title.classList.add("blue-text");
-    title.innerText = "HTTP response";
-
-    const data = createCodeBlock();
-    data.innerHTML = atob(content);
-    Prism.highlightElement(data);
-
-    response.append(title);
-    response.append(data);
-
-    return response;
+    return textBlock;
 }
 
 function newUnknown(content) {
@@ -182,82 +167,17 @@ function newImage(contentType, content) {
     return image;
 }
 
-function newPlainText(content) {
-    const plaintext = createParentDiv();
-
-    const title = document.createElement("h3");
-    title.classList.add("blue-text");
-    title.innerText = "Plaintext";
-
-    const text = createCodeBlock();
-    text.innerText = atob(content);
-    Prism.highlightElement(text);
-
-    plaintext.append(title);
-    plaintext.append(text);
-
-    return plaintext;
-}
-
-function newHTML(content) {
-    const html = createParentDiv();
-
-    const title = document.createElement("h3");
-    title.classList.add("blue-text");
-    title.innerText = "HTML";
-
-    const text = createCodeBlock();
-    text.classList.add("language-html")
-    text.innerText = atob(content);
-    Prism.highlightElement(text);
-
-    html.append(title);
-    html.append(text);
-
-    return html;
-}
-
-function newCSS(content) {
-    const css = createParentDiv();
-
-    const title = document.createElement("h3");
-    title.classList.add("blue-text");
-    title.innerText = "CSS";
-
-    const text = createCodeBlock();
-    text.classList.add("language-css")
-    text.innerText = atob(content);
-    Prism.highlightElement(text);
-
-    css.append(title);
-    css.append(text);
-
-    return css;
-}
-
 async function loadStream(stream) {
     if (stream.Type.indexOf("image/") === 0) {
         document.getElementById("streams-container").append(newImage(stream.Type, stream.Content));
+        return;
+    } else if (stream.Type.indexOf("text/") === 0) {
+        document.getElementById("streams-container").append(newText(stream.Type, stream.Content));
         return;
     }
     switch (stream.Type) {
         case "unknown":
             document.getElementById("streams-container").append(newUnknown(stream.Content));
-            break;
-        case "http-request":
-            document.getElementById("streams-container").append(newRequest(stream.Content));
-            break;
-        case "http-response":
-            document.getElementById("streams-container").append(newResponse(stream.Content));
-            break;
-        case "text/plain":
-            document.getElementById("streams-container").append(newPlainText(stream.Content));
-            break;
-        case "text/html":
-            document.getElementById("streams-container").append(newHTML(stream.Content));
-            break;
-        case "text/css":
-            document.getElementById("streams-container").append(newCSS(stream.Content));
             break;
         default:
             console.log(stream.Type);

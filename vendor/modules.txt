@@ -1,18 +1,9 @@
-# github.com/go-echarts/go-echarts v1.0.0
-## explicit; go 1.13
-github.com/go-echarts/go-echarts/charts
-github.com/go-echarts/go-echarts/datasets
-github.com/go-echarts/go-echarts/datatypes
-github.com/go-echarts/go-echarts/templates
-# github.com/go-echarts/go-echarts/v2 v2.2.4
-## explicit; go 1.15
 # github.com/google/gopacket v1.1.19
 ## explicit; go 1.12
 github.com/google/gopacket
 github.com/google/gopacket/layers
 github.com/google/gopacket/pcap
 github.com/google/gopacket/tcpassembly
-github.com/google/gopacket/tcpassembly/tcpreader
 # github.com/gorilla/websocket v1.4.2
 ## explicit; go 1.12
 github.com/gorilla/websocket

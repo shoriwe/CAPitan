@@ -46,7 +46,8 @@ func main() {
 	if initError != nil {
 		panic(initError)
 	}
-	packetChannel, streamChannel, _, startError := engine.Start()
+	startError := engine.Start()
+	defer engine.Close()
 	if startError != nil {
 		panic(startError)
 	}
@@ -54,7 +55,7 @@ func main() {
 	for {
 		for i := 0; i < 1000; i++ {
 			select {
-			case _, isOpen := <-packetChannel:
+			case _, isOpen := <-engine.Packets:
 				if !isOpen {
 					return
 				}
@@ -63,7 +64,7 @@ func main() {
 			// 	fmt.Println(packet.LinkLayer().LinkFlow())
 			// 	fmt.Println(packet.NetworkLayer().NetworkFlow())
 			// }
-			case data, isOpen := <-streamChannel:
+			case data, isOpen := <-engine.TCPStreams:
 				if !isOpen {
 					return
 				}

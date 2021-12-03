@@ -5,15 +5,16 @@ import (
 	"bytes"
 	"compress/gzip"
 	"github.com/h2non/filetype"
-	"html/template"
+	"html"
 	"io"
 	"net/http"
 	"regexp"
+	"strings"
 )
 
 const (
-	HTTPRequest  = "http-request"
-	HTTPResponse = "http-response"
+	HTTPRequest  = "text/http-request"
+	HTTPResponse = "text/http-response"
 	PlainText    = "text/plain"
 	Unknown      = "unknown"
 )
@@ -31,23 +32,15 @@ type Data struct {
 }
 
 func NewData(t string, content []byte) Data {
-	switch t {
-	case HTTPRequest, HTTPResponse, PlainText:
-		var output bytes.Buffer
-		_ = template.Must(template.New("new").Parse("{{.Content}}")).Execute(&output, struct {
-			Content string
-		}{
-			Content: string(content),
-		})
+	if strings.HasPrefix(t, "text/") {
 		return Data{
 			Type:    t,
-			Content: output.Bytes(),
+			Content: []byte(html.EscapeString(string(content))),
 		}
-	default:
-		return Data{
-			Type:    t,
-			Content: content,
-		}
+	}
+	return Data{
+		Type:    t,
+		Content: content,
 	}
 }
 

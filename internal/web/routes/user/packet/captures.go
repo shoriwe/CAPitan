@@ -161,6 +161,7 @@ func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Contex
 		return false
 	}
 	engine := capture.NewEngine(configuration.InterfaceName)
+	defer engine.Close()
 	engine.Promiscuous = configuration.Promiscuous
 
 	if len(configuration.Script) > 0 {
@@ -170,17 +171,11 @@ func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Contex
 			return false
 		}
 	}
-	packetChannel, tcpStreamChannel, errorChannel, startError := engine.Start()
+	startError := engine.Start()
 	if startError != nil {
 		go mw.LogError(context.Request, startError)
 		return false
 	}
-	defer func() {
-		engine.Close()
-		close(packetChannel)
-		close(tcpStreamChannel)
-		close(errorChannel)
-	}()
 
 	stopChannel := make(chan bool, 1)
 	go func() {
@@ -190,7 +185,7 @@ func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Contex
 		err := connection.ReadJSON(&action)
 		if err != nil {
 			go mw.LogError(context.Request, err)
-			errorChannel <- err
+			engine.ErrorChannel <- err
 			return
 		}
 		switch action.Action {
@@ -199,12 +194,12 @@ func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Contex
 		}
 	}()
 
-	tick := time.Tick(time.Second * 2)
+	tick := time.Tick(time.Second)
 
 masterLoop:
 	for {
 		select {
-		case err, isOpen := <-errorChannel:
+		case err, isOpen := <-engine.ErrorChannel:
 			if isOpen {
 				if err != nil {
 					writeError := connection.WriteJSON(serverResponse{
@@ -228,7 +223,7 @@ masterLoop:
 		case <-tick:
 			for i := 0; i < 1000; i++ {
 				select {
-				case packet, isOpen := <-packetChannel:
+				case packet, isOpen := <-engine.Packets:
 					if isOpen {
 						if packet != nil {
 							// TODO: Do something to temporally store the packet
@@ -248,7 +243,7 @@ masterLoop:
 						break masterLoop
 					}
 					break
-				case data, isOpen := <-tcpStreamChannel:
+				case data, isOpen := <-engine.TCPStreams:
 					if isOpen {
 						writeError := connection.WriteJSON(
 							serverResponse{
