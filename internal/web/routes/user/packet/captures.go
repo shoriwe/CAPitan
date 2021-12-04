@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/json"
+	"fmt"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcapgo"
 	"github.com/gorilla/websocket"
@@ -66,7 +67,7 @@ func listCaptures(mw *middleware.Middleware, context *middleware.Context) bool {
 	return false
 }
 
-func checkCaptureInput(mw *middleware.Middleware, context *middleware.Context) (bool, string) {
+func checkInterfaceCaptureInputArguments(mw *middleware.Middleware, context *middleware.Context) (bool, string) {
 	if context.Request.Header.Get("Content-Type") != "application/x-www-form-urlencoded" {
 		// TODO: Better handling?
 		return false, ""
@@ -121,12 +122,12 @@ func checkCaptureInput(mw *middleware.Middleware, context *middleware.Context) (
 	return true, "succeed"
 }
 
-func testCaptureArguments(mw *middleware.Middleware, context *middleware.Context) bool {
+func testInterfaceBasedCaptureArguments(mw *middleware.Middleware, context *middleware.Context) bool {
 	var response struct {
 		Succeed bool
 		Error   string
 	}
-	response.Succeed, response.Error = checkCaptureInput(mw, context)
+	response.Succeed, response.Error = checkInterfaceCaptureInputArguments(mw, context)
 	body, marshalError := json.Marshal(response)
 	if marshalError != nil {
 		go mw.LogError(context.Request, marshalError)
@@ -136,7 +137,7 @@ func testCaptureArguments(mw *middleware.Middleware, context *middleware.Context
 	return false
 }
 
-func prepareCaptureSession(mw *middleware.Middleware, context *middleware.Context) bool {
+func startInterfaceBasedCapture(mw *middleware.Middleware, context *middleware.Context) bool {
 	connection, upgradeError := upgrade.Upgrade(context.ResponseWriter, context.Request, context.ResponseWriter.Header())
 	if upgradeError != nil {
 		go mw.LogError(context.Request, upgradeError)
@@ -427,10 +428,10 @@ masterLoop:
 		configuration.Description,
 		configuration.Script,
 		configuration.Promiscuous,
-		topology,
-		hostPacketCount,
-		layer4Count,
-		streamTypeCount,
+		topology.Options(),
+		hostPacketCount.Options(),
+		layer4Count.Options(),
+		streamTypeCount.Options(),
 		packets,
 		streams,
 		pcapContents,
@@ -454,8 +455,6 @@ func newCapture(mw *middleware.Middleware, context *middleware.Context) bool {
 		menuTemplate, _ := mw.Templates.ReadFile("templates/user/packet/captures/new-interface-capture.html")
 
 		var availableInterfaces []objects.InterfaceInformation
-		{
-		}
 		connectedInterfaces := mw.ListNetInterfaces(context.Request)
 		for interfaceName, networkInterface := range connectedInterfaces {
 			if _, found := captureInterfaces[interfaceName]; found {
@@ -484,6 +483,71 @@ func newCapture(mw *middleware.Middleware, context *middleware.Context) bool {
 	return http405.MethodNotAllowed(mw, context)
 }
 
+func renderOldCapture(mw *middleware.Middleware, context *middleware.Context) bool {
+	captureName := context.Request.PostFormValue(symbols.CaptureName)
+	succeed, captureSession, packets, streams := mw.UserGetCapture(context.Request, context.User.Username, captureName)
+	if !succeed {
+		context.Redirect = symbols.UserPacket
+		return false
+	}
+	marshalData, marshalError := json.Marshal(
+		struct {
+			CaptureName string
+			Description string
+			Script      string
+			Packets     []map[string]interface{}
+			Streams     []capture.Data
+			Start       time.Time
+			Finish      time.Time
+		}{
+			CaptureName: captureName,
+			Description: captureSession.Description,
+			Script:      string(captureSession.FilterScript),
+			Packets:     packets,
+			Streams:     streams,
+			Start:       captureSession.Started,
+			Finish:      captureSession.Ended,
+		},
+	)
+	if marshalError != nil {
+		fmt.Println("HERE")
+		go mw.LogError(context.Request, marshalError)
+		return false
+	}
+	var output bytes.Buffer
+	renderTemplate, _ := mw.Templates.ReadFile("templates/user/packet/captures/view-capture.html")
+	executeError := template.Must(template.New("Render").Parse(string(renderTemplate))).Execute(
+		&output,
+		struct {
+			Data            string
+			Topology        string
+			HostCount       string
+			Layer4Count     string
+			StreamTypeCount string
+		}{
+			Data:            string(marshalData),
+			Topology:        string(captureSession.TopologyJson),
+			HostCount:       string(captureSession.HostCountJson),
+			Layer4Count:     string(captureSession.LayerCountJson),
+			StreamTypeCount: string(captureSession.StreamTypeCountJson),
+		},
+	)
+	if executeError != nil {
+		go mw.LogError(context.Request, executeError)
+		return false
+	}
+	context.Body = base.NewPage("View Packet", context.NavigationBar, output.String())
+	return false
+}
+
+func viewCapture(mw *middleware.Middleware, context *middleware.Context) bool {
+	switch context.Request.Method {
+	case http.MethodPost:
+		return renderOldCapture(mw, context)
+	}
+	return http405.MethodNotAllowed(mw, context)
+}
+
 func Captures(mw *middleware.Middleware, context *middleware.Context) bool {
 	switch context.Request.FormValue("action") {
 	case actions.NewCapture:
@@ -491,13 +555,16 @@ func Captures(mw *middleware.Middleware, context *middleware.Context) bool {
 	case actions.ImportCapture:
 		return importCapture(mw, context)
 	case actions.TestCaptureArguments:
-		return testCaptureArguments(mw, context)
+		return testInterfaceBasedCaptureArguments(mw, context)
 	case actions.Start:
-		return prepareCaptureSession(mw, context)
+		return startInterfaceBasedCapture(mw, context)
+	case actions.View:
+		return viewCapture(mw, context)
 	}
 	return listCaptures(mw, context)
 }
 
 func importCapture(mw *middleware.Middleware, context *middleware.Context) bool {
+	panic("Implement me")
 	return false
 }

@@ -38,7 +38,57 @@ type Memory struct {
 	nextARPSpoofPermissionId          uint
 }
 
-func (memory *Memory) SaveInterfaceCapture(username, captureName, interfaceName, description, script string, promiscuous bool, topology *objects.Topology, hostPacketCount *objects.Counter, layer4Count *objects.Counter, streamTypeCount *objects.Counter, packets []gopacket.Packet, streams []capture.Data, pcapContents []byte, start, finish time.Time) (bool, error) {
+func (memory *Memory) QueryCapture(username, captureName string) (succeed bool, captureSession *objects.CaptureSession, packets []map[string]interface{}, streams []capture.Data, queryError error) {
+	memory.usersMutex.Lock()
+	user, found := memory.users[username]
+	if !found {
+		return false, nil, nil, nil, nil
+	}
+	memory.usersMutex.Unlock()
+
+	memory.captureSessionsMutex.Lock()
+	defer memory.captureSessionsMutex.Unlock()
+	memory.capturedPacketsMutex.Lock()
+	defer memory.capturedPacketsMutex.Unlock()
+	memory.capturedTCPStreamsMutex.Lock()
+	defer memory.capturedTCPStreamsMutex.Unlock()
+
+	var targetSession *objects.CaptureSession = nil
+	for _, session := range memory.captureSessions {
+		if session.UserId == user.Id && session.Name == captureName {
+			targetSession = session
+		}
+	}
+	if targetSession == nil {
+		return false, nil, nil, nil, nil
+	}
+
+	for _, packet := range memory.capturedPackets {
+		if packet.CaptureSessionsId == targetSession.Id {
+			var decodedPacket map[string]interface{}
+			unmarshallError := json.Unmarshal(packet.Contents, &decodedPacket)
+			if unmarshallError != nil {
+				return false, nil, nil, nil, unmarshallError
+			}
+			packets = append(packets, decodedPacket)
+		}
+	}
+
+	for _, stream := range memory.capturedTCPStreams {
+		if stream.CaptureSessionId == targetSession.Id {
+			streams = append(streams,
+				capture.Data{
+					Type:    stream.TCPStreamType,
+					Content: stream.Contents,
+				},
+			)
+		}
+	}
+
+	return true, targetSession, packets, streams, nil
+}
+
+func (memory *Memory) SaveInterfaceCapture(username, captureName, interfaceName, description, script string, promiscuous bool, topology, hostPacketCount, layer4Count, streamTypeCount interface{}, packets []gopacket.Packet, streams []capture.Data, pcapContents []byte, start, finish time.Time) (bool, error) {
 	memory.usersMutex.Lock()
 	user, found := memory.users[username]
 	memory.usersMutex.Unlock()

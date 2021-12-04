@@ -16,13 +16,9 @@
                     <span style="width: 1vw;"></span>
                     <form action="/packet/captures?action=view" method="post">
                         <label for="capture-id-{{$capture.Id}}" style="display: none;">{{$capture.Id}}</label>
-                        <input id="capture-id-{{$capture.Id}}" name="username" readonly style="display: none;"
+                        <input id="capture-id-{{$capture.Id}}" name="capture-name" readonly style="display: none;"
                                type="text"
-                               value="{{$capture.Id}}">
-                        <label for="owner-{{$.Username}}" style="display: none;">{{$.Username}}</label>
-                        <input id="owner-{{$.Username}}" name="username" readonly style="display: none;"
-                               type="text"
-                               value="{{$.Username}}">
+                               value="{{$capture.Name}}">
                         <button class="green-button" type="submit">View</button>
                     </form>
                 </div>

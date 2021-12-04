@@ -493,7 +493,7 @@ func TestCaptureInterfaceAddPermission(t *testing.T) {
 	if !regexp.MustCompile("sulcud").Match(body) {
 		t.Fatal(string(body))
 	}
-	if !strings.Contains(string(body), fmt.Sprintf("<h3 class=\"interface-name\">%s</h3>", interfaceName)) {
+	if !strings.Contains(string(body), fmt.Sprintf("<h3 class=\"black-text\" style=\"width: 90%%;\">%s", interfaceName)) {
 		t.Fatal(string(body))
 	}
 }
@@ -611,7 +611,7 @@ func TestCaptureInterfaceDeletePermission(t *testing.T) {
 	if !regexp.MustCompile("sulcud").Match(body) {
 		t.Fatal(string(body))
 	}
-	if !strings.Contains(string(body), fmt.Sprintf("<h3 class=\"interface-name\">%s</h3>", interfaceName)) {
+	if !strings.Contains(string(body), fmt.Sprintf("<h3 class=\"black-text\" style=\"width: 90%%;\">%s", interfaceName)) {
 		t.Fatal(string(body))
 	}
 	// Remove permission
@@ -648,7 +648,7 @@ func TestCaptureInterfaceDeletePermission(t *testing.T) {
 	if !regexp.MustCompile("sulcud").Match(body) {
 		t.Fatal(string(body))
 	}
-	if strings.Contains(string(body), fmt.Sprintf("<h3 class=\"interface-name\">%s</h3>", interfaceName)) {
+	if strings.Contains(string(body), fmt.Sprintf("<h3 class=\"black-text\" style=\"width: 90%%;\">%s", interfaceName)) {
 		t.Fatal(string(body))
 	}
 }
@@ -766,7 +766,7 @@ func TestARPScanInterfaceAddPermission(t *testing.T) {
 	if !regexp.MustCompile("sulcud").Match(body) {
 		t.Fatal(string(interfaceName), string(body))
 	}
-	if !strings.Contains(string(body), fmt.Sprintf("<h3 class=\"interface-name\">%s</h3>", interfaceName)) {
+	if !strings.Contains(string(body), fmt.Sprintf("<h3 class=\"black-text\" style=\"width: 90%%;\">%s", interfaceName)) {
 		t.Fatal(string(interfaceName), string(body))
 	}
 }
@@ -884,7 +884,7 @@ func TestARPScanInterfaceDeletePermission(t *testing.T) {
 	if !regexp.MustCompile("sulcud").Match(body) {
 		t.Fatal(string(interfaceName), string(body))
 	}
-	if !strings.Contains(string(body), fmt.Sprintf("<h3 class=\"interface-name\">%s</h3>", interfaceName)) {
+	if !strings.Contains(string(body), fmt.Sprintf("<h3 class=\"black-text\" style=\"width: 90%%;\">%s", interfaceName)) {
 		t.Fatal(string(interfaceName), string(body))
 	}
 	// Remove permission
@@ -1039,7 +1039,7 @@ func TestARPSpoofInterfaceAddPermission(t *testing.T) {
 	if !regexp.MustCompile("sulcud").Match(body) {
 		t.Fatal(string(interfaceName), string(body))
 	}
-	if !strings.Contains(string(body), fmt.Sprintf("<h3 class=\"interface-name\">%s</h3>", interfaceName)) {
+	if !strings.Contains(string(body), fmt.Sprintf("<h3 class=\"black-text\" style=\"width: 90%%;\">%s", interfaceName)) {
 		t.Fatal(string(interfaceName), string(body))
 	}
 }
@@ -1157,7 +1157,7 @@ func TestARPSpoofInterfaceDeletePermission(t *testing.T) {
 	if !regexp.MustCompile("sulcud").Match(body) {
 		t.Fatal(string(interfaceName), string(body))
 	}
-	if !strings.Contains(string(body), fmt.Sprintf("<h3 class=\"interface-name\">%s</h3>", interfaceName)) {
+	if !strings.Contains(string(body), fmt.Sprintf("<h3 class=\"black-text\" style=\"width: 90%%;\">%s", interfaceName)) {
 		t.Fatal(string(interfaceName), string(body))
 	}
 	// Remove permission

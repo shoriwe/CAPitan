@@ -465,13 +465,29 @@ func (middleware *Middleware) RemoveReservedCaptureName(request *http.Request, u
 	return false
 }
 
-func (middleware *Middleware) SaveInterfaceCapture(request *http.Request, username, captureName, interfaceName, description, script string, promiscuous bool, topology *objects.Topology, hostPacketCount *objects.Counter, layer4Count *objects.Counter, streamTypeCount *objects.Counter, packets []gopacket.Packet, streams []capture.Data, pcapContents []byte, start, finish time.Time) bool {
-	succeed, saveError := middleware.Database.SaveInterfaceCapture(username, captureName, interfaceName, description, script, promiscuous,  topology, hostPacketCount, layer4Count, streamTypeCount, packets, streams, pcapContents, start, finish)
+func (middleware *Middleware) SaveInterfaceCapture(request *http.Request, username, captureName, interfaceName, description, script string, promiscuous bool, topology, hostPacketCount, layer4Count, streamTypeCount interface{}, packets []gopacket.Packet, streams []capture.Data, pcapContents []byte, start, finish time.Time) bool {
+	succeed, saveError := middleware.Database.SaveInterfaceCapture(username, captureName, interfaceName, description, script, promiscuous, topology, hostPacketCount, layer4Count, streamTypeCount, packets, streams, pcapContents, start, finish)
 	if saveError != nil {
 		go middleware.LogError(request, saveError)
-		go middleware.LogSaveInterfaceCapture(request,  username, captureName, interfaceName, false)
+		go middleware.LogSaveInterfaceCapture(request, username, captureName, interfaceName, false)
 		return false
 	}
-	go middleware.LogSaveInterfaceCapture(request,  username, captureName, interfaceName, succeed)
+	go middleware.LogSaveInterfaceCapture(request, username, captureName, interfaceName, succeed)
 	return succeed
+}
+
+func (middleware *Middleware) UserGetCapture(request *http.Request, username, captureName string) (succeed bool, captureSession *objects.CaptureSession, packets []map[string]interface{}, streams []capture.Data) {
+	var queryError error
+	succeed, captureSession, packets, streams, queryError = middleware.Database.QueryCapture(username, captureName)
+	if queryError != nil {
+		go middleware.LogError(request, queryError)
+		go middleware.LogQueryUserCapture(request, username, captureName, false)
+		return false, nil, nil, nil
+	}
+	if succeed {
+		go middleware.LogQueryUserCapture(request, username, captureName, true)
+		return true, captureSession, packets, streams
+	}
+	go middleware.LogQueryUserCapture(request, username, captureName, false)
+	return false, nil, nil, nil
 }
