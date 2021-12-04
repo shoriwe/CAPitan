@@ -38,6 +38,105 @@ type Memory struct {
 	nextARPSpoofPermissionId          uint
 }
 
+func (memory *Memory) SaveImportCapture(username string, name string, description string, script string, topologyOptions interface{}, hostCountOptions interface{}, layer4Options interface{}, streamTypeCountOptions interface{}, packets []gopacket.Packet, streams []capture.Data, pcap []byte) (bool, error) {
+	memory.usersMutex.Lock()
+	user, found := memory.users[username]
+	memory.usersMutex.Unlock()
+	if !found {
+		return false, nil
+	}
+	memory.captureSessionsMutex.Lock()
+	defer memory.captureSessionsMutex.Unlock()
+	memory.capturedPacketsMutex.Lock()
+	defer memory.capturedPacketsMutex.Unlock()
+	memory.capturedTCPStreamsMutex.Lock()
+	defer memory.capturedTCPStreamsMutex.Unlock()
+
+	var (
+		topologyEncoded        []byte
+		hostCountEncoded       []byte
+		layerCountEncoded      []byte
+		streamTypeCountEncoded []byte
+		encodeError            error
+	)
+	topologyEncoded, encodeError = json.Marshal(topologyOptions)
+	if encodeError != nil {
+		return false, encodeError
+	}
+	hostCountEncoded, encodeError = json.Marshal(hostCountOptions)
+	if encodeError != nil {
+		return false, encodeError
+	}
+	layerCountEncoded, encodeError = json.Marshal(layer4Options)
+	if encodeError != nil {
+		return false, encodeError
+	}
+	streamTypeCountEncoded, encodeError = json.Marshal(streamTypeCountOptions)
+	if encodeError != nil {
+		return false, encodeError
+	}
+
+	session := &objects.CaptureSession{
+		Id:                  memory.nextCapturePacketId,
+		UserId:              user.Id,
+		Interface:           "Imported capture",
+		Promiscuous:         true,
+		Name:                name,
+		Description:         description,
+		Started:             time.Time{},
+		Ended:               time.Time{},
+		Pcap:                pcap,
+		FilterScript:        []byte(script),
+		TopologyJson:        topologyEncoded,
+		HostCountJson:       hostCountEncoded,
+		LayerCountJson:      layerCountEncoded,
+		StreamTypeCountJson: streamTypeCountEncoded,
+	}
+
+	memory.nextCapturePacketId++
+
+	for _, stream := range streams {
+		memory.capturedTCPStreams[memory.nextCapturedTCPStreamId] = &objects.TCPStream{
+			Id:               memory.nextCapturedTCPStreamId,
+			CaptureSessionId: session.Id,
+			TCPStreamType:    stream.Type,
+			Contents:         stream.Content,
+		}
+		memory.nextCapturedTCPStreamId++
+	}
+
+	for _, packet := range packets {
+		srcPort, parseError := strconv.Atoi(packet.TransportLayer().TransportFlow().Src().String())
+		if parseError != nil {
+			srcPort = 0
+		}
+		var dstPort int
+		dstPort, parseError = strconv.Atoi(packet.TransportLayer().TransportFlow().Dst().String())
+		if parseError != nil {
+			dstPort = 0
+		}
+		encodedPacket, marshalError := json.Marshal(capture.TransformPacketToMap(packet))
+		if marshalError != nil {
+			return false, marshalError
+		}
+		memory.capturedPackets[memory.nextCapturePacketId] = &objects.Packet{
+			Id:                 memory.nextCapturePacketId,
+			CaptureSessionsId:  session.Id,
+			TransportLayer:     packet.TransportLayer().LayerType().String(),
+			InternetLayer:      packet.NetworkLayer().LayerType().String(),
+			ApplicationLayer:   packet.ApplicationLayer().LayerType().String(),
+			SourceAddress:      packet.NetworkLayer().NetworkFlow().Src().String(),
+			SourcePort:         uint(srcPort),
+			DestinationAddress: packet.NetworkLayer().NetworkFlow().Dst().String(),
+			DestinationPort:    uint(dstPort),
+			Contents:           encodedPacket,
+		}
+		memory.nextCapturePacketId++
+	}
+	memory.captureSessions[session.Id] = session
+	return true, nil
+}
+
 func (memory *Memory) QueryCapture(username, captureName string) (succeed bool, captureSession *objects.CaptureSession, packets []map[string]interface{}, streams []capture.Data, queryError error) {
 	memory.usersMutex.Lock()
 	user, found := memory.users[username]

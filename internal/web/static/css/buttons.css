@@ -18,6 +18,24 @@
     border: 1px solid #2980ba;
 }
 
+.purple-button {
+    justify-self: center;
+    text-decoration: none;
+    padding: 1vh 1.5vw;
+    cursor: pointer;
+    margin-left: 5%;
+    box-shadow: 1px 1px 1px 1px #9b59b6;
+    border: 1px solid #8e44ad;
+    border-radius: 2px;
+    font-family: "Helvetica", serif;
+    background: #8e44ad;
+    color: white;
+}
+
+.purple-button:hover {
+    background: #8e44ad;
+}
+
 .green-button {
     cursor: pointer;
     font-family: Arial, serif;

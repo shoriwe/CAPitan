@@ -39,7 +39,7 @@ func main() {
 	if targetDevice == "" {
 		panic("no device found")
 	}
-	engine := capture.NewEngine(targetDevice)
+	engine := capture.NewEngineWithInterface(targetDevice)
 	engine.VirtualMachine.Stdout = os.Stdout
 	engine.Promiscuous = true
 	initError := engine.InitScript(initScript)

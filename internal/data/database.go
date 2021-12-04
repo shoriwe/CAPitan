@@ -27,6 +27,7 @@ type DatabaseUserFeatures interface {
 	CheckIfUserCaptureNameWasAlreadyTaken(username string, name string) (bool, error)
 	SaveInterfaceCapture(username, captureName, interfaceName, description, script string, promiscuous bool, topologyOptions, hostPacketCountOptions, layer4CountOptions, streamTypeCountOptions interface{}, packets []gopacket.Packet, streams []capture.Data, pcapContents []byte, start, finish time.Time) (bool, error)
 	QueryCapture(username, captureName string) (succeed bool, captureSession *objects.CaptureSession, packets []map[string]interface{}, streams []capture.Data, queryError error)
+	SaveImportCapture(username string, name string, description string, script string, topologyOptions interface{}, hostCountOptions interface{}, layer4Options interface{}, streamTypeCountOptions interface{}, packets []gopacket.Packet, streams []capture.Data, pcap []byte) (bool, error)
 }
 
 type DatabaseGlobalFeatures interface {

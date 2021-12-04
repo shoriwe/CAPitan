@@ -491,3 +491,14 @@ func (middleware *Middleware) UserGetCapture(request *http.Request, username, ca
 	go middleware.LogQueryUserCapture(request, username, captureName, false)
 	return false, nil, nil, nil
 }
+
+func (middleware *Middleware) SaveImportCapture(request *http.Request, username string, captureName string, description string, script string, topologyOptions interface{}, hostCountOptions interface{}, layer4Options interface{}, streamTypeCountOptions interface{}, packets []gopacket.Packet, streams []capture.Data, dumpPcap []byte) bool {
+	succeed, saveError := middleware.Database.SaveImportCapture(username, captureName, description, script, topologyOptions, hostCountOptions, layer4Options, streamTypeCountOptions, packets, streams, dumpPcap)
+	if saveError != nil {
+		go middleware.LogError(request, saveError)
+		go middleware.LogSaveImportCapture(request, username, captureName, false)
+		return false
+	}
+	go middleware.LogSaveImportCapture(request, username, captureName, succeed)
+	return succeed
+}

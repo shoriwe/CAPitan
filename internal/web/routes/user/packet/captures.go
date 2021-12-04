@@ -18,7 +18,9 @@ import (
 	"github.com/shoriwe/gplasma/pkg/compiler/parser"
 	"github.com/shoriwe/gplasma/pkg/reader"
 	"html/template"
+	"io"
 	"net/http"
+	"os"
 	"regexp"
 	"time"
 )
@@ -165,7 +167,7 @@ func startInterfaceBasedCapture(mw *middleware.Middleware, context *middleware.C
 	}
 	defer mw.RemoveReservedCaptureName(context.Request, context.User.Username, configuration.CaptureName)
 
-	engine := capture.NewEngine(configuration.InterfaceName)
+	engine := capture.NewEngineWithInterface(configuration.InterfaceName)
 	defer engine.Close()
 	engine.Promiscuous = configuration.Promiscuous
 
@@ -403,7 +405,7 @@ masterLoop:
 	return false
 }
 
-func newCapture(mw *middleware.Middleware, context *middleware.Context) bool {
+func newInterfaceCapture(mw *middleware.Middleware, context *middleware.Context) bool {
 	switch context.Request.Method {
 	case http.MethodGet:
 		succeed, _, captureInterfaces, _, _, getError := mw.GetUserInterfacePermissions(context.User.Username)
@@ -444,6 +446,188 @@ func newCapture(mw *middleware.Middleware, context *middleware.Context) bool {
 		return false
 	}
 	return http405.MethodNotAllowed(mw, context)
+}
+
+func importCapture(mw *middleware.Middleware, context *middleware.Context) bool {
+	switch context.Request.Method {
+	case http.MethodGet:
+		templateContents, _ := mw.Templates.ReadFile("templates/user/packet/captures/import-capture.html")
+		context.Body = base.NewPage("Import", context.NavigationBar, string(templateContents))
+		return false
+	case http.MethodPost:
+		return handleImportCapture(mw, context)
+	}
+	return http405.MethodNotAllowed(mw, context)
+}
+
+func handleImportCapture(mw *middleware.Middleware, context *middleware.Context) bool {
+	parseError := context.Request.ParseMultipartForm(1024 * 1024 * 1024 * 500)
+	context.Redirect = symbols.UserPacketCaptures + "?action=import"
+	if parseError != nil {
+		go mw.LogError(context.Request, parseError)
+
+		return false
+	}
+	mimeFile, _, openError := context.Request.FormFile("file")
+	if openError != nil {
+		go mw.LogError(context.Request, openError)
+
+		return false
+	}
+	file, tempCreationError := os.CreateTemp("", "*.pcap")
+	if tempCreationError != nil {
+		go mw.LogError(context.Request, tempCreationError)
+		return false
+	}
+	_, copyError := io.Copy(file, mimeFile)
+	if copyError != nil {
+		go mw.LogError(context.Request, copyError)
+		return false
+	}
+	closeError := file.Close()
+	if closeError != nil {
+		go mw.LogError(context.Request, closeError)
+		return false
+	}
+	file, openError = os.Open(file.Name())
+	if openError != nil {
+		go mw.LogError(context.Request, openError)
+		return false
+	}
+	defer file.Close()
+
+	captureName := context.Request.PostFormValue(symbols.CaptureName)
+	description := context.Request.PostFormValue(symbols.Description)
+	script := context.Request.PostFormValue(symbols.Script)
+	if len(script) > 0 {
+		// Test that the script successfully compiles to plasma bytecode
+		finalProgram, parsingError := parser.NewParser(lexer.NewLexer(reader.NewStringReader(script))).Parse()
+		if parsingError != nil {
+			go mw.LogError(context.Request, parsingError.Error())
+
+			return false
+		}
+		_, compileError := finalProgram.Compile()
+		if compileError != nil {
+			go mw.LogError(context.Request, compileError.Error())
+
+			return false
+		}
+	}
+	// Check the capture is a valid string
+	if !stringChecker.MatchString(captureName) {
+
+		return false
+	}
+	// Check the capture is unique for the user
+	if mw.UserCaptureNameAlreadyTaken(context.Request, context.User.Username, captureName) {
+
+		return false
+	}
+	// Check the description is a valid string
+	if !stringChecker.MatchString(description) {
+
+		return false
+	}
+
+	if !mw.ReserveUserCaptureName(context.Request, context.User.Username, captureName) {
+		return false
+	}
+	defer mw.RemoveReservedCaptureName(context.Request, context.User.Username, captureName)
+
+	engine := capture.NewEngineWithFile(file)
+	defer engine.Close()
+
+	if len(script) > 0 {
+		initError := engine.InitScript(script)
+		if initError != nil {
+			go mw.LogError(context.Request, initError)
+			return false
+		}
+	}
+	startError := engine.Start()
+	if startError != nil {
+		go mw.LogError(context.Request, startError)
+		return false
+	}
+
+	tick := time.Tick(time.Second)
+
+	// Temporary storage of streams and packets
+	var (
+		packets []gopacket.Packet
+		streams []capture.Data
+	)
+
+	hashedStreams := map[[16]byte]struct{}{}
+
+	// Graphs data
+	var (
+		topology        = objects.NewTopology()
+		hostPacketCount = objects.NewCounter()
+		layer4Count     = objects.NewCounter()
+		streamTypeCount = objects.NewCounter()
+	)
+
+masterLoop:
+	for {
+		select {
+		case err, isOpen := <-engine.ErrorChannel:
+			if isOpen {
+				if err != nil {
+					go mw.LogError(context.Request, err)
+
+					return false
+				}
+			} else {
+				break masterLoop
+			}
+		case <-tick:
+			for i := 0; i < 1000; i++ {
+				select {
+				case packet, isOpen := <-engine.Packets:
+					if isOpen {
+						if packet != nil {
+							topology.AddEdge(packet.NetworkLayer().NetworkFlow().Src().String(), packet.NetworkLayer().NetworkFlow().Dst().String())
+							hostPacketCount.Count(packet.NetworkLayer().NetworkFlow().Src().String())
+							layer4Count.Count(packet.TransportLayer().LayerType().String())
+							packets = append(packets, packet)
+						}
+					} else {
+						break masterLoop
+					}
+					break
+				case data, isOpen := <-engine.TCPStreams:
+					if isOpen {
+						streamTypeCount.Count(data.Type)
+						if _, found := hashedStreams[md5.Sum(data.Content)]; !found {
+							streams = append(streams, data)
+						}
+					} else {
+						break masterLoop
+					}
+				default:
+					break masterLoop
+				}
+			}
+		}
+	}
+	context.Redirect = symbols.UserPacketCaptures
+	mw.SaveImportCapture(
+		context.Request,
+		context.User.Username,
+		captureName,
+		description,
+		script,
+		topology.Options(),
+		hostPacketCount.Options(),
+		layer4Count.Options(),
+		streamTypeCount.Options(),
+		packets,
+		streams,
+		engine.DumpPcap(),
+	)
+	return false
 }
 
 func renderOldCapture(mw *middleware.Middleware, context *middleware.Context) bool {
@@ -531,7 +715,7 @@ func downloadCapture(mw *middleware.Middleware, context *middleware.Context) boo
 func Captures(mw *middleware.Middleware, context *middleware.Context) bool {
 	switch context.Request.FormValue("action") {
 	case actions.NewCapture:
-		return newCapture(mw, context)
+		return newInterfaceCapture(mw, context)
 	case actions.ImportCapture:
 		return importCapture(mw, context)
 	case actions.TestCaptureArguments:
@@ -544,9 +728,4 @@ func Captures(mw *middleware.Middleware, context *middleware.Context) bool {
 		return downloadCapture(mw, context)
 	}
 	return listCaptures(mw, context)
-}
-
-func importCapture(mw *middleware.Middleware, context *middleware.Context) bool {
-	panic("Implement me")
-	return false
 }

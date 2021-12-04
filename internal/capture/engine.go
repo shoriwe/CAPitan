@@ -249,7 +249,7 @@ func (engine *Engine) mainLoop() {
 	assembler.MaxBufferedPagesPerConnection = 500
 	assembler.MaxBufferedPagesTotal = 100000
 
-	pcapDump  := pcapgo.NewWriter(engine.pcapDumpFile)
+	pcapDump := pcapgo.NewWriter(engine.pcapDumpFile)
 	writeError := pcapDump.WriteFileHeader(defaultSnapLen, engine.handle.LinkType())
 	if writeError != nil {
 		engine.ErrorChannel <- writeError
@@ -415,7 +415,7 @@ func (engine *Engine) Start() error {
 
 /*
 	DumpPcap: This function should always be called before engine.Close()
- */
+*/
 func (engine *Engine) DumpPcap() []byte {
 	_ = engine.pcapDumpFile.Close()
 	file, openError := os.Open(engine.pcapDumpFile.Name())
@@ -607,18 +607,17 @@ func TransformPacketToMap(packet gopacket.Packet) map[string]interface{} {
 	return result
 }
 
-func NewEngine(netInterface string) *Engine {
+func newEngine() *Engine {
 	engine := &Engine{
-		NetworkInterface: netInterface,
-		PacketFilter:     nil,
-		TCPStreamFilter:  nil,
-		Packets:          make(chan gopacket.Packet, 1000),
-		TCPStreams:       make(chan Data, 1000),
-		pcapContents:     nil,
-		VirtualMachine:   nil,
-		Promiscuous:      false,
-		PcapFile:         nil,
-		handle:           nil,
+		PacketFilter:    nil,
+		TCPStreamFilter: nil,
+		Packets:         make(chan gopacket.Packet, 1000),
+		TCPStreams:      make(chan Data, 1000),
+		pcapContents:    nil,
+		VirtualMachine:  nil,
+		Promiscuous:     false,
+		PcapFile:        nil,
+		handle:          nil,
 	}
 	engine.packetsToFilter = engine.Packets
 	engine.tcpStreamsToFilter = engine.TCPStreams
@@ -636,5 +635,17 @@ func NewEngine(netInterface string) *Engine {
 		panic(createError)
 	}
 	engine.pcapDumpFile = tempPcapFile
+	return engine
+}
+
+func NewEngineWithInterface(netInterface string) *Engine {
+	engine := newEngine()
+	engine.NetworkInterface = netInterface
+	return engine
+}
+
+func NewEngineWithFile(file *os.File) *Engine {
+	engine := newEngine()
+	engine.PcapFile = file
 	return engine
 }

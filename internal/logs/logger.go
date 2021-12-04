@@ -187,6 +187,14 @@ func (logger *Logger) LogSaveInterfaceCapture(request *http.Request, username, c
 	}
 }
 
+func (logger *Logger) LogSaveImportCapture(request *http.Request, username, captureName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully saved capture with name \"%s\" imported by user %s in %s", captureName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to save capture with name \"%s\" imported by user %s in %s", captureName, username, request.RemoteAddr)
+	}
+}
+
 func (logger *Logger) LogQueryUserCapture(request *http.Request, username, captureName string, succeed bool) {
 	if succeed {
 		logger.debugLogger.Printf("Successfully queried %s for user %s at %s", captureName, username, request.RemoteAddr)
@@ -194,6 +202,7 @@ func (logger *Logger) LogQueryUserCapture(request *http.Request, username, captu
 		logger.debugLogger.Printf("Failed to query %s for user %s at %s", captureName, username, request.RemoteAddr)
 	}
 }
+
 
 func NewLogger(logWriter io.Writer) *Logger {
 	return &Logger{
