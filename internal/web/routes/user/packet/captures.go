@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/google/gopacket"
-	"github.com/google/gopacket/pcapgo"
 	"github.com/gorilla/websocket"
 	"github.com/shoriwe/CAPitan/internal/capture"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
@@ -20,7 +19,6 @@ import (
 	"github.com/shoriwe/gplasma/pkg/reader"
 	"html/template"
 	"net/http"
-	"os"
 	"regexp"
 	"time"
 )
@@ -203,22 +201,6 @@ func startInterfaceBasedCapture(mw *middleware.Middleware, context *middleware.C
 
 	tick := time.Tick(time.Second)
 
-	tempPcapFile, tempFileCreationError := os.CreateTemp("", context.User.Username+configuration.CaptureName+".pcap")
-	if tempFileCreationError != nil {
-		go mw.LogError(context.Request, tempFileCreationError)
-		return false
-	}
-	defer func() {
-		closeError := tempPcapFile.Close()
-		if closeError != nil {
-			go mw.LogError(context.Request, closeError)
-		}
-		removeError := os.Remove(tempPcapFile.Name())
-		if removeError != nil {
-			go mw.LogError(context.Request, removeError)
-		}
-	}()
-
 	// Temporary storage of streams and packets
 	var (
 		packets []gopacket.Packet
@@ -226,8 +208,6 @@ func startInterfaceBasedCapture(mw *middleware.Middleware, context *middleware.C
 	)
 
 	hashedStreams := map[[16]byte]struct{}{}
-
-	pcapFileController := pcapgo.NewWriter(tempPcapFile)
 
 	// Graphs data
 	var (
@@ -272,11 +252,6 @@ masterLoop:
 				case packet, isOpen := <-engine.Packets:
 					if isOpen {
 						if packet != nil {
-							packetWriteError := pcapFileController.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
-							if packetWriteError != nil {
-								go mw.LogError(context.Request, packetWriteError)
-								return false
-							}
 							//Send the packet to the client
 							writeError := connection.WriteJSON(
 								serverResponse{
@@ -408,18 +383,6 @@ masterLoop:
 	}
 	finish := time.Now()
 
-	closeError := tempPcapFile.Close()
-	if closeError != nil {
-		go mw.LogError(context.Request, closeError)
-		return false
-	}
-
-	var pcapContents []byte
-	pcapContents, readError = os.ReadFile(tempPcapFile.Name())
-	if readError != nil {
-		go mw.LogError(context.Request, readError)
-		return false
-	}
 	mw.SaveInterfaceCapture(
 		context.Request,
 		context.User.Username,
@@ -434,7 +397,7 @@ masterLoop:
 		streamTypeCount.Options(),
 		packets,
 		streams,
-		pcapContents,
+		engine.DumpPcap(),
 		start, finish,
 	)
 	return false
@@ -548,6 +511,23 @@ func viewCapture(mw *middleware.Middleware, context *middleware.Context) bool {
 	return http405.MethodNotAllowed(mw, context)
 }
 
+func downloadCapture(mw *middleware.Middleware, context *middleware.Context) bool {
+	captureName := context.Request.PostFormValue(symbols.CaptureName)
+	succeed, captureSession, _, _ := mw.UserGetCapture(context.Request, context.User.Username, captureName)
+	if !succeed {
+		context.Redirect = symbols.UserPacket
+		return false
+	}
+	context.ResponseWriter.Header().Add("Content-Disposition", "attachment; filename=\"capture.pcap\"")
+	_, writeError := context.ResponseWriter.Write(captureSession.Pcap)
+	if writeError != nil {
+		go mw.LogError(context.Request, writeError)
+		return false
+	}
+	context.WriteBody = false
+	return false
+}
+
 func Captures(mw *middleware.Middleware, context *middleware.Context) bool {
 	switch context.Request.FormValue("action") {
 	case actions.NewCapture:
@@ -560,6 +540,8 @@ func Captures(mw *middleware.Middleware, context *middleware.Context) bool {
 		return startInterfaceBasedCapture(mw, context)
 	case actions.View:
 		return viewCapture(mw, context)
+	case actions.Download:
+		return downloadCapture(mw, context)
 	}
 	return listCaptures(mw, context)
 }

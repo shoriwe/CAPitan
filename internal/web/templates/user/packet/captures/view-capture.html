@@ -9,10 +9,19 @@
                 </div>
                 <div class="master-container">
                     <div class="centered-flex-container">
-                        <button class="green-button" onclick="tcpStreamMenu()">TCP streams</button>
-                        <button class="green-button" onclick="packetMenu()">Packets</button>
-                        <button class="green-button" onclick="dataAnalysisMenu()">Data analysis</button>
-                        <button class="green-button" onclick="showDetails()">Details</button>
+                        <button class="green-button"
+                                onclick="document.getElementById('details-menu').style.display = 'none'; tcpStreamMenu();">
+                            TCP streams
+                        </button>
+                        <button class="green-button"
+                                onclick="document.getElementById('details-menu').style.display = 'none'; packetMenu();">
+                            Packets
+                        </button>
+                        <button class="green-button"
+                                onclick="document.getElementById('details-menu').style.display = 'none'; dataAnalysisMenu();">
+                            Data analysis
+                        </button>
+                        <button class="green-button" onclick="detailsMenu();">Details</button>
                     </div>
                 </div>
             </div>
@@ -23,7 +32,7 @@
                 </div>
             </div>
         </div>
-        <div id="packet-menu" style="display: block;">
+        <div id="packet-menu" style="display: none;">
             <div class="master-container">
                 <div class="dialog-container" id="packet-dialog" role="dialog"
                      style="display: none; width: 70vw; height: 75vh;">
@@ -70,22 +79,52 @@
                 </div>
             </div>
         </div>
+        <div id="details-menu" style="display: none;">
+            <div class="master-container">
+                <div class="page-container">
+                    <div class="centered-container">
+                        <h3 class="purple-text"> Description</h3>
+                        <div>
+                            <pre style="width: 50vw; height: 80vh;" class="language-plaintext"><code id="description"></code></pre>
+                        </div>
+                        <br><br>
+                        <h3 class="purple-text">Filter Script</h3>
+                        <div>
+                            <pre style="width: 50vw; height: 80vh;" class="language-ruby copy"><code id="filterScript"></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-<script>
-    // @formatter:off
-    const dataToLoad = JSON.parse({{$.Data}});
-    const topologyToLoad = JSON.parse({{$.Topology}});
-    const hostCountToLoad = JSON.parse({{$.HostCount}});
-    const layer4CountToLoad = JSON.parse({{$.Layer4Count}});
-    const streamTypeCountToLoad = JSON.parse({{$.StreamTypeCount}});
-    // @formatter:on
-
-    // Load Data
-    document.getElementById("title").innerText = dataToLoad.CaptureName;
-
-</script>
 <script src="/static/vendor/js/prism.js"></script>
 <script src="/static/vendor/js/prism-live.js?load=ruby"></script>
 <script src="/static/vendor/echarts-5.2.2/dist/echarts.js"></script>
 <script src="/static/js/user/packet.js"></script>
+<script>
+    window.onload = function (event) {
+        // @formatter:off
+        const dataToLoad = JSON.parse({{$.Data}});
+        const topologyToLoad = JSON.parse({{$.Topology}});
+        const hostCountToLoad = JSON.parse({{$.HostCount}});
+        const layer4CountToLoad = JSON.parse({{$.Layer4Count}});
+        const streamTypeCountToLoad = JSON.parse({{$.StreamTypeCount}});
+        // @formatter:on
+
+        document.getElementById("title").innerText = dataToLoad.CaptureName;
+        document.getElementById("description").innerText = dataToLoad.Description;
+        document.getElementById("filterScript").innerText = dataToLoad.Script;
+        for (let index = 0; index < dataToLoad.Packets.length; index++) {
+            loadPacket(dataToLoad.Packets[index]);
+        }
+        for (let index = 0; index < dataToLoad.Streams.length; index++) {
+            loadStream(dataToLoad.Streams[index]);
+        }
+
+        updateTopology(topologyToLoad);
+        updateHostPacketCount(hostCountToLoad);
+        updateLayer4CountGraph(layer4CountToLoad);
+        updateStreamTypeCountGraph(streamTypeCountToLoad);
+    }
+</script>

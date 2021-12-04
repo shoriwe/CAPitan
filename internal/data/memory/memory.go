@@ -160,7 +160,8 @@ func (memory *Memory) SaveInterfaceCapture(username, captureName, interfaceName,
 		if parseError != nil {
 			srcPort = 0
 		}
-		dstPort, parseError := strconv.Atoi(packet.TransportLayer().TransportFlow().Dst().String())
+		var dstPort int
+		dstPort, parseError = strconv.Atoi(packet.TransportLayer().TransportFlow().Dst().String())
 		if parseError != nil {
 			dstPort = 0
 		}
@@ -170,7 +171,7 @@ func (memory *Memory) SaveInterfaceCapture(username, captureName, interfaceName,
 		}
 		memory.capturedPackets[memory.nextCapturePacketId] = &objects.Packet{
 			Id:                 memory.nextCapturePacketId,
-			CaptureSessionsId:  0,
+			CaptureSessionsId:  session.Id,
 			TransportLayer:     packet.TransportLayer().LayerType().String(),
 			InternetLayer:      packet.NetworkLayer().LayerType().String(),
 			ApplicationLayer:   packet.ApplicationLayer().LayerType().String(),
@@ -180,6 +181,7 @@ func (memory *Memory) SaveInterfaceCapture(username, captureName, interfaceName,
 			DestinationPort:    uint(dstPort),
 			Contents:           encodedPacket,
 		}
+		memory.nextCapturePacketId++
 	}
 	memory.captureSessions[session.Id] = session
 	return true, nil

@@ -6,6 +6,7 @@ import (
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
+	"github.com/google/gopacket/pcapgo"
 	"github.com/google/gopacket/tcpassembly"
 	"github.com/shoriwe/gplasma"
 	errors2 "github.com/shoriwe/gplasma/pkg/errors"
@@ -209,6 +210,9 @@ type Engine struct {
 	NetworkInterface string
 	PcapFile         *os.File
 	handle           *pcap.Handle
+
+	pcapContents []byte
+	pcapDumpFile *os.File
 }
 
 func (engine *Engine) InitScript(script string) error {
@@ -227,6 +231,10 @@ func (engine *Engine) InitScript(script string) error {
 	return nil
 }
 
+func (engine *Engine) dump(pcapDump *pcapgo.Writer, packet gopacket.Packet) {
+	_ = pcapDump.WritePacket(packet.Metadata().CaptureInfo, packet.Data())
+}
+
 func (engine *Engine) mainLoop() {
 	defer recoverFromChannelClosedWhenWriting()
 
@@ -241,6 +249,13 @@ func (engine *Engine) mainLoop() {
 	assembler.MaxBufferedPagesPerConnection = 500
 	assembler.MaxBufferedPagesTotal = 100000
 
+	pcapDump  := pcapgo.NewWriter(engine.pcapDumpFile)
+	writeError := pcapDump.WriteFileHeader(defaultSnapLen, engine.handle.LinkType())
+	if writeError != nil {
+		engine.ErrorChannel <- writeError
+		return
+	}
+
 	tick := time.Tick(time.Second)
 
 	for {
@@ -248,6 +263,7 @@ func (engine *Engine) mainLoop() {
 		case packet, isOpen := <-packets:
 			if isOpen {
 				if packet != nil {
+					go engine.dump(pcapDump, packet)
 					if packet.NetworkLayer() != nil && packet.TransportLayer() != nil && packet.ApplicationLayer() != nil {
 						if packet.TransportLayer().LayerType() == layers.LayerTypeTCP {
 							assembler.AssembleWithTimestamp(packet.NetworkLayer().NetworkFlow(), packet.TransportLayer().(*layers.TCP), packet.Metadata().Timestamp)
@@ -397,9 +413,27 @@ func (engine *Engine) Start() error {
 	return nil
 }
 
+/*
+	DumpPcap: This function should always be called before engine.Close()
+ */
+func (engine *Engine) DumpPcap() []byte {
+	_ = engine.pcapDumpFile.Close()
+	file, openError := os.Open(engine.pcapDumpFile.Name())
+	if openError != nil {
+		panic(openError) // Probably the file got deleted before
+	}
+	defer file.Close()
+	contents, readError := io.ReadAll(file)
+	if readError != nil {
+		panic(readError) // What happen
+	}
+	return contents
+}
+
 func (engine *Engine) Close() {
 	defer recoverFromChannelClosedWhenWriting()
-
+	_ = engine.pcapDumpFile.Close()
+	_ = os.Remove(engine.pcapDumpFile.Name())
 	engine.handle.Close()
 	close(engine.Packets)
 	close(engine.TCPStreams)
@@ -580,6 +614,7 @@ func NewEngine(netInterface string) *Engine {
 		TCPStreamFilter:  nil,
 		Packets:          make(chan gopacket.Packet, 1000),
 		TCPStreams:       make(chan Data, 1000),
+		pcapContents:     nil,
 		VirtualMachine:   nil,
 		Promiscuous:      false,
 		PcapFile:         nil,
@@ -595,5 +630,11 @@ func NewEngine(netInterface string) *Engine {
 	importer.LoadModule(regex.Regex)
 	engine.VirtualMachine.LoadFeature(importer.Result(&securedFileSystem{}, &securedFileSystem{}))
 	engine.machineContext = engine.VirtualMachine.NewContext()
+
+	tempPcapFile, createError := os.CreateTemp("", "*.pcap")
+	if createError != nil {
+		panic(createError)
+	}
+	engine.pcapDumpFile = tempPcapFile
 	return engine
 }

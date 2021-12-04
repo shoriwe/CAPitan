@@ -447,19 +447,26 @@ function selectCaptureInterface(id) {
 }
 
 function tcpStreamMenu() {
-    document.getElementById("tcp-stream-menu").style.display = "block"
-    document.getElementById("packet-menu").style.display = "none"
-    document.getElementById("data-analysis-menu").style.display = "none"
+    document.getElementById("tcp-stream-menu").style.display = "block";
+    document.getElementById("packet-menu").style.display = "none";
+    document.getElementById("data-analysis-menu").style.display = "none";
 }
 
 function packetMenu() {
-    document.getElementById("packet-menu").style.display = "block"
-    document.getElementById("tcp-stream-menu").style.display = "none"
-    document.getElementById("data-analysis-menu").style.display = "none"
+    document.getElementById("packet-menu").style.display = "block";
+    document.getElementById("tcp-stream-menu").style.display = "none";
+    document.getElementById("data-analysis-menu").style.display = "none";
 }
 
 function dataAnalysisMenu() {
-    document.getElementById("data-analysis-menu").style.display = "block"
-    document.getElementById("packet-menu").style.display = "none"
-    document.getElementById("tcp-stream-menu").style.display = "none"
+    document.getElementById("data-analysis-menu").style.display = "block";
+    document.getElementById("packet-menu").style.display = "none";
+    document.getElementById("tcp-stream-menu").style.display = "none";
+}
+
+function detailsMenu() {
+    document.getElementById("data-analysis-menu").style.display = "none";
+    document.getElementById("packet-menu").style.display = "none";
+    document.getElementById("tcp-stream-menu").style.display = "none";
+    document.getElementById("details-menu").style.display = "block";
 }

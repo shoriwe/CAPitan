@@ -1,10 +1,10 @@
 {
   "version": "0.8.0-alpha.3",
   "pan": {
-    "X": 492.11386,
-    "Y": 471.0327
+    "X": -21.930685,
+    "Y": 733.67303
   },
-  "zoom": 0.6328946948051453,
+  "zoom": 0.508611261844635,
   "root": {
     "pagecontenttype": "PageContentFolder",
     "name": "New Folder",
@@ -55,7 +55,8 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Ideas for the functionalities and deployment features the app should have"
+              "description": "Ideas for the functionalities and deployment features the app should have",
+              "filepath": ""
             }
           },
           {
@@ -591,7 +592,8 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "This one should be powered by mariadb and the network interfaces are configured for the container it self"
+              "description": "This one should be powered by mariadb and the network interfaces are configured for the container it self",
+              "filepath": ""
             }
           },
           {
@@ -799,7 +801,8 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Shared with me captures are read only"
+              "description": "Shared with me captures are read only",
+              "filepath": ""
             }
           },
           {
@@ -857,7 +860,8 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "This one is powered a by a custom JSON database"
+              "description": "This one is powered a by a custom JSON database",
+              "filepath": ""
             }
           },
           {
@@ -1003,7 +1007,7 @@
             }
           },
           {
-            "id": 117,
+            "id": 72,
             "rect": {
               "X": -160,
               "Y": 160,
@@ -1013,7 +1017,7 @@
             "contents": "Checkbox",
             "properties": {
               "checked": false,
-              "description": "Rename",
+              "description": "Export to pcap",
               "filepath": ""
             }
           },
@@ -1078,7 +1082,7 @@
             }
           },
           {
-            "id": 72,
+            "id": 61,
             "rect": {
               "X": -160,
               "Y": 192,
@@ -1087,8 +1091,8 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Export to pcap",
+              "checked": true,
+              "description": "View",
               "filepath": ""
             }
           },
@@ -1183,17 +1187,17 @@
             }
           },
           {
-            "id": 68,
+            "id": 62,
             "rect": {
-              "X": -160,
+              "X": -128,
               "Y": 224,
               "W": 288,
               "H": 64
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Captured packets filter",
+              "checked": true,
+              "description": "Show packet captured table",
               "filepath": ""
             }
           },
@@ -1393,17 +1397,17 @@
             }
           },
           {
-            "id": 59,
+            "id": 63,
             "rect": {
-              "X": -160,
+              "X": -128,
               "Y": 288,
               "W": 288,
               "H": 32
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Delete",
+              "checked": true,
+              "description": "Render",
               "filepath": ""
             }
           },
@@ -1468,17 +1472,17 @@
             }
           },
           {
-            "id": 60,
+            "id": 65,
             "rect": {
-              "X": -160,
+              "X": -96,
               "Y": 320,
               "W": 288,
-              "H": 64
+              "H": 32
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Share with specific users",
+              "checked": true,
+              "description": "Captured images",
               "filepath": ""
             }
           },
@@ -1558,6 +1562,21 @@
             }
           },
           {
+            "id": 66,
+            "rect": {
+              "X": -96,
+              "Y": 352,
+              "W": 288,
+              "H": 64
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": true,
+              "description": "Captured plain text content",
+              "filepath": ""
+            }
+          },
+          {
             "id": 49,
             "rect": {
               "X": 288,
@@ -1629,21 +1648,6 @@
             "properties": {
               "checked": true,
               "description": "Grant permissions",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 71,
-            "rect": {
-              "X": -160,
-              "Y": 384,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Unshare with specific users",
               "filepath": ""
             }
           },
@@ -1738,6 +1742,21 @@
             }
           },
           {
+            "id": 42,
+            "rect": {
+              "X": -128,
+              "Y": 416,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": true,
+              "description": "Plots",
+              "filepath": ""
+            }
+          },
+          {
             "id": 28,
             "rect": {
               "X": 288,
@@ -1798,17 +1817,17 @@
             }
           },
           {
-            "id": 61,
+            "id": 43,
             "rect": {
-              "X": -160,
+              "X": -96,
               "Y": 448,
               "W": 288,
-              "H": 32
+              "H": 64
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "View",
+              "checked": true,
+              "description": "Network topology graph",
               "filepath": ""
             }
           },
@@ -1828,21 +1847,6 @@
             }
           },
           {
-            "id": 62,
-            "rect": {
-              "X": -128,
-              "Y": 480,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Show packet captured table",
-              "filepath": ""
-            }
-          },
-          {
             "id": 29,
             "rect": {
               "X": 256,
@@ -1852,7 +1856,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Packet session controls",
               "filepath": ""
             }
@@ -1903,6 +1907,21 @@
             }
           },
           {
+            "id": 45,
+            "rect": {
+              "X": -96,
+              "Y": 512,
+              "W": 288,
+              "H": 96
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": true,
+              "description": "Bar graph of number of packet sent by host",
+              "filepath": ""
+            }
+          },
+          {
             "id": 87,
             "rect": {
               "X": 1056,
@@ -1948,21 +1967,6 @@
             }
           },
           {
-            "id": 67,
-            "rect": {
-              "X": -128,
-              "Y": 544,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Re-Do capture with same condition",
-              "filepath": ""
-            }
-          },
-          {
             "id": 32,
             "rect": {
               "X": 288,
@@ -1972,7 +1976,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Stop",
               "filepath": ""
             }
@@ -2083,17 +2087,17 @@
             }
           },
           {
-            "id": 63,
+            "id": 44,
             "rect": {
-              "X": -128,
+              "X": -96,
               "Y": 608,
               "W": 288,
-              "H": 32
+              "H": 96
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Render",
+              "checked": true,
+              "description": "Pie graph of number of packets by layer 4 protocol sent",
               "filepath": ""
             }
           },
@@ -2143,21 +2147,6 @@
             }
           },
           {
-            "id": 65,
-            "rect": {
-              "X": -96,
-              "Y": 640,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Captured images",
-              "filepath": ""
-            }
-          },
-          {
             "id": 40,
             "rect": {
               "X": 288,
@@ -2182,7 +2171,8 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Shared with me captures are read only"
+              "description": "Shared with me captures are read only",
+              "filepath": ""
             }
           },
           {
@@ -2197,21 +2187,6 @@
             "properties": {
               "checked": false,
               "description": "By who",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 66,
-            "rect": {
-              "X": -96,
-              "Y": 672,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Captured plain text content",
               "filepath": ""
             }
           },
@@ -2242,6 +2217,21 @@
             "properties": {
               "checked": false,
               "description": "Export",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 57,
+            "rect": {
+              "X": -96,
+              "Y": 704,
+              "W": 288,
+              "H": 96
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": true,
+              "description": "Pie graph of number of packets by layer 7 protocol sent",
               "filepath": ""
             }
           },
@@ -2291,21 +2281,6 @@
             }
           },
           {
-            "id": 42,
-            "rect": {
-              "X": -128,
-              "Y": 736,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Plots",
-              "filepath": ""
-            }
-          },
-          {
             "id": 175,
             "rect": {
               "X": 288,
@@ -2351,21 +2326,6 @@
             }
           },
           {
-            "id": 43,
-            "rect": {
-              "X": -96,
-              "Y": 768,
-              "W": 288,
-              "H": 64
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Network topology graph",
-              "filepath": ""
-            }
-          },
-          {
             "id": 157,
             "rect": {
               "X": 2528,
@@ -2396,21 +2356,6 @@
             }
           },
           {
-            "id": 45,
-            "rect": {
-              "X": -96,
-              "Y": 832,
-              "W": 288,
-              "H": 96
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Bar graph of number of packet sent by host",
-              "filepath": ""
-            }
-          },
-          {
             "id": 177,
             "rect": {
               "X": 288,
@@ -2426,21 +2371,6 @@
             }
           },
           {
-            "id": 44,
-            "rect": {
-              "X": -96,
-              "Y": 928,
-              "W": 288,
-              "H": 96
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Pie graph of number of packets by layer 4 protocol sent",
-              "filepath": ""
-            }
-          },
-          {
             "id": 178,
             "rect": {
               "X": 288,
@@ -2451,21 +2381,6 @@
             "contents": "Checkbox",
             "properties": {
               "checked": true,
-              "description": "Pie graph of number of packets by layer 7 protocol sent",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 57,
-            "rect": {
-              "X": -96,
-              "Y": 1024,
-              "W": 288,
-              "H": 96
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
               "description": "Pie graph of number of packets by layer 7 protocol sent",
               "filepath": ""
             }

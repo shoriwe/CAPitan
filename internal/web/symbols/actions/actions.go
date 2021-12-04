@@ -20,4 +20,5 @@ const (
 	TestCaptureArguments    = "test"
 	Start                   = "start"
 	View                    = "view"
+	Download                = "download"
 )

@@ -14,6 +14,14 @@
                     <span style="width: 1vw;"></span>
                     <h3 class="green-text">{{$capture.Ended.Format "2006 Jan 02 15:04:05 UTC"}}</h3>
                     <span style="width: 1vw;"></span>
+                    <form action="/packet/captures?action=download" method="post">
+                        <label for="capture-id-download-{{$capture.Id}}" style="display: none;">{{$capture.Id}}</label>
+                        <input id="capture-id-download-{{$capture.Id}}" name="capture-name" readonly style="display: none;"
+                               type="text"
+                               value="{{$capture.Name}}">
+                        <button class="green-button" type="submit">Download</button>
+                    </form>
+                    <span style="width: 1%;"></span>
                     <form action="/packet/captures?action=view" method="post">
                         <label for="capture-id-{{$capture.Id}}" style="display: none;">{{$capture.Id}}</label>
                         <input id="capture-id-{{$capture.Id}}" name="capture-name" readonly style="display: none;"
