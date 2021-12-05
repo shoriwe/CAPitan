@@ -67,17 +67,7 @@ func listCaptures(mw *middleware.Middleware, context *middleware.Context) bool {
 	return false
 }
 
-func checkInterfaceCaptureInputArguments(mw *middleware.Middleware, context *middleware.Context) (bool, string) {
-	if context.Request.Header.Get("Content-Type") != "application/x-www-form-urlencoded" {
-		// TODO: Better handling?
-		return false, ""
-	}
-
-	interfaceName := context.Request.FormValue(symbols.Interface)
-	captureName := context.Request.FormValue(symbols.CaptureName)
-	description := context.Request.FormValue(symbols.Description)
-	script := context.Request.FormValue(symbols.Script)
-
+func checkInterfaceCaptureInputArguments(mw *middleware.Middleware, context *middleware.Context, captureName, interfaceName, description, script string) (bool, string) {
 	if len(script) > 0 {
 		// Test that the script successfully compiles to plasma bytecode
 		finalProgram, parsingError := parser.NewParser(lexer.NewLexer(reader.NewStringReader(script))).Parse()
@@ -127,7 +117,13 @@ func testInterfaceBasedCaptureArguments(mw *middleware.Middleware, context *midd
 		Succeed bool
 		Error   string
 	}
-	response.Succeed, response.Error = checkInterfaceCaptureInputArguments(mw, context)
+
+	interfaceName := context.Request.PostFormValue(symbols.Interface)
+	captureName := context.Request.PostFormValue(symbols.CaptureName)
+	description := context.Request.PostFormValue(symbols.Description)
+	script := context.Request.PostFormValue(symbols.Script)
+
+	response.Succeed, response.Error = checkInterfaceCaptureInputArguments(mw, context, captureName, interfaceName, description, script)
 	body, marshalError := json.Marshal(response)
 	if marshalError != nil {
 		go mw.LogError(context.Request, marshalError)
@@ -162,6 +158,37 @@ func startInterfaceBasedCapture(mw *middleware.Middleware, context *middleware.C
 		go mw.LogError(context.Request, readError)
 		return false
 	}
+	// Check configuration
+	isValid, errorMessage := checkInterfaceCaptureInputArguments(mw, context, configuration.CaptureName, configuration.InterfaceName, configuration.Description, configuration.Script)
+	if isValid {
+		writeError := connection.WriteJSON(struct {
+			Succeed bool
+			Message string
+		}{
+			Succeed: true,
+			Message: "Everything ok",
+		},
+		)
+		if writeError != nil {
+			go mw.LogError(context.Request, writeError)
+			return false
+		}
+
+	} else {
+		writeError := connection.WriteJSON(struct {
+			Succeed bool
+			Message string
+		}{
+			Succeed: false,
+			Message: errorMessage,
+		})
+		if writeError != nil {
+			go mw.LogError(context.Request, writeError)
+			return false
+		}
+		return false
+	}
+	// Respond to the client if everything is ok
 	if !mw.ReserveUserCaptureName(context.Request, context.User.Username, configuration.CaptureName) {
 		return false
 	}

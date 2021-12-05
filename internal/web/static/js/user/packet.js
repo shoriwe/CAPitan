@@ -413,22 +413,30 @@ async function newCapture() {
         );
         connection.send(configuration);
         document.getElementById("title").innerText = captureName.value;
-    }
 
-    connection.onmessage = function (message) {
-        const data = JSON.parse(message.data);
-        switch (data.Type) {
-            case "packet":
-                loadPacket(data.Payload);
-                break;
-            case "stream":
-                loadStream(data.Payload);
-                break;
-            case "update-graphs":
-                updateGraphs(data.Payload);
-                break;
-        }
-    };
+
+        connection.onmessage = function (message) {
+            const data = JSON.parse(message.data);
+            if (data.Succeed) {
+                connection.onmessage = function (message) {
+                    const updateData = JSON.parse(message.data);
+                    switch (updateData.Type) {
+                        case "packet":
+                            loadPacket(updateData.Payload);
+                            break;
+                        case "stream":
+                            loadStream(updateData.Payload);
+                            break;
+                        case "update-graphs":
+                            updateGraphs(updateData.Payload);
+                            break;
+                    }
+                };
+            } else {
+                document.location.href = "/packet/captures"
+            }
+        };
+    }
 }
 
 function stopCapture() {

@@ -203,7 +203,6 @@ func (logger *Logger) LogQueryUserCapture(request *http.Request, username, captu
 	}
 }
 
-
 func NewLogger(logWriter io.Writer) *Logger {
 	return &Logger{
 		errorLogger: log.New(logWriter, "ERROR: ", log.Ldate|log.Ltime),

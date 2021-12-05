@@ -11,6 +11,6 @@ require (
 )
 
 require (
-	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
+	golang.org/x/net v0.0.0-20211205041911-012df41ee64c // indirect
 	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect
 )

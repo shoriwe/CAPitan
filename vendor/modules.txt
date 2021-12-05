@@ -34,7 +34,7 @@ github.com/shoriwe/gplasma/pkg/vm
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/sha3
-# golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
+# golang.org/x/net v0.0.0-20211205041911-012df41ee64c
 ## explicit; go 1.17
 golang.org/x/net/bpf
 # golang.org/x/sys v0.0.0-20211124211545-fe61309f8881

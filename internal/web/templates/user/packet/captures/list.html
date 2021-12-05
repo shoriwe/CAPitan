@@ -16,7 +16,8 @@
                     <span style="width: 1vw;"></span>
                     <form action="/packet/captures?action=download" method="post">
                         <label for="capture-id-download-{{$capture.Id}}" style="display: none;">{{$capture.Id}}</label>
-                        <input id="capture-id-download-{{$capture.Id}}" name="capture-name" readonly style="display: none;"
+                        <input id="capture-id-download-{{$capture.Id}}" name="capture-name" readonly
+                               style="display: none;"
                                type="text"
                                value="{{$capture.Name}}">
                         <button class="green-button" type="submit">Download</button>
