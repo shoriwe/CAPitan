@@ -1,11 +1,14 @@
 <div class="master-container">
     <div class="page-container">
+        <div class="centered-container">
+            <h3 class="red-text" id="error-message"></h3>
+        </div>
         <div class="centered-flex-container">
             <div class="dropdown">
-                <button class="dropbtn" id="capture" onclick="showMenu(this.id)"
-                        style="padding: 0.6vh 1vw;">Interface
+                <button class="dropbtn" id="spoof" onclick="showMenu(this.id)"
+                        style="padding: 0.6vh 1vw; height: 5.5vh;">Interface
                 </button>
-                <div class="dropdown-content" id="dropDownMenu-capture">
+                <div class="dropdown-content" id="dropDownMenu-spoof">
                     {{range $interface := .ARPSpoofInterfaces}}
                     <form onsubmit="return false;">
                         <a id="{{$interface.Name}}" onclick="selectARPSpoofInterface(this.id)"
@@ -15,10 +18,12 @@
                     {{end}}
                 </div>
             </div>
+            <span style="width: 1%;"></span>
             <label for="target"></label>
-            <input id="target" name="target" type="text">
+            <input placeholder="Target IP" id="target" name="target" type="text" class="basic-text-input">
+            <span style="width: 1%;"></span>
             <button class="green-button" onclick="startSpoof();">Start</button>
         </div>
     </div>
 </div>
-<script src="/static/js/arp-spoof.js"></script>
+<script src="/static/js/user/arp-spoof.js"></script>

@@ -7,6 +7,7 @@ const (
 	Old          = "old"
 	New          = "new"
 	Key          = "key"
+	IP           = "ip"
 	Confirmation = "confirmation"
 	Question     = "question"
 	Answer       = "answer"
