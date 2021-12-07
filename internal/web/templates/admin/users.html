@@ -7,7 +7,7 @@
             taken</h3>
         <h3 id="user-not-taken" style="display: none; color: #2ecc71; font-family: Arial, serif;">User not
             taken</h3>
-        <form action="/admin/user?action=new-user" id="create-user" method="post" onsubmit="return false;">
+        <form action="/admin/user?action=new" id="create-user" method="post" onsubmit="return false;">
             <label for="username"></label>
             <div>
                 <input class="basic-text-input" id="username" name="username" placeholder="Username" required
@@ -35,7 +35,7 @@
             <h3 class="black-text" style="width: 28%;">Basic</h3>
             {{end}}
             <span style="width: 1vw;"></span>
-            <form action="/admin/user?action=edit-user" method="post">
+            <form action="/admin/user?action=edit" method="post">
                 <label for="{{$index}}" style="display: none;">{{$user.Username}}</label>
                 <input class="black-text" id="{{$index}}" name="username" readonly style="display: none;"
                        type="text"
@@ -55,7 +55,7 @@
             <h3 class="black-text" style="width: 28%;">Basic</h3>
             {{end}}
             <span style="width: 1vw;"></span>
-            <form action="/admin/user?action=edit-user" method="post">
+            <form action="/admin/user?action=edit" method="post">
                 <label for="{{$index}}" style="display: none;">{{$user.Username}}</label>
                 <input class="black-text" id="{{$index}}" name="username" readonly style="display: none;"
                        type="text"

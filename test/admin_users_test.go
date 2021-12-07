@@ -45,7 +45,7 @@ func TestCreateNewUser(t *testing.T) {
 	data := url.Values{
 		"username": []string{"sulcud"},
 	}
-	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.NewUser, strings.NewReader(data.Encode()))
+	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.New, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -104,7 +104,7 @@ func TestChangeUserPassword(t *testing.T) {
 	data := url.Values{
 		"username": []string{"sulcud"},
 	}
-	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.NewUser, strings.NewReader(data.Encode()))
+	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.New, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -213,7 +213,7 @@ func TestUserStatus(t *testing.T) {
 	data := url.Values{
 		"username": []string{"sulcud"},
 	}
-	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.NewUser, strings.NewReader(data.Encode()))
+	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.New, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -411,7 +411,7 @@ func TestCaptureInterfaceAddPermission(t *testing.T) {
 	data := url.Values{
 		"username": []string{"sulcud"},
 	}
-	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.NewUser, strings.NewReader(data.Encode()))
+	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.New, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -441,7 +441,7 @@ func TestCaptureInterfaceAddPermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -477,7 +477,7 @@ func TestCaptureInterfaceAddPermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -529,7 +529,7 @@ func TestCaptureInterfaceDeletePermission(t *testing.T) {
 	data := url.Values{
 		"username": []string{"sulcud"},
 	}
-	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.NewUser, strings.NewReader(data.Encode()))
+	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.New, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -559,7 +559,7 @@ func TestCaptureInterfaceDeletePermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -595,7 +595,7 @@ func TestCaptureInterfaceDeletePermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -632,7 +632,7 @@ func TestCaptureInterfaceDeletePermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -684,7 +684,7 @@ func TestARPScanInterfaceAddPermission(t *testing.T) {
 	data := url.Values{
 		"username": []string{"sulcud"},
 	}
-	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.NewUser, strings.NewReader(data.Encode()))
+	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.New, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -714,7 +714,7 @@ func TestARPScanInterfaceAddPermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -750,7 +750,7 @@ func TestARPScanInterfaceAddPermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -802,7 +802,7 @@ func TestARPScanInterfaceDeletePermission(t *testing.T) {
 	data := url.Values{
 		"username": []string{"sulcud"},
 	}
-	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.NewUser, strings.NewReader(data.Encode()))
+	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.New, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -832,7 +832,7 @@ func TestARPScanInterfaceDeletePermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -868,7 +868,7 @@ func TestARPScanInterfaceDeletePermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -905,7 +905,7 @@ func TestARPScanInterfaceDeletePermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -957,7 +957,7 @@ func TestARPSpoofInterfaceAddPermission(t *testing.T) {
 	data := url.Values{
 		"username": []string{"sulcud"},
 	}
-	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.NewUser, strings.NewReader(data.Encode()))
+	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.New, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -987,7 +987,7 @@ func TestARPSpoofInterfaceAddPermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -1023,7 +1023,7 @@ func TestARPSpoofInterfaceAddPermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -1075,7 +1075,7 @@ func TestARPSpoofInterfaceDeletePermission(t *testing.T) {
 	data := url.Values{
 		"username": []string{"sulcud"},
 	}
-	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.NewUser, strings.NewReader(data.Encode()))
+	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.New, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -1105,7 +1105,7 @@ func TestARPSpoofInterfaceDeletePermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -1141,7 +1141,7 @@ func TestARPSpoofInterfaceDeletePermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -1178,7 +1178,7 @@ func TestARPSpoofInterfaceDeletePermission(t *testing.T) {
 	data = url.Values{
 		symbols.Username: {"sulcud"},
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.EditUser, strings.NewReader(data.Encode()))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Edit, strings.NewReader(data.Encode()))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -1237,7 +1237,7 @@ func TestTestUser(t *testing.T) {
 	if marshalError != nil {
 		t.Fatal(marshalError)
 	}
-	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.TestUser, bytes.NewReader(bytesPayload))
+	request, _ := http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Test, bytes.NewReader(bytesPayload))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -1263,7 +1263,7 @@ func TestTestUser(t *testing.T) {
 	if marshalError != nil {
 		t.Fatal(marshalError)
 	}
-	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.TestUser, bytes.NewReader(bytesPayload))
+	request, _ = http.NewRequest(http.MethodPost, server.URL+symbols.AdminEditUsers+"?action="+actions.Test, bytes.NewReader(bytesPayload))
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}

@@ -3,7 +3,7 @@ function createUsername() {
     const formBody = [];
     formBody.push("username=" + encodeURIComponent(username));
     fetch(
-        "/admin/user?action=new-user",
+        "/admin/user?action=new",
         {
             method: 'POST',
             headers: {
@@ -18,7 +18,7 @@ function createUsername() {
 }
 
 function checkUsername() {
-    fetch("/admin/user?action=test-user", {
+    fetch("/admin/user?action=test", {
         method: "POST",
         body: JSON.stringify({Username: document.getElementById("username").value}),
         headers: {

@@ -47,7 +47,7 @@ func TestNewCaptureWithValidScript(t *testing.T) {
 		cookiesHeader += cookie.String()
 	}
 	// Get capture interface
-	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.NewCapture, nil)
+	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.New, nil)
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -76,7 +76,7 @@ func TestNewCaptureWithValidScript(t *testing.T) {
 	header := http.Header{}
 	header.Set("Cookie", cookiesHeader)
 	hostUrl, _ := url.Parse(server.URL)
-	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=start"
+	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=" + actions.Start
 	connection, _, dialError := websocket.DefaultDialer.Dial(websocketURL, header)
 	if dialError != nil {
 		t.Fatal(dialError)
@@ -153,7 +153,7 @@ func TestNewCaptureWithInvalidScript(t *testing.T) {
 		cookiesHeader += cookie.String()
 	}
 	// Get capture interface
-	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.NewCapture, nil)
+	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.New, nil)
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -182,7 +182,7 @@ func TestNewCaptureWithInvalidScript(t *testing.T) {
 	header := http.Header{}
 	header.Set("Cookie", cookiesHeader)
 	hostUrl, _ := url.Parse(server.URL)
-	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=start"
+	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=" + actions.Start
 	connection, _, dialError := websocket.DefaultDialer.Dial(websocketURL, header)
 	if dialError != nil {
 		t.Fatal(dialError)
@@ -259,7 +259,7 @@ func TestNewCaptureWithoutScript(t *testing.T) {
 		cookiesHeader += cookie.String()
 	}
 	// Get capture interface
-	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.NewCapture, nil)
+	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.New, nil)
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -288,7 +288,7 @@ func TestNewCaptureWithoutScript(t *testing.T) {
 	header := http.Header{}
 	header.Set("Cookie", cookiesHeader)
 	hostUrl, _ := url.Parse(server.URL)
-	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=start"
+	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=" + actions.Start
 	connection, _, dialError := websocket.DefaultDialer.Dial(websocketURL, header)
 	if dialError != nil {
 		t.Fatal(dialError)
@@ -365,7 +365,7 @@ func TestNewCaptureInvalidName(t *testing.T) {
 		cookiesHeader += cookie.String()
 	}
 	// Get capture interface
-	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.NewCapture, nil)
+	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.New, nil)
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -394,7 +394,7 @@ func TestNewCaptureInvalidName(t *testing.T) {
 	header := http.Header{}
 	header.Set("Cookie", cookiesHeader)
 	hostUrl, _ := url.Parse(server.URL)
-	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=start"
+	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=" + actions.Start
 	connection, _, dialError := websocket.DefaultDialer.Dial(websocketURL, header)
 	if dialError != nil {
 		t.Fatal(dialError)
@@ -471,7 +471,7 @@ func TestNewCaptureInvalidDescription(t *testing.T) {
 		cookiesHeader += cookie.String()
 	}
 	// Get capture interface
-	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.NewCapture, nil)
+	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.New, nil)
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -500,7 +500,7 @@ func TestNewCaptureInvalidDescription(t *testing.T) {
 	header := http.Header{}
 	header.Set("Cookie", cookiesHeader)
 	hostUrl, _ := url.Parse(server.URL)
-	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=start"
+	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=" + actions.Start
 	connection, _, dialError := websocket.DefaultDialer.Dial(websocketURL, header)
 	if dialError != nil {
 		t.Fatal(dialError)
@@ -577,7 +577,7 @@ func TestNewCaptureUsingNameOfActiveOne(t *testing.T) {
 		cookiesHeader += cookie.String()
 	}
 	// Get capture interface
-	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.NewCapture, nil)
+	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.New, nil)
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -606,7 +606,7 @@ func TestNewCaptureUsingNameOfActiveOne(t *testing.T) {
 	header := http.Header{}
 	header.Set("Cookie", cookiesHeader)
 	hostUrl, _ := url.Parse(server.URL)
-	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=start"
+	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=" + actions.Start
 	connection, _, dialError := websocket.DefaultDialer.Dial(websocketURL, header)
 	if dialError != nil {
 		t.Fatal(dialError)
@@ -724,7 +724,7 @@ func TestNewCaptureUsingNameOldOne(t *testing.T) {
 		cookiesHeader += cookie.String()
 	}
 	// Get capture interface
-	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.NewCapture, nil)
+	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.New, nil)
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -753,7 +753,7 @@ func TestNewCaptureUsingNameOldOne(t *testing.T) {
 	header := http.Header{}
 	header.Set("Cookie", cookiesHeader)
 	hostUrl, _ := url.Parse(server.URL)
-	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=start"
+	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=" + actions.Start
 	connection, _, dialError := websocket.DefaultDialer.Dial(websocketURL, header)
 	if dialError != nil {
 		t.Fatal(dialError)
@@ -871,7 +871,7 @@ func TestNewCaptureWithNonPermittedInterface(t *testing.T) {
 		cookiesHeader += cookie.String()
 	}
 	// Get capture interface
-	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.NewCapture, nil)
+	request, _ := http.NewRequest(http.MethodGet, server.URL+symbols.UserPacketCaptures+"?action="+actions.New, nil)
 	for _, cookie := range cookies {
 		request.AddCookie(cookie)
 	}
@@ -886,7 +886,7 @@ func TestNewCaptureWithNonPermittedInterface(t *testing.T) {
 	header := http.Header{}
 	header.Set("Cookie", cookiesHeader)
 	hostUrl, _ := url.Parse(server.URL)
-	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=start"
+	websocketURL := "ws://" + hostUrl.Host + symbols.UserPacketCaptures + "?action=" + actions.Start
 	connection, _, dialError := websocket.DefaultDialer.Dial(websocketURL, header)
 	if dialError != nil {
 		t.Fatal(dialError)

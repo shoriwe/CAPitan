@@ -224,11 +224,11 @@ func addCaptureInterface(mw *middleware.Middleware, context *middleware.Context)
 func EditUsers(mw *middleware.Middleware, context *middleware.Context) bool {
 	if context.Request.Method == http.MethodPost {
 		switch context.Request.URL.Query().Get(actions.Action) {
-		case actions.TestUser:
+		case actions.Test:
 			return testUser(mw, context)
-		case actions.EditUser:
+		case actions.Edit:
 			return editUser(mw, context)
-		case actions.NewUser:
+		case actions.New: // New User
 			return newUser(mw, context)
 		case actions.UpdatePassword:
 			return updatePassword(mw, context)

@@ -11,6 +11,8 @@ import (
 	"github.com/shoriwe/CAPitan/internal/web/routes/dashboard"
 	login2 "github.com/shoriwe/CAPitan/internal/web/routes/login"
 	settings2 "github.com/shoriwe/CAPitan/internal/web/routes/settings"
+	"github.com/shoriwe/CAPitan/internal/web/routes/user/arp"
+	"github.com/shoriwe/CAPitan/internal/web/routes/user/arp/spoof"
 	"github.com/shoriwe/CAPitan/internal/web/routes/user/packet"
 	"github.com/shoriwe/CAPitan/internal/web/symbols"
 	"html/template"
@@ -120,12 +122,16 @@ func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 	handler.HandleFunc(symbols.AdminPanel, mw.Handle(logVisit, loadCredentials, requiresLogin, requiresAdminPrivilege, setNavigationBar, admin.Panel))
 	handler.HandleFunc(symbols.AdminEditUsers, mw.Handle(logVisit, loadCredentials, requiresLogin, requiresAdminPrivilege, setNavigationBar, admin.EditUsers))
 	// User
-	handler.HandleFunc(symbols.UserPacket, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, packet.Panel))
 	handler.HandleFunc(symbols.UserPacketCaptures, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, packet.Captures))
+	handler.HandleFunc(symbols.UserARP, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, arp.ARP))
+	handler.HandleFunc(symbols.UserARPSpoof, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, spoof.ARPSpoof))
+
 	if _, ok := database.(*memory.Memory); ok {
 		request, _ := http.NewRequest(http.MethodGet, "/", nil)
 		for netInterface := range mw.ListNetInterfaces(request) {
 			mw.AdminAddCaptureInterfacePrivilege(request, "admin", netInterface)
+			mw.AdminAddARPScanInterfacePrivilege(request, "admin", netInterface)
+			mw.AdminAddARPSpoofInterfacePrivilege(request, "admin", netInterface)
 		}
 	}
 	return handler

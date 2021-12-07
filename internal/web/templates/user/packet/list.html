@@ -1,7 +1,7 @@
 <div class="master-container">
     <div class="align-right-container">
-        <a class="green-button" href="/packet/captures?action=import">Import</a>
-        <a class="green-button" href="/packet/captures?action=new">New</a>
+        <a class="green-button" href="/packet?action=import">Import</a>
+        <a class="green-button" href="/packet?action=new">New</a>
     </div>
     <div class="master-container">
         <div class="page-container">
@@ -14,7 +14,7 @@
                     <span style="width: 1vw;"></span>
                     <h3 class="green-text">{{$capture.Ended.Format "2006 Jan 02 15:04:05 UTC"}}</h3>
                     <span style="width: 1vw;"></span>
-                    <form action="/packet/captures?action=download" method="post">
+                    <form action="/packet?action=download" method="post">
                         <label for="capture-id-download-{{$capture.Id}}" style="display: none;">{{$capture.Id}}</label>
                         <input id="capture-id-download-{{$capture.Id}}" name="capture-name" readonly
                                style="display: none;"
@@ -23,7 +23,7 @@
                         <button class="green-button" type="submit">Download</button>
                     </form>
                     <span style="width: 1%;"></span>
-                    <form action="/packet/captures?action=view" method="post">
+                    <form action="/packet?action=view" method="post">
                         <label for="capture-id-{{$capture.Id}}" style="display: none;">{{$capture.Id}}</label>
                         <input id="capture-id-{{$capture.Id}}" name="capture-name" readonly style="display: none;"
                                type="text"

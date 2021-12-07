@@ -43,10 +43,10 @@ type serverResponse struct {
 func listCaptures(mw *middleware.Middleware, context *middleware.Context) bool {
 	succeed, userCaptures := mw.ListUserCaptures(context.Request, context.User.Username)
 	if !succeed {
-		context.Redirect = symbols.UserPacket
+		context.Redirect = symbols.Dashboard
 		return false
 	}
-	templateContents, _ := mw.Templates.ReadFile("templates/user/packet/captures/list.html")
+	templateContents, _ := mw.Templates.ReadFile("templates/user/packet/list.html")
 	var body bytes.Buffer
 	err := template.Must(template.New("Packet").Parse(string(templateContents))).Execute(
 		&body,
@@ -59,7 +59,7 @@ func listCaptures(mw *middleware.Middleware, context *middleware.Context) bool {
 		},
 	)
 	if err != nil {
-		context.Redirect = symbols.UserPacket
+		context.Redirect = symbols.Dashboard
 		go mw.LogError(context.Request, err)
 		return false
 	}
@@ -444,7 +444,7 @@ func newInterfaceCapture(mw *middleware.Middleware, context *middleware.Context)
 			// TODO: Log this
 			return false
 		}
-		menuTemplate, _ := mw.Templates.ReadFile("templates/user/packet/captures/new-interface-capture.html")
+		menuTemplate, _ := mw.Templates.ReadFile("templates/user/packet/new-interface-capture.html")
 
 		var availableInterfaces []objects.InterfaceInformation
 		connectedInterfaces := mw.ListNetInterfaces(context.Request)
@@ -478,7 +478,7 @@ func newInterfaceCapture(mw *middleware.Middleware, context *middleware.Context)
 func importCapture(mw *middleware.Middleware, context *middleware.Context) bool {
 	switch context.Request.Method {
 	case http.MethodGet:
-		templateContents, _ := mw.Templates.ReadFile("templates/user/packet/captures/import-capture.html")
+		templateContents, _ := mw.Templates.ReadFile("templates/user/packet/import-capture.html")
 		context.Body = base.NewPage("Import", context.NavigationBar, string(templateContents))
 		return false
 	case http.MethodPost:
@@ -489,7 +489,7 @@ func importCapture(mw *middleware.Middleware, context *middleware.Context) bool 
 
 func handleImportCapture(mw *middleware.Middleware, context *middleware.Context) bool {
 	parseError := context.Request.ParseMultipartForm(1024 * 1024 * 1024 * 500)
-	context.Redirect = symbols.UserPacketCaptures + "?action=import"
+	context.Redirect = symbols.UserPacketCaptures + "?action=" + actions.Import
 	if parseError != nil {
 		go mw.LogError(context.Request, parseError)
 
@@ -661,7 +661,7 @@ func renderOldCapture(mw *middleware.Middleware, context *middleware.Context) bo
 	captureName := context.Request.PostFormValue(symbols.CaptureName)
 	succeed, captureSession, packets, streams := mw.UserGetCapture(context.Request, context.User.Username, captureName)
 	if !succeed {
-		context.Redirect = symbols.UserPacket
+		context.Redirect = symbols.Dashboard
 		return false
 	}
 	marshalData, marshalError := json.Marshal(
@@ -689,7 +689,7 @@ func renderOldCapture(mw *middleware.Middleware, context *middleware.Context) bo
 		return false
 	}
 	var output bytes.Buffer
-	renderTemplate, _ := mw.Templates.ReadFile("templates/user/packet/captures/view-capture.html")
+	renderTemplate, _ := mw.Templates.ReadFile("templates/user/packet/view-capture.html")
 	executeError := template.Must(template.New("Render").Parse(string(renderTemplate))).Execute(
 		&output,
 		struct {
@@ -726,7 +726,7 @@ func downloadCapture(mw *middleware.Middleware, context *middleware.Context) boo
 	captureName := context.Request.PostFormValue(symbols.CaptureName)
 	succeed, captureSession, _, _ := mw.UserGetCapture(context.Request, context.User.Username, captureName)
 	if !succeed {
-		context.Redirect = symbols.UserPacket
+		context.Redirect = symbols.Dashboard
 		return false
 	}
 	context.ResponseWriter.Header().Add("Content-Disposition", "attachment; filename=\"capture.pcap\"")
@@ -741,11 +741,11 @@ func downloadCapture(mw *middleware.Middleware, context *middleware.Context) boo
 
 func Captures(mw *middleware.Middleware, context *middleware.Context) bool {
 	switch context.Request.FormValue("action") {
-	case actions.NewCapture:
+	case actions.New:
 		return newInterfaceCapture(mw, context)
-	case actions.ImportCapture:
+	case actions.Import:
 		return importCapture(mw, context)
-	case actions.TestCaptureArguments:
+	case actions.Test:
 		return testInterfaceBasedCaptureArguments(mw, context)
 	case actions.Start:
 		return startInterfaceBasedCapture(mw, context)

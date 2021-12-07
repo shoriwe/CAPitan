@@ -1,0 +1,24 @@
+<div class="master-container">
+    <div class="page-container">
+        <div class="centered-flex-container">
+            <div class="dropdown">
+                <button class="dropbtn" id="capture" onclick="showMenu(this.id)"
+                        style="padding: 0.6vh 1vw;">Interface
+                </button>
+                <div class="dropdown-content" id="dropDownMenu-capture">
+                    {{range $interface := .ARPSpoofInterfaces}}
+                    <form onsubmit="return false;">
+                        <a id="{{$interface.Name}}" onclick="selectARPSpoofInterface(this.id)"
+                           onsubmit="selectARPSpoofInterface(this.id)"
+                           type="submit">{{$interface.Name}} {{$interface.Address}}</a>
+                    </form>
+                    {{end}}
+                </div>
+            </div>
+            <label for="target"></label>
+            <input id="target" name="target" type="text">
+            <button class="green-button" onclick="startSpoof();">Start</button>
+        </div>
+    </div>
+</div>
+<script src="/static/js/arp-spoof.js"></script>

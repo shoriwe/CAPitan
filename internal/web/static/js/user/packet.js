@@ -45,7 +45,7 @@ async function testNewCaptureInformation() {
         "promiscuous=" + encodeURIComponent(promiscuous)
     ];
     return fetch(
-        "/packet/captures?action=test",
+        "/packet?action=test",
         {
             method: 'POST',
             headers: {
@@ -390,7 +390,7 @@ async function newCapture() {
         return
     }
     // TODO: Change the page and start the capture
-    const target = "ws://" + document.location.host + "/packet/captures?action=start";
+    const target = "ws://" + document.location.host + "/packet?action=start";
     connection = new WebSocket(target, "PacketCaptureSession");
 
     connection.onopen = function (_) {
@@ -433,7 +433,7 @@ async function newCapture() {
                     }
                 };
             } else {
-                document.location.href = "/packet/captures"
+                document.location.href = "/packet"
             }
         };
     }
@@ -446,7 +446,7 @@ function stopCapture() {
             }
         )
     );
-    document.location.href = "/packet/captures";
+    document.location.href = "/packet";
 }
 
 function selectCaptureInterface(id) {
