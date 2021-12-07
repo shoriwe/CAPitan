@@ -11,21 +11,21 @@ import (
 	"net"
 )
 
-func testARPSpoofArguments(mw *middleware.Middleware, context *middleware.Context) bool {
-	arpInterface := context.Request.PostFormValue(symbols.Interface)
-	ip := context.Request.PostFormValue(symbols.IP)
-	var responseObject struct {
-		Succeed bool
-		Message string
-	}
+type succeedResponse struct {
+	Succeed bool
+	Message string
+}
+
+func testArguments(mw *middleware.Middleware, context *middleware.Context, ip, gateway, arpInterface string) succeedResponse {
+	var responseObject succeedResponse
 
 	responseObject.Succeed = false
 
 	succeed, _, _, _, arpSpoofInterfaces, getError := mw.GetUserInterfacePermissions(context.User.Username)
 	if getError != nil {
 		go mw.LogError(context.Request, getError)
-		context.Body = "{\"Succeed\": false, \"Message\": \"Something goes wrong\"}"
-		return false
+		responseObject.Message = "Something goes wrong"
+		return responseObject
 	}
 
 	func() {
@@ -38,6 +38,11 @@ func testARPSpoofArguments(mw *middleware.Middleware, context *middleware.Contex
 			responseObject.Message = "Invalid IP provided"
 			return
 		}
+		if net.ParseIP(gateway) == nil {
+			responseObject.Message = "Invalid Gateway IP provided"
+			return
+		}
+
 		if _, found := arpSpoofInterfaces[arpInterface]; !found {
 			responseObject.Message = "No permissions for selected interface"
 			return
@@ -55,6 +60,16 @@ func testARPSpoofArguments(mw *middleware.Middleware, context *middleware.Contex
 		responseObject.Succeed = true
 	}()
 
+	return responseObject
+}
+
+func testARPSpoofArguments(mw *middleware.Middleware, context *middleware.Context) bool {
+	arpInterface := context.Request.PostFormValue(symbols.Interface)
+	ip := context.Request.PostFormValue(symbols.IP)
+	gateway := context.Request.PostFormValue(symbols.Gateway)
+
+	responseObject := testArguments(mw, context, ip, gateway, arpInterface)
+
 	response, marshalError := json.Marshal(responseObject)
 	if marshalError != nil {
 		go mw.LogError(context.Request, marshalError)
@@ -65,13 +80,18 @@ func testARPSpoofArguments(mw *middleware.Middleware, context *middleware.Contex
 	return false
 }
 
+func handleARPSpoof(mw *middleware.Middleware, context *middleware.Context) bool {
+	// TODO: Implement me
+	return false
+}
+
 func ARPSpoof(mw *middleware.Middleware, context *middleware.Context) bool {
 	action := context.Request.FormValue(actions.Action)
 	switch action {
 	case actions.Test:
 		return testARPSpoofArguments(mw, context)
 	case actions.Spoof:
-		break
+		return handleARPSpoof(mw, context)
 	}
 	succeed, _, _, _, arpSpoofPermissions, getPermissionsError := mw.GetUserInterfacePermissions(context.User.Username)
 	if getPermissionsError != nil {

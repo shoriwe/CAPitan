@@ -8,6 +8,7 @@ const (
 	New          = "new"
 	Key          = "key"
 	IP           = "ip"
+	Gateway      = "gateway"
 	Confirmation = "confirmation"
 	Question     = "question"
 	Answer       = "answer"

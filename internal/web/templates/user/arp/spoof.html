@@ -1,6 +1,6 @@
 <div class="master-container">
     <div class="page-container">
-        <div class="centered-container">
+        <div id="error-message-container" class="centered-container" style="display: none;">
             <h3 class="red-text" id="error-message"></h3>
         </div>
         <div class="centered-flex-container">
@@ -19,8 +19,11 @@
                 </div>
             </div>
             <span style="width: 1%;"></span>
-            <label for="target"></label>
-            <input placeholder="Target IP" id="target" name="target" type="text" class="basic-text-input">
+            <label for="ip"></label>
+            <input placeholder="Target IP" id="ip" name="ip" type="text" class="basic-text-input">
+            <span style="width: 1%;"></span>
+            <label for="gateway"></label>
+            <input placeholder="Target gateway" id="gateway" name="gateway" type="text" class="basic-text-input">
             <span style="width: 1%;"></span>
             <button class="green-button" onclick="startSpoof();">Start</button>
         </div>

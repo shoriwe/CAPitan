@@ -30,7 +30,7 @@ func main() {
 	var targetDevice string
 	for _, device := range devices {
 		for _, address := range device.Addresses {
-			if address.IP.Equal(net.ParseIP("192.168.1.11")) { // You should change this for the IP of your machine in the network you want
+			if address.IP.Equal(net.ParseIP("192.168.1.33")) { // You should change this for the IP of your machine in the network you want
 				targetDevice = device.Name
 				break
 			}
