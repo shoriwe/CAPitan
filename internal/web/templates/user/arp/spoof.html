@@ -1,5 +1,5 @@
 <div class="master-container">
-    <div class="page-container">
+    <div class="page-container" id="setup-container">
         <div id="error-message-container" class="centered-container" style="display: none;">
             <h3 class="red-text" id="error-message"></h3>
         </div>
@@ -26,6 +26,17 @@
             <input placeholder="Target gateway" id="gateway" name="gateway" type="text" class="basic-text-input">
             <span style="width: 1%;"></span>
             <button class="green-button" onclick="startSpoof();">Start</button>
+        </div>
+    </div>
+    <div class="page-container" id="spoof-container" style="display: none;">
+        <div class="centered-flex-container">
+            <h3 class="purple-text" id="spoofed-interface"></h3>
+            <span style="width: 1%;"></span>
+            <h3 class="black-text" id="spoofed-ip"></h3>
+            <span style="width: 1%;"></span>
+            <h3 class="black-text" id="spoofed-gateway"></h3>
+            <span style="width: 1%;"></span>
+            <button class="red-button" onclick="closeConnection();">Stop</button>
         </div>
     </div>
 </div>

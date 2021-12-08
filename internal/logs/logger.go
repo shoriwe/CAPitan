@@ -203,6 +203,10 @@ func (logger *Logger) LogQueryUserCapture(request *http.Request, username, captu
 	}
 }
 
+func (logger *Logger) LogARPSpoofStarted(request *http.Request, username, ip, gateway string) {
+	logger.debugLogger.Printf("Successfully started ARP spoof by %s to IP %s and gateway %s at %s", username, ip, gateway, request.RemoteAddr)
+}
+
 func NewLogger(logWriter io.Writer) *Logger {
 	return &Logger{
 		errorLogger: log.New(logWriter, "ERROR: ", log.Ldate|log.Ltime),

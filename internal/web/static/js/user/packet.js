@@ -367,16 +367,16 @@ async function updateStreamTypeCountGraph(data) {
 async function updateGraphs(data) {
     switch (data.Target) {
         case "topology":
-            updateTopology(data.Options);
+            await updateTopology(data.Options);
             break;
         case "host-packet-count":
-            updateHostPacketCount(data.Options);
+            await updateHostPacketCount(data.Options);
             break;
         case "layer-4-graph":
-            updateLayer4CountGraph(data.Options);
+            await updateLayer4CountGraph(data.Options);
             break;
         case "stream-type-graph":
-            updateStreamTypeCountGraph(data.Options);
+            await updateStreamTypeCountGraph(data.Options);
             break;
     }
 }

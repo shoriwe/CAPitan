@@ -26,6 +26,42 @@ function testInput(ip, gateway, arpInterface) {
     });
 }
 
+function closeConnection() {
+    connection.send(JSON.stringify({Action: "STOP"}))
+    connection.close(0);
+}
+
+async function setupConnection(ip, gateway) {
+    const target = "ws://" + document.location.host + "/arp/spoof?action=spoof";
+    connection = new WebSocket(target, "ARPSpoofSession");
+
+    connection.onopen = function (_) {
+        const configuration = JSON.stringify(
+            {
+                TargetIP: ip,
+                Gateway: gateway,
+                InterfaceName: selectedInterface,
+            }
+        );
+        connection.send(configuration);
+
+        connection.onmessage = function (message) {
+            const data = JSON.parse(message.data);
+            if (data.Succeed) {
+                document.getElementById("setup-container").style.display = "none";
+                document.getElementById("spoof-container").style.display = "block";
+                document.getElementById("spoofed-ip").innerText = ip;
+                document.getElementById("spoofed-gateway").innerText = gateway;
+                document.getElementById("spoofed-interface").innerText = selectedInterface;
+            } else {
+                document.getElementById("error-message-container").style.display = "block";
+                document.getElementById("error-message-container").innerText = data.Message;
+                connection.close(0);
+            }
+        };
+    }
+}
+
 async function startSpoof() {
     const ip = document.getElementById("ip").value;
     const gateway = document.getElementById("gateway").value;
@@ -36,9 +72,5 @@ async function startSpoof() {
         document.getElementById("error-message-container").style.display = "block";
         return;
     }
-    document.getElementById("error-message-container").style.display = "none";
-    // TODO: Start the ARP Spoofing session
-    // TODO: Hide the setup menu
-    // TODO: Show the ARP spoof active menu
-    // TODO: Update the title of the running IP spoofed
+    await setupConnection(ip, gateway);
 }

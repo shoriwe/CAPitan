@@ -3,12 +3,24 @@ package spoof
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/gorilla/websocket"
+	"github.com/shoriwe/CAPitan/internal/spoof"
 	"github.com/shoriwe/CAPitan/internal/web/base"
 	"github.com/shoriwe/CAPitan/internal/web/middleware"
 	"github.com/shoriwe/CAPitan/internal/web/symbols"
 	"github.com/shoriwe/CAPitan/internal/web/symbols/actions"
 	"html/template"
 	"net"
+	"time"
+)
+
+var (
+	upgrade = websocket.Upgrader{
+		ReadBufferSize:    0, /* 1 megabyte*/
+		WriteBufferSize:   0, /* 1 megabyte*/
+		EnableCompression: true,
+		Subprotocols:      []string{"ARPSpoofSession"},
+	}
 )
 
 type succeedResponse struct {
@@ -81,8 +93,78 @@ func testARPSpoofArguments(mw *middleware.Middleware, context *middleware.Contex
 }
 
 func handleARPSpoof(mw *middleware.Middleware, context *middleware.Context) bool {
-	// TODO: Implement me
-	return false
+	connection, upgradeError := upgrade.Upgrade(context.ResponseWriter, context.Request, context.ResponseWriter.Header())
+	if upgradeError != nil {
+		go mw.LogError(context.Request, upgradeError)
+		context.Redirect = symbols.UserPacketCaptures
+		return false
+	}
+	context.WriteBody = false
+	defer func() {
+		closeError := connection.Close()
+		if closeError != nil {
+			go mw.LogError(context.Request, closeError)
+		}
+	}()
+	var configuration struct {
+		TargetIP      string
+		Gateway       string
+		InterfaceName string
+	}
+	readError := connection.ReadJSON(&configuration)
+	if readError != nil {
+		go mw.LogError(context.Request, readError)
+		return false
+	}
+	response := testArguments(mw, context, configuration.TargetIP, configuration.Gateway, configuration.InterfaceName)
+	writeError := connection.WriteJSON(response)
+	if writeError != nil {
+		go mw.LogError(context.Request, writeError)
+		return false
+	}
+	if !response.Succeed {
+		return false
+	}
+
+	engine, newEngineError := spoof.NewEngine(configuration.TargetIP, configuration.Gateway, configuration.InterfaceName)
+	if newEngineError != nil {
+		go mw.LogError(context.Request, newEngineError)
+		return false
+	}
+	defer engine.Close()
+
+	stopChannel := make(chan bool, 1)
+	go func() {
+		var action struct {
+			Action string
+		}
+		err := connection.ReadJSON(&action)
+		if err != nil {
+			go mw.LogError(context.Request, err)
+			stopChannel <- true
+			return
+		}
+		switch action.Action {
+		case "STOP":
+			stopChannel <- true
+		}
+	}()
+
+	tick := time.Tick(time.Second)
+
+	go mw.LogARPSpoofStarted(context.Request, context.User.Username, configuration.TargetIP, configuration.Gateway)
+	for {
+		select {
+		case <-tick:
+			poisonError := engine.Poison()
+			if poisonError != nil {
+				go mw.LogError(context.Request, poisonError)
+				return false
+			}
+		case <-stopChannel:
+			return false
+		}
+	}
 }
 
 func ARPSpoof(mw *middleware.Middleware, context *middleware.Context) bool {

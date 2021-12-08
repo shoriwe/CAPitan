@@ -62,7 +62,8 @@ func (engine *Engine) Poison() error {
 }
 
 func (engine *Engine) Close() error {
-	panic("Implement me")
+	engine.handle.Close()
+	return nil
 }
 
 func findInterfaceIpAndMac(iFace string) (net.HardwareAddr, error) {

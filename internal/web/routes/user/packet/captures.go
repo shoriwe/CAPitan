@@ -28,8 +28,8 @@ import (
 var (
 	stringChecker = regexp.MustCompile("\\w+[\\w\\s]*")
 	upgrade       = websocket.Upgrader{
-		ReadBufferSize:    0, /* 1 megabyte*/
-		WriteBufferSize:   0, /* 1 megabyte*/
+		ReadBufferSize:    0, /* No Limit */
+		WriteBufferSize:   0, /* No Limit */
 		EnableCompression: true,
 		Subprotocols:      []string{"PacketCaptureSession"},
 	}
@@ -143,7 +143,9 @@ func startInterfaceBasedCapture(mw *middleware.Middleware, context *middleware.C
 	context.WriteBody = false
 	defer func() {
 		closeError := connection.Close()
-		go mw.LogError(context.Request, closeError)
+		if closeError != nil {
+			go mw.LogError(context.Request, closeError)
+		}
 	}()
 
 	var configuration struct {
@@ -205,11 +207,6 @@ func startInterfaceBasedCapture(mw *middleware.Middleware, context *middleware.C
 			return false
 		}
 	}
-	startError := engine.Start()
-	if startError != nil {
-		go mw.LogError(context.Request, startError)
-		return false
-	}
 
 	stopChannel := make(chan bool, 1)
 	go func() {
@@ -220,6 +217,7 @@ func startInterfaceBasedCapture(mw *middleware.Middleware, context *middleware.C
 		if err != nil {
 			go mw.LogError(context.Request, err)
 			engine.ErrorChannel <- err
+			stopChannel <- true
 			return
 		}
 		switch action.Action {
@@ -237,6 +235,12 @@ func startInterfaceBasedCapture(mw *middleware.Middleware, context *middleware.C
 	)
 
 	hashedStreams := map[[16]byte]struct{}{}
+
+	startError := engine.Start()
+	if startError != nil {
+		go mw.LogError(context.Request, startError)
+		return false
+	}
 
 	// Graphs data
 	var (
