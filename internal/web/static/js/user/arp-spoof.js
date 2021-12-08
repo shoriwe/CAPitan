@@ -28,7 +28,8 @@ function testInput(ip, gateway, arpInterface) {
 
 function closeConnection() {
     connection.send(JSON.stringify({Action: "STOP"}))
-    connection.close(0);
+    connection.close(1000);
+    document.location.href = "/arp/spoof"
 }
 
 async function setupConnection(ip, gateway) {
@@ -56,7 +57,7 @@ async function setupConnection(ip, gateway) {
             } else {
                 document.getElementById("error-message-container").style.display = "block";
                 document.getElementById("error-message-container").innerText = data.Message;
-                connection.close(0);
+                connection.close(1000);
             }
         };
     }

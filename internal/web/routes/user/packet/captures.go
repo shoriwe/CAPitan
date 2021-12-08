@@ -414,7 +414,20 @@ masterLoop:
 			}
 		}
 	}
+
 	finish := time.Now()
+
+	// Send to the server that it is safe to close the connection
+
+	writeError := connection.WriteJSON(struct {
+		Succeed bool
+	}{
+		Succeed: true,
+	})
+	if writeError != nil {
+		go mw.LogError(context.Request, writeError)
+		return false
+	}
 
 	mw.SaveInterfaceCapture(
 		context.Request,

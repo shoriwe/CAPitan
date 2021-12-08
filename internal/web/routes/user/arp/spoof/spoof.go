@@ -113,12 +113,14 @@ func handleARPSpoof(mw *middleware.Middleware, context *middleware.Context) bool
 	}
 	readError := connection.ReadJSON(&configuration)
 	if readError != nil {
+		go mw.LogARPSpoofStarted(context.Request, context.User.Username, configuration.TargetIP, configuration.Gateway, false)
 		go mw.LogError(context.Request, readError)
 		return false
 	}
 	response := testArguments(mw, context, configuration.TargetIP, configuration.Gateway, configuration.InterfaceName)
 	writeError := connection.WriteJSON(response)
 	if writeError != nil {
+		go mw.LogARPSpoofStarted(context.Request, context.User.Username, configuration.TargetIP, configuration.Gateway, false)
 		go mw.LogError(context.Request, writeError)
 		return false
 	}
@@ -128,10 +130,16 @@ func handleARPSpoof(mw *middleware.Middleware, context *middleware.Context) bool
 
 	engine, newEngineError := spoof.NewEngine(configuration.TargetIP, configuration.Gateway, configuration.InterfaceName)
 	if newEngineError != nil {
+		go mw.LogARPSpoofStarted(context.Request, context.User.Username, configuration.TargetIP, configuration.Gateway, false)
 		go mw.LogError(context.Request, newEngineError)
 		return false
 	}
-	defer engine.Close()
+	defer func() {
+		closeError := engine.Close()
+		if closeError != nil {
+			go mw.LogError(context.Request, closeError)
+		}
+	}()
 
 	stopChannel := make(chan bool, 1)
 	go func() {
@@ -152,7 +160,9 @@ func handleARPSpoof(mw *middleware.Middleware, context *middleware.Context) bool
 
 	tick := time.Tick(time.Second)
 
-	go mw.LogARPSpoofStarted(context.Request, context.User.Username, configuration.TargetIP, configuration.Gateway)
+	go mw.LogARPSpoofStarted(context.Request, context.User.Username, configuration.TargetIP, configuration.Gateway, true)
+	defer mw.LogARPSpoofStopped(context.Request, context.User.Username, configuration.TargetIP, configuration.Gateway)
+
 	for {
 		select {
 		case <-tick:

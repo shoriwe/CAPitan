@@ -446,7 +446,14 @@ function stopCapture() {
             }
         )
     );
-    document.location.href = "/packet";
+    // Wait for the response of the server to properly close the connection
+    connection.onmessage = function (message) {
+        const data = JSON.parse(message.data);
+        if (data.Succeed) {
+            connection.close(1000);
+        }
+        document.location.href = "/packet";
+    }
 }
 
 function selectCaptureInterface(id) {
