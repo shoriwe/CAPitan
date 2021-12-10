@@ -356,16 +356,6 @@ func (engine *Engine) filterStreamsOnly() {
 }
 
 func (engine *Engine) Start() error {
-	var openError error
-	if engine.NetworkInterface != "" {
-		engine.handle, openError = pcap.OpenLive(engine.NetworkInterface, 65536, engine.Promiscuous, 0)
-	} else if engine.PcapFile != nil {
-		engine.handle, openError = pcap.OpenOfflineFile(engine.PcapFile)
-	}
-	if openError != nil {
-		return openError
-	}
-
 	if engine.PacketFilter != nil {
 		engine.packetsToFilter = make(chan gopacket.Packet, 1000)
 	}
@@ -583,7 +573,7 @@ func TransformPacketToMap(packet gopacket.Packet) map[string]interface{} {
 	return result
 }
 
-func newEngine() *Engine {
+func newEngine() (*Engine, error) {
 	engine := &Engine{
 		PacketFilter:    nil,
 		TCPStreamFilter: nil,
@@ -612,20 +602,36 @@ func newEngine() *Engine {
 
 	tempPcapFile, createError := os.CreateTemp("", "*.pcap")
 	if createError != nil {
-		panic(createError)
+		return nil, createError
 	}
 	engine.pcapDumpFile = tempPcapFile
-	return engine
+	return engine, nil
 }
 
-func NewEngineWithInterface(netInterface string) *Engine {
-	engine := newEngine()
+func NewEngineWithInterface(netInterface string) (*Engine, error) {
+	engine, creationError := newEngine()
+	if creationError != nil {
+		return nil, creationError
+	}
 	engine.NetworkInterface = netInterface
-	return engine
+	handle, openError := pcap.OpenLive(engine.NetworkInterface, 65536, engine.Promiscuous, 0)
+	if openError != nil {
+		return nil, openError
+	}
+	engine.handle = handle
+	return engine, nil
 }
 
-func NewEngineWithFile(file *os.File) *Engine {
-	engine := newEngine()
+func NewEngineWithFile(file *os.File) (*Engine, error) {
+	engine, creationError := newEngine()
+	if creationError != nil {
+		return nil, creationError
+	}
 	engine.PcapFile = file
-	return engine
+	handle, openError := pcap.OpenOfflineFile(engine.PcapFile)
+	if openError != nil {
+		return nil, openError
+	}
+	engine.handle = handle
+	return engine, nil
 }

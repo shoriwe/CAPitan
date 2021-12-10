@@ -11,12 +11,10 @@ import (
 	"github.com/shoriwe/CAPitan/internal/web/symbols"
 	"github.com/shoriwe/CAPitan/internal/web/symbols/actions"
 	"html/template"
-	"regexp"
 	"time"
 )
 
 var (
-	whiteSpace            = regexp.MustCompile("(?m)^\\s+$")
 	upgradeARPScanSession = websocket.Upgrader{
 		ReadBufferSize:    0, /* No Limit */
 		WriteBufferSize:   0, /* No Limit */
@@ -32,10 +30,10 @@ func checkScanArguments(scanName, script string) (bool, string) {
 	if len(script) == 0 {
 		return false, "no host generator script provided"
 	}
-	if whiteSpace.MatchString(scanName) {
+	if tools.CheckFilledWithWhiteSpace.MatchString(scanName) {
 		return false, "no scan name provided"
 	}
-	if whiteSpace.MatchString(script) {
+	if tools.CheckFilledWithWhiteSpace.MatchString(script) {
 		return false, "no host generator script provided"
 	}
 	return true, ""

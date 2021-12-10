@@ -427,19 +427,11 @@ func (middleware *Middleware) isCapturenameAlreadyTaken(username, captureName st
 	return false
 }
 
-func (middleware *Middleware) UserCaptureNameAlreadyTaken(request *http.Request, username, captureName string) bool {
-	if middleware.isCapturenameAlreadyTaken(username, captureName) {
-		return true
-	}
-	succeed, checkError := middleware.Database.CheckIfUserCaptureNameWasAlreadyTaken(username, captureName)
-	if checkError != nil {
-		go middleware.LogError(request, checkError)
+func (middleware *Middleware) ReserveUserCaptureName(request *http.Request, username, captureName string) bool {
+	succeed, _, _, _ := middleware.UserGetCapture(request, username, captureName)
+	if succeed {
 		return false
 	}
-	return succeed
-}
-
-func (middleware *Middleware) ReserveUserCaptureName(request *http.Request, username, captureName string) bool {
 	if middleware.isCapturenameAlreadyTaken(username, captureName) {
 		go middleware.LogReserveCaptureNameForUser(request, username, captureName, false)
 		return false

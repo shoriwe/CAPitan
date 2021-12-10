@@ -831,7 +831,7 @@ func TestNewCaptureUsingNameOldOne(t *testing.T) {
 	if readError != nil {
 		t.Fatal(readError)
 	}
-	if status.Succeed || status.Message != "Capture name is already in use" {
+	if status.Succeed || status.Message != "Capture name already taken" {
 		t.Fatal(status.Message)
 	}
 }
@@ -918,7 +918,7 @@ func TestNewCaptureWithNonPermittedInterface(t *testing.T) {
 	if readError != nil {
 		t.Fatal(readError)
 	}
-	if status.Succeed || status.Message != "User do not have permission for the selected interface" {
+	if status.Succeed || status.Message != "Error opening adapter: The system cannot find the device specified.  (20)" {
 		t.Fatal(status.Message)
 	}
 	// Finish it

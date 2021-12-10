@@ -382,20 +382,14 @@ async function updateGraphs(data) {
 }
 
 async function newCapture() {
-    const value = await testNewCaptureInformation();
     const errorMessage = document.getElementById("error-message");
-    if (!value.Succeed) {
-        errorMessage.innerHTML = value.Error;
-        errorMessage.style.display = "block";
-        return
-    }
+
     const target = "ws://" + document.location.host + "/packet?action=start";
     connection = new WebSocket(target, "PacketCaptureSession");
 
     connection.onopen = function (_) {
+
         errorMessage.style.display = "none";
-        document.getElementById("new-config-container").style.display = "none";
-        document.getElementById("capture-session-container").style.display = "block"
 
         const captureName = document.getElementById("capture-name");
         const description = document.getElementById("description");
@@ -411,12 +405,14 @@ async function newCapture() {
             }
         );
         connection.send(configuration);
-        document.getElementById("title").innerText = captureName.value;
-
 
         connection.onmessage = function (message) {
             const data = JSON.parse(message.data);
             if (data.Succeed) {
+                document.getElementById("new-config-container").style.display = "none";
+                document.getElementById("capture-session-container").style.display = "block"
+                document.getElementById("title").innerText = captureName.value;
+
                 connection.onmessage = function (message) {
                     const updateData = JSON.parse(message.data);
                     switch (updateData.Type) {
@@ -432,7 +428,8 @@ async function newCapture() {
                     }
                 };
             } else {
-                document.location.href = "/packet"
+                errorMessage.innerHTML = data.Message;
+                errorMessage.style.display = "block";
             }
         };
     }

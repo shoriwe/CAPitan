@@ -7,8 +7,11 @@ import (
 	errors2 "github.com/shoriwe/gplasma/pkg/errors"
 	"io"
 	"net"
+	"regexp"
 	"strings"
 )
+
+var CheckFilledWithWhiteSpace = regexp.MustCompile("(?m)^\\s+$")
 
 type ServerWSResponse struct {
 	Type    string
