@@ -18,4 +18,5 @@ const (
 	CaptureName  = "capture-name"
 	Description  = "description"
 	Script       = "script"
+	File         = "file"
 )

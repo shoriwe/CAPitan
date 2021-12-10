@@ -389,7 +389,6 @@ async function newCapture() {
         errorMessage.style.display = "block";
         return
     }
-    // TODO: Change the page and start the capture
     const target = "ws://" + document.location.host + "/packet?action=start";
     connection = new WebSocket(target, "PacketCaptureSession");
 
@@ -437,6 +436,38 @@ async function newCapture() {
             }
         };
     }
+}
+
+async function viewCapture(captureName) {
+    const target = "ws://" + document.location.host + "/packet?action=view";
+    connection = new WebSocket(target, "PacketViewSession");
+
+    connection.onopen = function (_) {
+        const data = JSON.stringify(
+            {
+                CaptureName: captureName
+            }
+        );
+        connection.send(data);
+
+        connection.onmessage = function (message) {
+            const updateData = JSON.parse(message.data);
+            switch (updateData.Type) {
+                case "packet":
+                    loadPacket(updateData.Payload);
+                    break;
+                case "stream":
+                    loadStream(updateData.Payload);
+                    break;
+                case "update-graphs":
+                    updateGraphs(updateData.Payload);
+                    break;
+                case "STOP":
+                    connection.close(1000);
+                    break;
+            }
+        };
+    };
 }
 
 function stopCapture() {

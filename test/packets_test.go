@@ -108,7 +108,7 @@ func TestNewCaptureWithValidScript(t *testing.T) {
 	if readError != nil {
 		t.Fatal(readError)
 	}
-	if !status.Succeed || status.Message != "Everything ok" {
+	if !status.Succeed || status.Message != "Everything ok!" {
 		t.Fatal(status.Message)
 	}
 	// Finish it
@@ -214,7 +214,7 @@ func TestNewCaptureWithInvalidScript(t *testing.T) {
 	if readError != nil {
 		t.Fatal(readError)
 	}
-	if status.Succeed || status.Message == "Everything ok" {
+	if status.Succeed || status.Message == "Everything ok!" {
 		t.Fatal(status.Message)
 	}
 	// Finish it
@@ -320,7 +320,7 @@ func TestNewCaptureWithoutScript(t *testing.T) {
 	if readError != nil {
 		t.Fatal(readError)
 	}
-	if !status.Succeed || status.Message != "Everything ok" {
+	if !status.Succeed || status.Message != "Everything ok!" {
 		t.Fatal(status.Message)
 	}
 	// Finish it
@@ -426,7 +426,7 @@ func TestNewCaptureInvalidName(t *testing.T) {
 	if readError != nil {
 		t.Fatal(readError)
 	}
-	if status.Succeed || status.Message == "Everything ok" {
+	if status.Succeed || status.Message == "Everything ok!" {
 		t.Fatal(status.Message)
 	}
 	// Finish it
@@ -532,7 +532,7 @@ func TestNewCaptureInvalidDescription(t *testing.T) {
 	if readError != nil {
 		t.Fatal(readError)
 	}
-	if status.Succeed || status.Message == "Everything ok" {
+	if status.Succeed || status.Message == "Everything ok!" {
 		t.Fatal(status.Message)
 	}
 	// Finish it
@@ -638,7 +638,7 @@ func TestNewCaptureUsingNameOfActiveOne(t *testing.T) {
 	if readError != nil {
 		t.Fatal(readError)
 	}
-	if !status.Succeed || status.Message != "Everything ok" {
+	if !status.Succeed || status.Message != "Everything ok!" {
 		t.Fatal(status.Message)
 	}
 	// Start the other capture with the same name
@@ -674,7 +674,7 @@ func TestNewCaptureUsingNameOfActiveOne(t *testing.T) {
 	if readError != nil {
 		t.Fatal(readError)
 	}
-	if secondStatus.Succeed || secondStatus.Message == "Everything ok" {
+	if secondStatus.Succeed || secondStatus.Message == "Everything ok!" {
 		t.Fatal(secondStatus.Message)
 	}
 	// Finish it
@@ -785,7 +785,7 @@ func TestNewCaptureUsingNameOldOne(t *testing.T) {
 	if readError != nil {
 		t.Fatal(readError)
 	}
-	if !status.Succeed || status.Message != "Everything ok" {
+	if !status.Succeed || status.Message != "Everything ok!" {
 		t.Fatal(status.Message)
 	}
 	time.Sleep(5 * time.Second)

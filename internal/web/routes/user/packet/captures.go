@@ -16,6 +16,7 @@ import (
 	"github.com/shoriwe/gplasma/pkg/compiler/lexer"
 	"github.com/shoriwe/gplasma/pkg/compiler/parser"
 	"github.com/shoriwe/gplasma/pkg/reader"
+	"html"
 	"html/template"
 	"io"
 	"net/http"
@@ -24,13 +25,31 @@ import (
 	"time"
 )
 
+const (
+	ErrorResponse          = "error"
+	UpdateGraphsResponse   = "update-graphs"
+	UpdateStreamCountGraph = "stream-type-graph"
+	UpdateLayer4Graph      = "layer-4-graph"
+	UpdateHostCountGraph   = "host-packet-count"
+	UpdateTopologyGraph    = "topology"
+	PacketResponse         = "packet"
+	StreamResponse         = "stream"
+	StopSignal             = "STOP"
+)
+
 var (
-	stringChecker = regexp.MustCompile("\\w+[\\w\\s]*")
-	upgrade       = websocket.Upgrader{
+	stringChecker         = regexp.MustCompile("\\w+[\\w\\s]*")
+	upgradeCaptureSession = websocket.Upgrader{
 		ReadBufferSize:    0, /* No Limit */
 		WriteBufferSize:   0, /* No Limit */
 		EnableCompression: true,
 		Subprotocols:      []string{"PacketCaptureSession"},
+	}
+	upgradeViewSession = websocket.Upgrader{
+		ReadBufferSize:    0, /* No Limit */
+		WriteBufferSize:   0, /* No Limit */
+		EnableCompression: true,
+		Subprotocols:      []string{"PacketViewSession"},
 	}
 )
 
@@ -133,7 +152,7 @@ func testInterfaceBasedCaptureArguments(mw *middleware.Middleware, context *midd
 }
 
 func startInterfaceBasedCapture(mw *middleware.Middleware, context *middleware.Context) bool {
-	connection, upgradeError := upgrade.Upgrade(context.ResponseWriter, context.Request, context.ResponseWriter.Header())
+	connection, upgradeError := upgradeCaptureSession.Upgrade(context.ResponseWriter, context.Request, context.ResponseWriter.Header())
 	if upgradeError != nil {
 		go mw.LogError(context.Request, upgradeError)
 		context.Redirect = symbols.UserPacketCaptures
@@ -167,7 +186,7 @@ func startInterfaceBasedCapture(mw *middleware.Middleware, context *middleware.C
 			Message string
 		}{
 			Succeed: true,
-			Message: "Everything ok",
+			Message: "Everything ok!",
 		},
 		)
 		if writeError != nil {
@@ -220,7 +239,7 @@ func startInterfaceBasedCapture(mw *middleware.Middleware, context *middleware.C
 			return
 		}
 		switch action.Action {
-		case "STOP":
+		case StopSignal:
 			stopChannel <- true
 		}
 	}()
@@ -257,7 +276,7 @@ masterLoop:
 			if isOpen {
 				if err != nil {
 					writeError := connection.WriteJSON(serverResponse{
-						Type:    "error",
+						Type:    ErrorResponse,
 						Payload: err.Error(),
 					})
 					if writeError != nil {
@@ -287,7 +306,7 @@ masterLoop:
 							//Send the packet to the client
 							writeError := connection.WriteJSON(
 								serverResponse{
-									Type:    "packet",
+									Type:    PacketResponse,
 									Payload: capture.TransformPacketToMap(packet),
 								},
 							)
@@ -320,7 +339,7 @@ masterLoop:
 						if _, found := hashedStreams[md5.Sum(data.Content)]; !found {
 							writeError := connection.WriteJSON(
 								serverResponse{
-									Type:    "stream",
+									Type:    StreamResponse,
 									Payload: data,
 								},
 							)
@@ -342,12 +361,12 @@ masterLoop:
 				// Update graphs
 				writeError := connection.WriteJSON(
 					serverResponse{
-						Type: "update-graphs",
+						Type: UpdateGraphsResponse,
 						Payload: struct {
 							Target  string
 							Options interface{}
 						}{
-							Target:  "topology",
+							Target:  UpdateTopologyGraph,
 							Options: topology.Options(),
 						},
 					},
@@ -360,12 +379,12 @@ masterLoop:
 			if updatedPacketCountPerHost {
 				writeError := connection.WriteJSON(
 					serverResponse{
-						Type: "update-graphs",
+						Type: UpdateGraphsResponse,
 						Payload: struct {
 							Target  string
 							Options interface{}
 						}{
-							Target:  "host-packet-count",
+							Target:  UpdateHostCountGraph,
 							Options: hostPacketCount.Options(),
 						},
 					},
@@ -378,12 +397,12 @@ masterLoop:
 			if updatedLayer4Count {
 				writeError := connection.WriteJSON(
 					serverResponse{
-						Type: "update-graphs",
+						Type: UpdateGraphsResponse,
 						Payload: struct {
 							Target  string
 							Options interface{}
 						}{
-							Target:  "layer-4-graph",
+							Target:  UpdateLayer4Graph,
 							Options: layer4Count.Options(),
 						},
 					},
@@ -396,12 +415,12 @@ masterLoop:
 			if updatedStreamTypeCount {
 				writeError := connection.WriteJSON(
 					serverResponse{
-						Type: "update-graphs",
+						Type: UpdateGraphsResponse,
 						Payload: struct {
 							Target  string
 							Options interface{}
 						}{
-							Target:  "stream-type-graph",
+							Target:  UpdateStreamCountGraph,
 							Options: streamTypeCount.Options(),
 						},
 					},
@@ -511,7 +530,7 @@ func handleImportCapture(mw *middleware.Middleware, context *middleware.Context)
 
 		return false
 	}
-	mimeFile, _, openError := context.Request.FormFile("file")
+	mimeFile, _, openError := context.Request.FormFile(symbols.File)
 	if openError != nil {
 		go mw.LogError(context.Request, openError)
 
@@ -675,32 +694,9 @@ masterLoop:
 
 func renderOldCapture(mw *middleware.Middleware, context *middleware.Context) bool {
 	captureName := context.Request.PostFormValue(symbols.CaptureName)
-	succeed, captureSession, packets, streams := mw.UserGetCapture(context.Request, context.User.Username, captureName)
+	succeed, captureSession, _, _ := mw.UserGetCapture(context.Request, context.User.Username, captureName)
 	if !succeed {
 		context.Redirect = symbols.Dashboard
-		return false
-	}
-	marshalData, marshalError := json.Marshal(
-		struct {
-			CaptureName string
-			Description string
-			Script      string
-			Packets     []map[string]interface{}
-			Streams     []capture.Data
-			Start       time.Time
-			Finish      time.Time
-		}{
-			CaptureName: captureName,
-			Description: captureSession.Description,
-			Script:      string(captureSession.FilterScript),
-			Packets:     packets,
-			Streams:     streams,
-			Start:       captureSession.Started,
-			Finish:      captureSession.Ended,
-		},
-	)
-	if marshalError != nil {
-		go mw.LogError(context.Request, marshalError)
 		return false
 	}
 	var output bytes.Buffer
@@ -708,17 +704,15 @@ func renderOldCapture(mw *middleware.Middleware, context *middleware.Context) bo
 	executeError := template.Must(template.New("Render").Parse(string(renderTemplate))).Execute(
 		&output,
 		struct {
-			Data            string
-			Topology        string
-			HostCount       string
-			Layer4Count     string
-			StreamTypeCount string
+			RawCaptureName string
+			CaptureName    string
+			Description    string
+			Script         string
 		}{
-			Data:            string(marshalData),
-			Topology:        string(captureSession.TopologyJson),
-			HostCount:       string(captureSession.HostCountJson),
-			Layer4Count:     string(captureSession.LayerCountJson),
-			StreamTypeCount: string(captureSession.StreamTypeCountJson),
+			RawCaptureName: captureName,
+			CaptureName:    html.EscapeString(captureName),
+			Description:    html.EscapeString(captureSession.Description),
+			Script:         html.EscapeString(string(captureSession.FilterScript)),
 		},
 	)
 	if executeError != nil {
@@ -729,10 +723,175 @@ func renderOldCapture(mw *middleware.Middleware, context *middleware.Context) bo
 	return false
 }
 
+func viewCaptureWS(mw *middleware.Middleware, context *middleware.Context) bool {
+	connection, upgradeError := upgradeViewSession.Upgrade(context.ResponseWriter, context.Request, context.ResponseWriter.Header())
+	if upgradeError != nil {
+		go mw.LogError(context.Request, upgradeError)
+		context.Redirect = symbols.UserPacketCaptures
+		return false
+	}
+	context.WriteBody = false
+	defer func() {
+		closeError := connection.Close()
+		if closeError != nil {
+			go mw.LogError(context.Request, closeError)
+		}
+	}()
+
+	var request struct {
+		CaptureName string
+	}
+	readError := connection.ReadJSON(&request)
+	if readError != nil {
+		go mw.LogError(context.Request, readError)
+		return false
+	}
+
+	// Prepare the data to send
+
+	succeed, captureSession, packets, streams := mw.UserGetCapture(context.Request, context.User.Username, request.CaptureName)
+	if !succeed {
+		context.Redirect = symbols.Dashboard
+		return false
+	}
+
+	var topologyConfig interface{}
+	unmarshalError := json.Unmarshal(captureSession.TopologyJson, &topologyConfig)
+	if unmarshalError != nil {
+		go mw.LogError(context.Request, unmarshalError)
+		return false
+	}
+	var hostCountConfig interface{}
+	unmarshalError = json.Unmarshal(captureSession.HostCountJson, &hostCountConfig)
+	if unmarshalError != nil {
+		go mw.LogError(context.Request, unmarshalError)
+		return false
+	}
+	var streamCountConfig interface{}
+	unmarshalError = json.Unmarshal(captureSession.StreamTypeCountJson, &streamCountConfig)
+	if unmarshalError != nil {
+		go mw.LogError(context.Request, unmarshalError)
+		return false
+	}
+	var layerCountConfig interface{}
+	unmarshalError = json.Unmarshal(captureSession.LayerCountJson, &layerCountConfig)
+	if unmarshalError != nil {
+		go mw.LogError(context.Request, unmarshalError)
+		return false
+	}
+
+	// Send the graph configs
+
+	writeError := connection.WriteJSON(
+		serverResponse{
+			Type: UpdateGraphsResponse,
+			Payload: struct {
+				Target  string
+				Options interface{}
+			}{
+				Target:  UpdateLayer4Graph,
+				Options: layerCountConfig,
+			},
+		},
+	)
+	if writeError != nil {
+		go mw.LogError(context.Request, writeError)
+		return false
+	}
+	writeError = connection.WriteJSON(
+		serverResponse{
+			Type: UpdateGraphsResponse,
+			Payload: struct {
+				Target  string
+				Options interface{}
+			}{
+				Target:  UpdateHostCountGraph,
+				Options: hostCountConfig,
+			},
+		},
+	)
+	if writeError != nil {
+		go mw.LogError(context.Request, writeError)
+		return false
+	}
+	writeError = connection.WriteJSON(
+		serverResponse{
+			Type: UpdateGraphsResponse,
+			Payload: struct {
+				Target  string
+				Options interface{}
+			}{
+				Target:  UpdateTopologyGraph,
+				Options: topologyConfig,
+			},
+		},
+	)
+	if writeError != nil {
+		go mw.LogError(context.Request, writeError)
+		return false
+	}
+	writeError = connection.WriteJSON(
+		serverResponse{
+			Type: UpdateGraphsResponse,
+			Payload: struct {
+				Target  string
+				Options interface{}
+			}{
+				Target:  UpdateStreamCountGraph,
+				Options: streamCountConfig,
+			},
+		},
+	)
+	if writeError != nil {
+		go mw.LogError(context.Request, writeError)
+		return false
+	}
+
+	// Send the packets
+
+	for _, packet := range packets {
+		writeError = connection.WriteJSON(serverResponse{
+			Type:    PacketResponse,
+			Payload: packet,
+		})
+		if writeError != nil {
+			go mw.LogError(context.Request, writeError)
+			return false
+		}
+	}
+
+	// Send the streams
+
+	for _, stream := range streams {
+		writeError = connection.WriteJSON(serverResponse{
+			Type:    StreamResponse,
+			Payload: stream,
+		})
+		if writeError != nil {
+			go mw.LogError(context.Request, writeError)
+			return false
+		}
+	}
+
+	// Send to the server that it is safe to close the connection
+
+	writeError = connection.WriteJSON(serverResponse{
+		Type: StopSignal,
+	})
+	if writeError != nil {
+		go mw.LogError(context.Request, writeError)
+		return false
+	}
+
+	return false
+}
+
 func viewCapture(mw *middleware.Middleware, context *middleware.Context) bool {
 	switch context.Request.Method {
 	case http.MethodPost:
 		return renderOldCapture(mw, context)
+	case http.MethodGet:
+		return viewCaptureWS(mw, context)
 	}
 	return http405.MethodNotAllowed(mw, context)
 }
@@ -755,7 +914,7 @@ func downloadCapture(mw *middleware.Middleware, context *middleware.Context) boo
 }
 
 func Captures(mw *middleware.Middleware, context *middleware.Context) bool {
-	switch context.Request.FormValue("action") {
+	switch context.Request.FormValue(actions.Action) {
 	case actions.New:
 		return newInterfaceCapture(mw, context)
 	case actions.Import:
