@@ -10,6 +10,11 @@ import (
 	"strings"
 )
 
+type ServerWSResponse struct {
+	Type    string
+	Payload interface{}
+}
+
 type SecuredFileSystem struct {
 }
 

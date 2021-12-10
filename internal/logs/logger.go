@@ -171,7 +171,7 @@ func (logger *Logger) LogReserveCaptureNameForUser(request *http.Request, userna
 	}
 }
 
-func (logger *Logger) LogRemoveReserveCaptureNameForUser(request *http.Request, username, captureName string, succeed bool) {
+func (logger *Logger) LogRemoveReservedCaptureNameForUser(request *http.Request, username, captureName string, succeed bool) {
 	if succeed {
 		logger.debugLogger.Printf("Successfully removed reserved capture name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
 	} else {
@@ -213,6 +213,22 @@ func (logger *Logger) LogARPSpoofStarted(request *http.Request, username, ip, ga
 
 func (logger *Logger) LogARPSpoofStopped(request *http.Request, username, ip, gateway string) {
 	logger.debugLogger.Printf("Successfully stopped ARP spoof by %s to IP %s and gateway %s at %s", username, ip, gateway, request.RemoteAddr)
+}
+
+func (logger *Logger) LogReserveARPScanNameForUser(request *http.Request, username, captureName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully reserved arp scan name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to reserve arp scan name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogRemoveReservedARPScanNameForUser(request *http.Request, username, captureName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully removed reserved arp scan name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed removed reserved arp scan name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	}
 }
 
 func NewLogger(logWriter io.Writer) *Logger {

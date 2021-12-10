@@ -1,0 +1,37 @@
+<div class="master-container">
+    <div class="align-right-container">
+        <a class="green-button" href="/arp/scan">New</a>
+    </div>
+    <div class="master-container">
+        <div class="page-container">
+            <div class="list-container">
+                {{range $scan := .Scans}}
+                <div class="list-entry">
+                    <h3 class="purple-text">{{$scan.Name}}</h3>
+                    <span style="width: 1vw;"></span>
+                    <h3 class="blue-text">{{$scan.Started.Format "2006 Jan 02 15:04:05 UTC"}}</h3>
+                    <span style="width: 1vw;"></span>
+                    <h3 class="green-text">{{$scan.Ended.Format "2006 Jan 02 15:04:05 UTC"}}</h3>
+                    <span style="width: 1vw;"></span>
+                    <form action="/arp/scan?action=download" method="post">
+                        <label for="scan-id-download-{{$scan.Id}}" style="display: none;">{{$scan.Id}}</label>
+                        <input id="scan-id-download-{{$scan.Id}}" name="scan-name" readonly
+                               style="display: none;"
+                               type="text"
+                               value="{{$scan.Name}}">
+                        <button class="green-button" type="submit">Download</button>
+                    </form>
+                    <span style="width: 1%;"></span>
+                    <form action="/arp/scan?action=view" method="post">
+                        <label for="scan-id-{{$scan.Id}}" style="display: none;">{{$scan.Id}}</label>
+                        <input id="scan-id-{{$scan.Id}}" name="scan-name" readonly style="display: none;"
+                               type="text"
+                               value="{{$scan.Name}}">
+                        <button class="green-button" type="submit">View</button>
+                    </form>
+                </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+</div>

@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
+	arp_scanner "github.com/shoriwe/CAPitan/internal/arp-scanner"
 	"github.com/shoriwe/CAPitan/internal/capture"
 	"github.com/shoriwe/CAPitan/internal/data"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
@@ -44,6 +45,8 @@ type (
 		devices               map[string]pcap.Interface
 		reservedCaptures      map[string]map[string]struct{}
 		reservedCapturesMutex *sync.Mutex
+		reservedARPScans      map[string]map[string]struct{}
+		reservedARPScansMutex *sync.Mutex
 		Templates             embed.FS
 		LoginSessions         *sessions.Sessions
 		ResetSessions         *sessions.Sessions
@@ -80,6 +83,8 @@ func New(c data.Database, l *logs.Logger, t embed.FS) *Middleware {
 		Templates:             t,
 		reservedCaptures:      map[string]map[string]struct{}{},
 		reservedCapturesMutex: new(sync.Mutex),
+		reservedARPScans:      map[string]map[string]struct{}{},
+		reservedARPScansMutex: new(sync.Mutex),
 		Limiter:               limit.NewLimiter(),
 		LoginSessions:         sessions.NewSessions(),
 		ResetSessions:         sessions.NewSessions(),
@@ -458,10 +463,10 @@ func (middleware *Middleware) RemoveReservedCaptureName(request *http.Request, u
 		middleware.reservedCapturesMutex.Lock()
 		defer middleware.reservedCapturesMutex.Unlock()
 		delete(middleware.reservedCaptures[username], captureName)
-		go middleware.LogRemoveReserveCaptureNameForUser(request, username, captureName, true)
+		go middleware.LogRemoveReservedCaptureNameForUser(request, username, captureName, true)
 		return true
 	}
-	go middleware.LogRemoveReserveCaptureNameForUser(request, username, captureName, false)
+	go middleware.LogRemoveReservedCaptureNameForUser(request, username, captureName, false)
 	return false
 }
 
@@ -501,4 +506,49 @@ func (middleware *Middleware) SaveImportCapture(request *http.Request, username 
 	}
 	go middleware.LogSaveImportCapture(request, username, captureName, succeed)
 	return succeed
+}
+
+func (middleware *Middleware) SaveARPScan(request *http.Request, username string, scanName string, interfaceName string, script string, hosts map[string]arp_scanner.Host, start time.Time, finish time.Time) {
+
+}
+
+func (middleware *Middleware) ReserveUserARPScanName(request *http.Request, username string, scanName string) bool {
+	if middleware.isARPScanAlreadyTaken(username, scanName) {
+		go middleware.LogReserveARPScanNameForUser(request, username, scanName, false)
+		return false
+	}
+	middleware.reservedARPScansMutex.Lock()
+	defer middleware.reservedARPScansMutex.Unlock()
+	_, found := middleware.reservedARPScans[username]
+	if !found {
+		go middleware.LogReserveARPScanNameForUser(request, username, scanName, true)
+		middleware.reservedARPScans[username] = map[string]struct{}{scanName: {}}
+		return true
+	}
+	go middleware.LogReserveARPScanNameForUser(request, username, scanName, true)
+	middleware.reservedARPScans[username][scanName] = struct{}{}
+	return true
+}
+
+func (middleware *Middleware) RemoveReservedARPScanName(request *http.Request, username string, scanName string) bool {
+	if middleware.isARPScanAlreadyTaken(username, scanName) {
+		middleware.reservedARPScansMutex.Lock()
+		defer middleware.reservedARPScansMutex.Unlock()
+		delete(middleware.reservedARPScans[username], scanName)
+		go middleware.LogRemoveReservedARPScanNameForUser(request, username, scanName, true)
+		return true
+	}
+	go middleware.LogRemoveReservedARPScanNameForUser(request, username, scanName, false)
+	return false
+}
+
+func (middleware *Middleware) isARPScanAlreadyTaken(username string, scanName string) bool {
+	middleware.reservedARPScansMutex.Lock()
+	defer middleware.reservedARPScansMutex.Unlock()
+	user, found := middleware.reservedARPScans[username]
+	if found {
+		_, found = user[scanName]
+		return found
+	}
+	return false
 }

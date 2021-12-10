@@ -16,4 +16,5 @@ const (
 	UserPacketCaptures     = "/packet"
 	UserARP                = "/arp"
 	UserARPSpoof           = "/arp/spoof"
+	UserARPScan            = "/arp/scan"
 )

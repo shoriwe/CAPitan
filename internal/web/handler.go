@@ -12,9 +12,11 @@ import (
 	login2 "github.com/shoriwe/CAPitan/internal/web/routes/login"
 	settings2 "github.com/shoriwe/CAPitan/internal/web/routes/settings"
 	"github.com/shoriwe/CAPitan/internal/web/routes/user/arp"
+	"github.com/shoriwe/CAPitan/internal/web/routes/user/arp/scan"
 	"github.com/shoriwe/CAPitan/internal/web/routes/user/arp/spoof"
 	"github.com/shoriwe/CAPitan/internal/web/routes/user/packet"
 	"github.com/shoriwe/CAPitan/internal/web/symbols"
+	"html"
 	"html/template"
 	"net/http"
 	"time"
@@ -90,7 +92,7 @@ func setNavigationBar(mw *middleware.Middleware, context *middleware.Context) bo
 		struct {
 			Username string
 		}{
-			Username: context.User.Username,
+			Username: html.EscapeString(context.User.Username),
 		},
 	)
 	context.NavigationBar = output.String()
@@ -125,6 +127,7 @@ func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 	handler.HandleFunc(symbols.UserPacketCaptures, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, packet.Captures))
 	handler.HandleFunc(symbols.UserARP, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, arp.ARP))
 	handler.HandleFunc(symbols.UserARPSpoof, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, spoof.ARPSpoof))
+	handler.HandleFunc(symbols.UserARPScan, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, scan.ARPScan))
 
 	if _, ok := database.(*memory.Memory); ok {
 		request, _ := http.NewRequest(http.MethodGet, "/", nil)

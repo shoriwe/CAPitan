@@ -12,6 +12,7 @@ const (
 	View                    = "view"
 	Download                = "download"
 	Spoof                   = "spoof"
+	List                    = "list"
 	AddCaptureInterface     = "add-capture-interface"
 	DeleteCaptureInterface  = "delete-capture-interface"
 	AddARPScanInterface     = "add-arp-scan-interface"

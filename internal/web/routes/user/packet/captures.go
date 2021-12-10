@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/shoriwe/CAPitan/internal/capture"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
+	"github.com/shoriwe/CAPitan/internal/tools"
 	"github.com/shoriwe/CAPitan/internal/web/base"
 	"github.com/shoriwe/CAPitan/internal/web/http405"
 	"github.com/shoriwe/CAPitan/internal/web/middleware"
@@ -25,18 +26,6 @@ import (
 	"time"
 )
 
-const (
-	ErrorResponse          = "error"
-	UpdateGraphsResponse   = "update-graphs"
-	UpdateStreamCountGraph = "stream-type-graph"
-	UpdateLayer4Graph      = "layer-4-graph"
-	UpdateHostCountGraph   = "host-packet-count"
-	UpdateTopologyGraph    = "topology"
-	PacketResponse         = "packet"
-	StreamResponse         = "stream"
-	StopSignal             = "STOP"
-)
-
 var (
 	stringChecker         = regexp.MustCompile("\\w+[\\w\\s]*")
 	upgradeCaptureSession = websocket.Upgrader{
@@ -52,11 +41,6 @@ var (
 		Subprotocols:      []string{"PacketViewSession"},
 	}
 )
-
-type serverResponse struct {
-	Type    string
-	Payload interface{}
-}
 
 func listCaptures(mw *middleware.Middleware, context *middleware.Context) bool {
 	succeed, userCaptures := mw.ListUserCaptures(context.Request, context.User.Username)
@@ -239,7 +223,7 @@ func startInterfaceBasedCapture(mw *middleware.Middleware, context *middleware.C
 			return
 		}
 		switch action.Action {
-		case StopSignal:
+		case symbols.StopSignal:
 			stopChannel <- true
 		}
 	}()
@@ -275,8 +259,8 @@ masterLoop:
 		case err, isOpen := <-engine.ErrorChannel:
 			if isOpen {
 				if err != nil {
-					writeError := connection.WriteJSON(serverResponse{
-						Type:    ErrorResponse,
+					writeError := connection.WriteJSON(tools.ServerWSResponse{
+						Type:    symbols.ErrorResponse,
 						Payload: err.Error(),
 					})
 					if writeError != nil {
@@ -305,8 +289,8 @@ masterLoop:
 						if packet != nil {
 							//Send the packet to the client
 							writeError := connection.WriteJSON(
-								serverResponse{
-									Type:    PacketResponse,
+								tools.ServerWSResponse{
+									Type:    symbols.PacketResponse,
 									Payload: capture.TransformPacketToMap(packet),
 								},
 							)
@@ -338,8 +322,8 @@ masterLoop:
 
 						if _, found := hashedStreams[md5.Sum(data.Content)]; !found {
 							writeError := connection.WriteJSON(
-								serverResponse{
-									Type:    StreamResponse,
+								tools.ServerWSResponse{
+									Type:    symbols.StreamResponse,
 									Payload: data,
 								},
 							)
@@ -360,13 +344,13 @@ masterLoop:
 			if updatedTopology {
 				// Update graphs
 				writeError := connection.WriteJSON(
-					serverResponse{
-						Type: UpdateGraphsResponse,
+					tools.ServerWSResponse{
+						Type: symbols.UpdateGraphsResponse,
 						Payload: struct {
 							Target  string
 							Options interface{}
 						}{
-							Target:  UpdateTopologyGraph,
+							Target:  symbols.UpdateTopologyGraph,
 							Options: topology.Options(),
 						},
 					},
@@ -378,13 +362,13 @@ masterLoop:
 			}
 			if updatedPacketCountPerHost {
 				writeError := connection.WriteJSON(
-					serverResponse{
-						Type: UpdateGraphsResponse,
+					tools.ServerWSResponse{
+						Type: symbols.UpdateGraphsResponse,
 						Payload: struct {
 							Target  string
 							Options interface{}
 						}{
-							Target:  UpdateHostCountGraph,
+							Target:  symbols.UpdateHostCountGraph,
 							Options: hostPacketCount.Options(),
 						},
 					},
@@ -396,13 +380,13 @@ masterLoop:
 			}
 			if updatedLayer4Count {
 				writeError := connection.WriteJSON(
-					serverResponse{
-						Type: UpdateGraphsResponse,
+					tools.ServerWSResponse{
+						Type: symbols.UpdateGraphsResponse,
 						Payload: struct {
 							Target  string
 							Options interface{}
 						}{
-							Target:  UpdateLayer4Graph,
+							Target:  symbols.UpdateLayer4Graph,
 							Options: layer4Count.Options(),
 						},
 					},
@@ -414,13 +398,13 @@ masterLoop:
 			}
 			if updatedStreamTypeCount {
 				writeError := connection.WriteJSON(
-					serverResponse{
-						Type: UpdateGraphsResponse,
+					tools.ServerWSResponse{
+						Type: symbols.UpdateGraphsResponse,
 						Payload: struct {
 							Target  string
 							Options interface{}
 						}{
-							Target:  UpdateStreamCountGraph,
+							Target:  symbols.UpdateStreamCountGraph,
 							Options: streamTypeCount.Options(),
 						},
 					},
@@ -435,7 +419,7 @@ masterLoop:
 
 	finish := time.Now()
 
-	// Send to the server that it is safe to close the connection
+	// Send to the client that it is safe to close the connection
 
 	writeError := connection.WriteJSON(struct {
 		Succeed bool
@@ -783,13 +767,13 @@ func viewCaptureWS(mw *middleware.Middleware, context *middleware.Context) bool 
 	// Send the graph configs
 
 	writeError := connection.WriteJSON(
-		serverResponse{
-			Type: UpdateGraphsResponse,
+		tools.ServerWSResponse{
+			Type: symbols.UpdateGraphsResponse,
 			Payload: struct {
 				Target  string
 				Options interface{}
 			}{
-				Target:  UpdateLayer4Graph,
+				Target:  symbols.UpdateLayer4Graph,
 				Options: layerCountConfig,
 			},
 		},
@@ -799,13 +783,13 @@ func viewCaptureWS(mw *middleware.Middleware, context *middleware.Context) bool 
 		return false
 	}
 	writeError = connection.WriteJSON(
-		serverResponse{
-			Type: UpdateGraphsResponse,
+		tools.ServerWSResponse{
+			Type: symbols.UpdateGraphsResponse,
 			Payload: struct {
 				Target  string
 				Options interface{}
 			}{
-				Target:  UpdateHostCountGraph,
+				Target:  symbols.UpdateHostCountGraph,
 				Options: hostCountConfig,
 			},
 		},
@@ -815,13 +799,13 @@ func viewCaptureWS(mw *middleware.Middleware, context *middleware.Context) bool 
 		return false
 	}
 	writeError = connection.WriteJSON(
-		serverResponse{
-			Type: UpdateGraphsResponse,
+		tools.ServerWSResponse{
+			Type: symbols.UpdateGraphsResponse,
 			Payload: struct {
 				Target  string
 				Options interface{}
 			}{
-				Target:  UpdateTopologyGraph,
+				Target:  symbols.UpdateTopologyGraph,
 				Options: topologyConfig,
 			},
 		},
@@ -831,13 +815,13 @@ func viewCaptureWS(mw *middleware.Middleware, context *middleware.Context) bool 
 		return false
 	}
 	writeError = connection.WriteJSON(
-		serverResponse{
-			Type: UpdateGraphsResponse,
+		tools.ServerWSResponse{
+			Type: symbols.UpdateGraphsResponse,
 			Payload: struct {
 				Target  string
 				Options interface{}
 			}{
-				Target:  UpdateStreamCountGraph,
+				Target:  symbols.UpdateStreamCountGraph,
 				Options: streamCountConfig,
 			},
 		},
@@ -850,8 +834,8 @@ func viewCaptureWS(mw *middleware.Middleware, context *middleware.Context) bool 
 	// Send the packets
 
 	for _, packet := range packets {
-		writeError = connection.WriteJSON(serverResponse{
-			Type:    PacketResponse,
+		writeError = connection.WriteJSON(tools.ServerWSResponse{
+			Type:    symbols.PacketResponse,
 			Payload: packet,
 		})
 		if writeError != nil {
@@ -863,8 +847,8 @@ func viewCaptureWS(mw *middleware.Middleware, context *middleware.Context) bool 
 	// Send the streams
 
 	for _, stream := range streams {
-		writeError = connection.WriteJSON(serverResponse{
-			Type:    StreamResponse,
+		writeError = connection.WriteJSON(tools.ServerWSResponse{
+			Type:    symbols.StreamResponse,
 			Payload: stream,
 		})
 		if writeError != nil {
@@ -873,10 +857,10 @@ func viewCaptureWS(mw *middleware.Middleware, context *middleware.Context) bool 
 		}
 	}
 
-	// Send to the server that it is safe to close the connection
+	// Send to the client that it is safe to close the connection
 
-	writeError = connection.WriteJSON(serverResponse{
-		Type: StopSignal,
+	writeError = connection.WriteJSON(tools.ServerWSResponse{
+		Type: symbols.StopSignal,
 	})
 	if writeError != nil {
 		go mw.LogError(context.Request, writeError)

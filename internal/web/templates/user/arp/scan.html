@@ -1,0 +1,49 @@
+<link href="/static/vendor/css/prism.css" rel="stylesheet"/>
+<link href="/static/vendor/css/prism-live.css" rel="stylesheet"/>
+<div class="master-container">
+    <div class="page-container">
+        <div class="centered-container">
+            <h3 class="error-block" id="error-message" style="display: none;"></h3>
+        </div>
+        <div id="setup-menu">
+            <div class="centered-flex-container">
+                <label><input class="basic-text-input" id="scan-name" placeholder="Scan name" type="text"></label>
+                <button class="green-button" onclick="startScan();">Start</button>
+            </div>
+            <div class="centered-flex-container">
+                <div class="dropdown">
+                    <button class="dropbtn" id="scan" onclick="showMenu(this.id)"
+                            style="padding: 0.6vh 1vw;">Interface
+                    </button>
+                    <div class="dropdown-content" id="dropDownMenu-scan">
+                        {{range $interface := .ARPScanInterfaces}}
+                        <form onsubmit="return false;">
+                            <a id="{{$interface.Name}}" onclick="selectARPScanInterface(this.id)"
+                               onsubmit="selectARPScanInterface(this.id)"
+                               type="submit">{{$interface.Name}} {{$interface.Address}}</a>
+                        </form>
+                        {{end}}
+                    </div>
+                </div>
+                <div style="width: 45%; margin-left: 1%;">
+                    <pre><label for="hosts-script"></label><textarea
+                            class="prism-live language-ruby line-numbers fill prism-live-source" id="hosts-script"
+                            name="script"
+                            style="height: 65vh;border: 1px solid gray; border-radius: 2px;"></textarea></pre>
+                </div>
+            </div>
+        </div>
+        <div id="results-menu" style="display: none;">
+            <div class="centered-flex-container">
+                <h3 class="black-text" id="active-scan-name"></h3>
+                <button class="red-button" onclick="stopScan()">Stop</button>
+            </div>
+            <div class="list-container" id="results">
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/vendor/js/prism.js"></script>
+<script src="/static/vendor/js/prism-live.js?load=ruby"></script>
+<script src="/static/js/user/arp-scan.js"></script>
