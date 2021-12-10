@@ -156,7 +156,12 @@ func handleNewScan(mw *middleware.Middleware, context *middleware.Context) bool 
 
 	tick := time.Tick(500 * time.Millisecond)
 
-	hosts := map[string]arp_scanner.Host{}
+	hostsSet := map[string]struct{}{}
+
+	var hosts []struct {
+		IP  string
+		MAC string
+	}
 
 	engine.Start()
 
@@ -188,8 +193,18 @@ mainLoop:
 				select {
 				case host, isOpen := <-engine.Hosts:
 					if isOpen {
-						if _, found := hosts[host.IP.To4().String()]; !found {
-							hosts[host.IP.To4().String()] = host
+						if _, found := hostsSet[host.IP.To4().String()]; !found {
+							hostsSet[host.IP.To4().String()] = struct{}{}
+							hosts = append(
+								hosts,
+								struct {
+									IP  string
+									MAC string
+								}{
+									IP:  host.IP.To4().String(),
+									MAC: host.MAC.String(),
+								},
+							)
 							writeError = connection.WriteJSON(tools.ServerWSResponse{
 								Type: symbols.HostResponse,
 								Payload: struct {
@@ -304,21 +319,19 @@ func viewScan(mw *middleware.Middleware, context *middleware.Context) bool {
 }
 
 func listScans(mw *middleware.Middleware, context *middleware.Context) bool {
-	succeed, userCaptures := mw.ListUserCaptures(context.Request, context.User.Username)
+	succeed, userARPScans := mw.ListUserARPScans(context.Request, context.User.Username)
 	if !succeed {
 		context.Redirect = symbols.Dashboard
 		return false
 	}
-	templateContents, _ := mw.Templates.ReadFile("templates/user/packet/list.html")
+	templateContents, _ := mw.Templates.ReadFile("templates/user/arp/scan-list.html")
 	var body bytes.Buffer
 	err := template.Must(template.New("Packet").Parse(string(templateContents))).Execute(
 		&body,
 		struct {
-			Username string
-			Captures []*objects.CaptureSession
+			Scans []*objects.ARPScanSession
 		}{
-			Username: context.User.Username,
-			Captures: userCaptures,
+			Scans: userARPScans,
 		},
 	)
 	if err != nil {
@@ -326,7 +339,24 @@ func listScans(mw *middleware.Middleware, context *middleware.Context) bool {
 		go mw.LogError(context.Request, err)
 		return false
 	}
-	context.Body = base.NewPage("Packet", context.NavigationBar, body.String())
+	context.Body = base.NewPage("ARP scans", context.NavigationBar, body.String())
+	return false
+}
+
+func downloadScan(mw *middleware.Middleware, context *middleware.Context) bool {
+	scanName := context.Request.PostFormValue(symbols.ScanName)
+	succeed, scanSession := mw.UserGetARPScan(context.Request, context.User.Username, scanName)
+	if !succeed {
+		context.Redirect = symbols.Dashboard
+		return false
+	}
+	context.ResponseWriter.Header().Add("Content-Disposition", "attachment; filename=\"arp-scan.json\"")
+	_, writeError := context.ResponseWriter.Write(scanSession.Hosts)
+	if writeError != nil {
+		go mw.LogError(context.Request, writeError)
+		return false
+	}
+	context.WriteBody = false
 	return false
 }
 
@@ -338,6 +368,8 @@ func ARPScan(mw *middleware.Middleware, context *middleware.Context) bool {
 		return viewScan(mw, context)
 	case actions.List:
 		return listScans(mw, context)
+	case actions.Download:
+		return downloadScan(mw, context)
 	}
 	return renderController(mw, context)
 }

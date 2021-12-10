@@ -32,6 +32,16 @@ type (
 		UsersId   uint
 		Interface string
 	}
+	ARPScanSession struct {
+		Id        uint
+		Interface string
+		UserId    uint
+		Name      string
+		Started   time.Time
+		Ended     time.Time
+		Script    []byte
+		Hosts     []byte
+	}
 	CaptureSession struct {
 		Id                  uint
 		UserId              uint

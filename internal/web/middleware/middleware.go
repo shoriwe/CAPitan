@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
-	arp_scanner "github.com/shoriwe/CAPitan/internal/arp-scanner"
 	"github.com/shoriwe/CAPitan/internal/capture"
 	"github.com/shoriwe/CAPitan/internal/data"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
@@ -508,11 +507,22 @@ func (middleware *Middleware) SaveImportCapture(request *http.Request, username 
 	return succeed
 }
 
-func (middleware *Middleware) SaveARPScan(request *http.Request, username string, scanName string, interfaceName string, script string, hosts map[string]arp_scanner.Host, start time.Time, finish time.Time) {
-
+func (middleware *Middleware) SaveARPScan(request *http.Request, username string, scanName string, interfaceName string, script string, hosts interface{}, start time.Time, finish time.Time) bool {
+	succeed, saveError := middleware.Database.SaveARPScan(username, scanName, interfaceName, script, hosts, start, finish)
+	if saveError != nil {
+		go middleware.LogError(request, saveError)
+		go middleware.LogSaveARPScan(request, username, scanName, interfaceName, false)
+		return false
+	}
+	go middleware.LogSaveARPScan(request, username, scanName, interfaceName, succeed)
+	return succeed
 }
 
 func (middleware *Middleware) ReserveUserARPScanName(request *http.Request, username string, scanName string) bool {
+	succeed, _ := middleware.UserGetARPScan(request, username, scanName)
+	if succeed {
+		return false
+	}
 	if middleware.isARPScanAlreadyTaken(username, scanName) {
 		go middleware.LogReserveARPScanNameForUser(request, username, scanName, false)
 		return false
@@ -543,6 +553,7 @@ func (middleware *Middleware) RemoveReservedARPScanName(request *http.Request, u
 }
 
 func (middleware *Middleware) isARPScanAlreadyTaken(username string, scanName string) bool {
+	// Check in the ones reserved
 	middleware.reservedARPScansMutex.Lock()
 	defer middleware.reservedARPScansMutex.Unlock()
 	user, found := middleware.reservedARPScans[username]
@@ -551,4 +562,26 @@ func (middleware *Middleware) isARPScanAlreadyTaken(username string, scanName st
 		return found
 	}
 	return false
+}
+
+func (middleware *Middleware) ListUserARPScans(request *http.Request, username string) (bool, []*objects.ARPScanSession) {
+	succeed, scans, listError := middleware.Database.ListUserARPScans(username)
+	if listError != nil {
+		go middleware.LogError(request, listError)
+		go middleware.LogListUserARPScans(request, username, false)
+		return false, nil
+	}
+	go middleware.LogListUserARPScans(request, username, succeed)
+	return succeed, scans
+}
+
+func (middleware *Middleware) UserGetARPScan(request *http.Request, username string, scanName string) (bool, *objects.ARPScanSession) {
+	succeed, scanSession, queryError := middleware.Database.QueryARPScan(username, scanName)
+	if queryError != nil {
+		go middleware.LogError(request, queryError)
+		go middleware.LogQueryUserARPScan(request, username, scanName, false)
+		return false, nil
+	}
+	go middleware.LogQueryUserARPScan(request, username, scanName, succeed)
+	return succeed, scanSession
 }

@@ -20,6 +20,7 @@ const (
 	Script                 = "script"
 	File                   = "file"
 	ErrorResponse          = "error"
+	ScanName               = "scan-name"
 	UpdateGraphsResponse   = "update-graphs"
 	UpdateStreamCountGraph = "stream-type-graph"
 	UpdateLayer4Graph      = "layer-4-graph"

@@ -53,10 +53,8 @@ func listCaptures(mw *middleware.Middleware, context *middleware.Context) bool {
 	err := template.Must(template.New("Packet").Parse(string(templateContents))).Execute(
 		&body,
 		struct {
-			Username string
 			Captures []*objects.CaptureSession
 		}{
-			Username: context.User.Username,
 			Captures: userCaptures,
 		},
 	)

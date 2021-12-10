@@ -231,6 +231,30 @@ func (logger *Logger) LogRemoveReservedARPScanNameForUser(request *http.Request,
 	}
 }
 
+func (logger *Logger) LogListUserARPScans(request *http.Request, username string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully listed arp scans for user %s at %s", username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to list arp scans for user %s at %s", username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogSaveARPScan(request *http.Request, username, scanName, interfaceName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully saved arp scan with name \"%s\" targeting the interface %s started by user %s in %s", scanName, interfaceName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to save arp scan with name \"%s\" targeting the interface %s started by user %s in %s", scanName, interfaceName, username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogQueryUserARPScan(request *http.Request, username, scanName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully queried %s for user %s at %s", scanName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to query %s for user %s at %s", scanName, username, request.RemoteAddr)
+	}
+}
+
 func NewLogger(logWriter io.Writer) *Logger {
 	return &Logger{
 		errorLogger: log.New(logWriter, "ERROR: ", log.Ldate|log.Ltime),

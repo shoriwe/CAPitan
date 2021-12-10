@@ -26,6 +26,9 @@ type Memory struct {
 	nextCaptureSessionId              uint
 	captureSessions                   map[uint]*objects.CaptureSession
 	captureSessionsMutex              *sync.Mutex
+	nextARPScanSessionId              uint
+	arpScanSessions                   map[uint]*objects.ARPScanSession
+	arpScanSessionsMutex              *sync.Mutex
 	nextCapturePacketId               uint
 	capturedPackets                   map[uint]*objects.Packet
 	capturedPacketsMutex              *sync.Mutex
@@ -36,6 +39,72 @@ type Memory struct {
 	nextCapturePermissionId           uint
 	nextARPScanPermissionId           uint
 	nextARPSpoofPermissionId          uint
+}
+
+func (memory *Memory) QueryARPScan(username, scanName string) (bool, *objects.ARPScanSession, error) {
+	memory.usersMutex.Lock()
+	user, found := memory.users[username]
+	memory.usersMutex.Unlock()
+	if !found {
+		return false, nil, nil
+	}
+	memory.arpScanSessionsMutex.Lock()
+	defer memory.arpScanSessionsMutex.Unlock()
+	for _, session := range memory.arpScanSessions {
+		if session.UserId == user.Id && session.Name == scanName {
+			return true, session, nil
+		}
+	}
+	return false, nil, nil
+}
+
+func (memory *Memory) SaveARPScan(username string, scanName string, interfaceName string, script string, hosts interface{}, start time.Time, finish time.Time) (bool, error) {
+	memory.usersMutex.Lock()
+	user, found := memory.users[username]
+	memory.usersMutex.Unlock()
+	if !found {
+		return false, nil
+	}
+	memory.arpScanSessionsMutex.Lock()
+	defer memory.arpScanSessionsMutex.Unlock()
+
+	marshalHosts, marshalError := json.Marshal(hosts)
+	if marshalError != nil {
+		return false, marshalError
+	}
+	session := &objects.ARPScanSession{
+		Id:        memory.nextCapturePacketId,
+		UserId:    user.Id,
+		Interface: interfaceName,
+		Name:      scanName,
+		Started:   start,
+		Ended:     finish,
+		Script:    []byte(script),
+		Hosts:     marshalHosts,
+	}
+
+	memory.nextCapturePacketId++
+
+	memory.arpScanSessions[session.Id] = session
+	return true, nil
+}
+
+func (memory *Memory) ListUserARPScans(username string) (bool, []*objects.ARPScanSession, error) {
+	memory.usersMutex.Lock()
+	user, found := memory.users[username]
+	memory.usersMutex.Unlock()
+	if !found {
+		return false, nil, nil
+	}
+	memory.arpScanSessionsMutex.Lock()
+	defer memory.arpScanSessionsMutex.Unlock()
+	var result []*objects.ARPScanSession
+	for _, session := range memory.arpScanSessions {
+		if session.UserId == user.Id {
+			result = append(result, session)
+		}
+	}
+	return true, result, nil
 }
 
 func (memory *Memory) SaveImportCapture(username string, name string, description string, script string, topologyOptions interface{}, hostCountOptions interface{}, layer4Options interface{}, streamTypeCountOptions interface{}, packets []gopacket.Packet, streams []capture.Data, pcap []byte) (bool, error) {
@@ -140,10 +209,10 @@ func (memory *Memory) SaveImportCapture(username string, name string, descriptio
 func (memory *Memory) QueryCapture(username, captureName string) (succeed bool, captureSession *objects.CaptureSession, packets []map[string]interface{}, streams []capture.Data, queryError error) {
 	memory.usersMutex.Lock()
 	user, found := memory.users[username]
+	memory.usersMutex.Unlock()
 	if !found {
 		return false, nil, nil, nil, nil
 	}
-	memory.usersMutex.Unlock()
 
 	memory.captureSessionsMutex.Lock()
 	defer memory.captureSessionsMutex.Unlock()
@@ -629,6 +698,7 @@ func NewInMemoryDB() data.Database {
 		captureSessionsMutex:              new(sync.Mutex),
 		capturedPacketsMutex:              new(sync.Mutex),
 		capturedTCPStreamsMutex:           new(sync.Mutex),
+		arpScanSessionsMutex:              new(sync.Mutex),
 		users:                             map[string]*objects.User{},
 		captureInterfacePermissions:       map[uint]*objects.CapturePermission{},
 		arpScanInterfacePermissions:       map[uint]*objects.ARPScanPermission{},
@@ -636,6 +706,7 @@ func NewInMemoryDB() data.Database {
 		captureSessions:                   map[uint]*objects.CaptureSession{},
 		capturedPackets:                   map[uint]*objects.Packet{},
 		capturedTCPStreams:                map[uint]*objects.TCPStream{},
+		arpScanSessions:                   map[uint]*objects.ARPScanSession{},
 		nextUserId:                        2,
 		nextCapturePermissionId:           1,
 		nextARPScanPermissionId:           1,
@@ -643,6 +714,7 @@ func NewInMemoryDB() data.Database {
 		nextCaptureSessionId:              1,
 		nextCapturePacketId:               1,
 		nextCapturedTCPStreamId:           1,
+		nextARPScanSessionId:              0,
 	}
 	result.users["admin"] = &objects.User{
 		Id:                     1,

@@ -24,10 +24,13 @@ type DatabaseAdminFeatures interface {
 
 type DatabaseUserFeatures interface {
 	ListUserCaptures(username string) (bool, []*objects.CaptureSession, error)
+	ListUserARPScans(username string) (bool, []*objects.ARPScanSession, error)
 	CheckIfUserCaptureNameWasAlreadyTaken(username string, name string) (bool, error)
 	SaveInterfaceCapture(username, captureName, interfaceName, description, script string, promiscuous bool, topologyOptions, hostPacketCountOptions, layer4CountOptions, streamTypeCountOptions interface{}, packets []gopacket.Packet, streams []capture.Data, pcapContents []byte, start, finish time.Time) (bool, error)
 	QueryCapture(username, captureName string) (succeed bool, captureSession *objects.CaptureSession, packets []map[string]interface{}, streams []capture.Data, queryError error)
 	SaveImportCapture(username string, name string, description string, script string, topologyOptions interface{}, hostCountOptions interface{}, layer4Options interface{}, streamTypeCountOptions interface{}, packets []gopacket.Packet, streams []capture.Data, pcap []byte) (bool, error)
+	SaveARPScan(username string, scanName string, interfaceName string, script string, hosts interface{}, start time.Time, finish time.Time) (bool, error)
+	QueryARPScan(username string, scanName string) (bool, *objects.ARPScanSession, error)
 }
 
 type DatabaseGlobalFeatures interface {

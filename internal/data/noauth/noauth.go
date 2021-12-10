@@ -2,6 +2,7 @@ package noauth
 
 import (
 	"github.com/google/gopacket"
+	arp_scanner "github.com/shoriwe/CAPitan/internal/arp-scanner"
 	"github.com/shoriwe/CAPitan/internal/capture"
 	"github.com/shoriwe/CAPitan/internal/data"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
@@ -20,6 +21,47 @@ var admin = &objects.User{
 }
 
 type NoAuth struct {
+}
+
+func (noAuth *NoAuth) SaveARPScan(username string, scanName string, interfaceName string, script string, hosts map[string]arp_scanner.Host, start time.Time, finish time.Time) (bool, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (noAuth *NoAuth) ListUserARPScans(username string) (bool, []*objects.ARPScanSession, error) {
+	var scans []*objects.ARPScanSession
+	scans = append(scans,
+		&objects.ARPScanSession{
+			Id:        1,
+			Interface: "eth0",
+			UserId:    1,
+			Name:      "Test 1",
+			Started:   time.Now(),
+			Ended:     time.Now().Add(time.Second),
+			Script:    nil,
+		})
+	scans = append(scans,
+		&objects.ARPScanSession{
+			Id:        2,
+			Interface: "eth1",
+			UserId:    1,
+			Name:      "Test",
+			Started:   time.Now(),
+			Ended:     time.Now().Add(time.Second),
+			Script:    nil,
+		})
+	scans = append(scans,
+		&objects.ARPScanSession{
+			Id:        3,
+			Interface: "lo",
+			UserId:    1,
+			Name:      "Test 2",
+			Started:   time.Now(),
+			Ended:     time.Now().Add(time.Second),
+			Script:    nil,
+		})
+
+	return true, scans, nil
 }
 
 func (noAuth *NoAuth) SaveImportCapture(username string, name string, description string, script string, topologyOptions interface{}, hostCountOptions interface{}, layer4Options interface{}, streamTypeCountOptions interface{}, packets []gopacket.Packet, streams []capture.Data, pcap []byte) (bool, error) {

@@ -14,7 +14,7 @@ function stopScan() {
     connection.onmessage = function (event) {
         const data = JSON.parse(event.data)
         if (data.Succeed) {
-            document.location.href = "/arp/scan";
+            document.location.href = "/arp/scan?action=list";
         }
     }
 }
