@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/json"
-	"fmt"
 	"github.com/google/gopacket"
 	"github.com/gorilla/websocket"
 	"github.com/shoriwe/CAPitan/internal/capture"
@@ -701,7 +700,6 @@ func renderOldCapture(mw *middleware.Middleware, context *middleware.Context) bo
 		},
 	)
 	if marshalError != nil {
-		fmt.Println("HERE")
 		go mw.LogError(context.Request, marshalError)
 		return false
 	}

@@ -1,12 +1,11 @@
 package spoof
 
 import (
-	"errors"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
+	"github.com/shoriwe/CAPitan/internal/tools"
 	"net"
-	"strings"
 )
 
 type Engine struct {
@@ -66,63 +65,8 @@ func (engine *Engine) Close() error {
 	return nil
 }
 
-func findInterfaceIpAndMac(iFace string) (net.HardwareAddr, error) {
-	// TODO: Check if this solution is cross platform
-	devices, findError := pcap.FindAllDevs()
-	if findError != nil {
-		return nil, findError
-	}
-	var selectedDevice pcap.Interface
-	found := false
-	for _, device := range devices {
-		if device.Name == iFace {
-			selectedDevice = device
-			found = true
-			break
-		}
-	}
-	if !found {
-		return nil, errors.New("device not found")
-	}
-
-	var deviceAddress net.IP = nil
-	for _, address := range selectedDevice.Addresses {
-		deviceAddress = address.IP
-	}
-	if deviceAddress == nil {
-		return nil, errors.New("not available addresses")
-	}
-
-	netInterfaces, getError := net.Interfaces()
-	if getError != nil {
-		return nil, getError
-	}
-	var deviceMac net.HardwareAddr
-	found = false
-macLoop:
-	for _, device := range netInterfaces {
-		addresses, getAddressesError := device.Addrs()
-		if getAddressesError != nil {
-			// TODO: Check the error?
-			continue
-		}
-		for _, address := range addresses {
-			if strings.Index(address.String(), deviceAddress.String()) == 0 {
-				deviceMac = device.HardwareAddr
-				found = true
-				break macLoop
-			}
-		}
-	}
-	if !found {
-		return nil, errors.New("could not find mac address")
-	}
-
-	return deviceMac, nil
-}
-
 func NewEngine(ip, gateway, iFace string) (*Engine, error) {
-	interfaceMac, findError := findInterfaceIpAndMac(iFace)
+	interfaceMac, _, findError := tools.FindInterfaceIpAndMac(iFace)
 	if findError != nil {
 		return nil, findError
 	}

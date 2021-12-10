@@ -8,8 +8,8 @@ import (
 	"github.com/google/gopacket/pcap"
 	"github.com/google/gopacket/pcapgo"
 	"github.com/google/gopacket/tcpassembly"
+	"github.com/shoriwe/CAPitan/internal/tools"
 	"github.com/shoriwe/gplasma"
-	errors2 "github.com/shoriwe/gplasma/pkg/errors"
 	"github.com/shoriwe/gplasma/pkg/std/features/importlib"
 	"github.com/shoriwe/gplasma/pkg/std/modules/base64"
 	"github.com/shoriwe/gplasma/pkg/std/modules/json"
@@ -21,21 +21,64 @@ import (
 	"time"
 )
 
-const (
-	defaultSnapLen = 65536
-)
-
 var (
 	FailedToConvertErrorToString = errors.New("failed to convert to string the error received")
 )
 
-func recoverFromChannelClosedWhenWriting() {
-	if r := recover(); r != nil {
-		// TODO: Then what?
+type tcpStreamFactory struct {
+	TCPStreamChannel chan Data
+}
+
+type tcpStreamBuffer struct {
+	bytes.Buffer
+	outputChannel chan Data
+}
+
+func (t *tcpStreamBuffer) Reassembled(reassemblies []tcpassembly.Reassembly) {
+	for _, r := range reassemblies {
+		_, _ = t.Write(r.Bytes)
 	}
 }
 
-func engineFeatures(engine *Engine) vm.Feature {
+func (t *tcpStreamBuffer) ReassemblyComplete() {
+	extractedChunks, extractionError := DetectChunkFormat(t.Bytes())
+	if extractionError == nil {
+		for _, dataChunk := range extractedChunks {
+			t.outputChannel <- dataChunk
+		}
+	}
+}
+
+func (t *tcpStreamFactory) New(_, _ gopacket.Flow) tcpassembly.Stream {
+	stream := &tcpStreamBuffer{
+		Buffer:        bytes.Buffer{},
+		outputChannel: t.TCPStreamChannel,
+	}
+	return stream
+}
+
+type Engine struct {
+	PacketFilter       func(packet gopacket.Packet) (bool, error)
+	TCPStreamFilter    func(bytes Data) (bool, error)
+	VirtualMachine     *gplasma.VirtualMachine
+	machineContext     *vm.Context
+	ErrorChannel       chan error
+	stopChannel        chan bool
+	Packets            chan gopacket.Packet
+	TCPStreams         chan Data
+	packetsToFilter    chan gopacket.Packet
+	tcpStreamsToFilter chan Data
+	// Interface Configuration (This will be setup from the outside)
+	Promiscuous      bool
+	NetworkInterface string
+	PcapFile         *os.File
+	handle           *pcap.Handle
+
+	pcapContents []byte
+	pcapDumpFile *os.File
+}
+
+func (engine *Engine) loadVMFeatures() vm.Feature {
 	return vm.Feature{
 		"LoadPacketFilter": func(context *vm.Context, plasma *vm.Plasma) *vm.Value {
 			return plasma.NewFunction(context, true, plasma.BuiltInSymbols(),
@@ -124,97 +167,6 @@ func engineFeatures(engine *Engine) vm.Feature {
 	}
 }
 
-type securedFileSystem struct {
-}
-
-func (s *securedFileSystem) ChangeDirectoryRelative(_ string) *errors2.Error {
-	return nil
-}
-
-func (s *securedFileSystem) ChangeDirectoryFullPath(_ string) *errors2.Error {
-	return nil
-}
-
-func (s *securedFileSystem) ChangeDirectoryToFileLocation(_ string) *errors2.Error {
-	return nil
-}
-
-func (s *securedFileSystem) ResetPath() {
-	return
-}
-
-func (s *securedFileSystem) OpenRelative(_ string) (io.ReadSeekCloser, error) {
-	return nil, nil
-}
-
-func (s *securedFileSystem) ExistsRelative(_ string) bool {
-	return false
-}
-
-func (s *securedFileSystem) ListDirectory() ([]string, error) {
-	return nil, nil
-}
-
-func (s *securedFileSystem) AbsolutePwd() string {
-	return ""
-}
-
-func (s *securedFileSystem) RelativePwd() string {
-	return ""
-}
-
-type tcpStreamFactory struct {
-	TCPStreamChannel chan Data
-}
-
-type tcpStreamBuffer struct {
-	bytes.Buffer
-	outputChannel chan Data
-}
-
-func (t *tcpStreamBuffer) Reassembled(reassemblies []tcpassembly.Reassembly) {
-	for _, r := range reassemblies {
-		_, _ = t.Write(r.Bytes)
-	}
-}
-
-func (t *tcpStreamBuffer) ReassemblyComplete() {
-	extractedChunks, extractionError := DetectChunkFormat(t.Bytes())
-	if extractionError == nil {
-		for _, dataChunk := range extractedChunks {
-			t.outputChannel <- dataChunk
-		}
-	}
-}
-
-func (t *tcpStreamFactory) New(_, _ gopacket.Flow) tcpassembly.Stream {
-	stream := &tcpStreamBuffer{
-		Buffer:        bytes.Buffer{},
-		outputChannel: t.TCPStreamChannel,
-	}
-	return stream
-}
-
-type Engine struct {
-	PacketFilter       func(packet gopacket.Packet) (bool, error)
-	TCPStreamFilter    func(bytes Data) (bool, error)
-	VirtualMachine     *gplasma.VirtualMachine
-	machineContext     *vm.Context
-	ErrorChannel       chan error
-	Packets            chan gopacket.Packet
-	TCPStreams         chan Data
-	packetsToFilter    chan gopacket.Packet
-	tcpStreamsToFilter chan Data
-	// Interface Configuration (This will be setup from the outside)
-	Promiscuous      bool
-	NetworkInterface string
-	PcapFile         *os.File
-	handle           *pcap.Handle
-
-	pcapContents []byte
-	pcapDumpFile *os.File
-}
-
 func (engine *Engine) InitScript(script string) error {
 	result, succeed := engine.VirtualMachine.ExecuteMain(script)
 	if !succeed {
@@ -236,7 +188,7 @@ func (engine *Engine) dump(pcapDump *pcapgo.Writer, packet gopacket.Packet) {
 }
 
 func (engine *Engine) mainLoop() {
-	defer recoverFromChannelClosedWhenWriting()
+	defer tools.RecoverFromChannelClosedWhenWriting()
 
 	source := gopacket.NewPacketSource(engine.handle, engine.handle.LinkType())
 	packets := source.Packets()
@@ -250,7 +202,7 @@ func (engine *Engine) mainLoop() {
 	assembler.MaxBufferedPagesTotal = 100000
 
 	pcapDump := pcapgo.NewWriter(engine.pcapDumpFile)
-	writeError := pcapDump.WriteFileHeader(defaultSnapLen, engine.handle.LinkType())
+	writeError := pcapDump.WriteFileHeader(65536, engine.handle.LinkType())
 	if writeError != nil {
 		engine.ErrorChannel <- writeError
 		return
@@ -260,6 +212,8 @@ func (engine *Engine) mainLoop() {
 
 	for {
 		select {
+		case <-engine.stopChannel:
+			return
 		case packet, isOpen := <-packets:
 			if isOpen {
 				if packet != nil {
@@ -279,11 +233,13 @@ func (engine *Engine) mainLoop() {
 }
 
 func (engine *Engine) filterStreamsAndPackets() {
-	defer recoverFromChannelClosedWhenWriting()
+	defer tools.RecoverFromChannelClosedWhenWriting()
 
 	tick := time.Tick(time.Second)
 	for {
 		select {
+		case <-engine.stopChannel:
+			return
 		case <-tick:
 			for i := 0; i < 1000; i++ {
 				select {
@@ -292,12 +248,14 @@ func (engine *Engine) filterStreamsAndPackets() {
 						succeed, err := engine.PacketFilter(packet)
 						if err != nil {
 							engine.ErrorChannel <- err
+							engine.stopChannel <- true
 							return
 						}
 						if succeed {
 							engine.Packets <- packet
 						}
 					} else {
+						engine.stopChannel <- true
 						return
 					}
 				default:
@@ -309,12 +267,14 @@ func (engine *Engine) filterStreamsAndPackets() {
 						succeed, err := engine.TCPStreamFilter(stream)
 						if err != nil {
 							engine.ErrorChannel <- err
+							engine.stopChannel <- true
 							return
 						}
 						if succeed {
 							engine.TCPStreams <- stream
 						}
 					} else {
+						engine.stopChannel <- true
 						return
 					}
 				default:
@@ -326,12 +286,15 @@ func (engine *Engine) filterStreamsAndPackets() {
 }
 
 func (engine *Engine) filterPacketsOnly() {
-	defer recoverFromChannelClosedWhenWriting()
+	defer tools.RecoverFromChannelClosedWhenWriting()
 
-	tick := time.Tick(time.Second)
+	tick := time.Tick(time.Microsecond * 500)
 	for {
 		select {
+		case <-engine.stopChannel:
+			return
 		case <-tick:
+		filterLoop:
 			for i := 0; i < 1000; i++ {
 				select {
 				case packet, isOpen := <-engine.packetsToFilter:
@@ -339,16 +302,18 @@ func (engine *Engine) filterPacketsOnly() {
 						succeed, err := engine.PacketFilter(packet)
 						if err != nil {
 							engine.ErrorChannel <- err
+							engine.stopChannel <- true
 							return
 						}
 						if succeed {
 							engine.Packets <- packet
 						}
 					} else {
+						engine.stopChannel <- true
 						return
 					}
 				default:
-					break
+					break filterLoop
 				}
 			}
 		}
@@ -356,12 +321,15 @@ func (engine *Engine) filterPacketsOnly() {
 }
 
 func (engine *Engine) filterStreamsOnly() {
-	defer recoverFromChannelClosedWhenWriting()
+	defer tools.RecoverFromChannelClosedWhenWriting()
 
 	tick := time.Tick(time.Second)
 	for {
 		select {
+		case <-engine.stopChannel:
+			return
 		case <-tick:
+		filterLoop:
 			for i := 0; i < 1000; i++ {
 				select {
 				case stream, isOpen := <-engine.tcpStreamsToFilter:
@@ -369,16 +337,18 @@ func (engine *Engine) filterStreamsOnly() {
 						succeed, err := engine.TCPStreamFilter(stream)
 						if err != nil {
 							engine.ErrorChannel <- err
+							engine.stopChannel <- true
 							return
 						}
 						if succeed {
 							engine.TCPStreams <- stream
 						}
 					} else {
+						engine.stopChannel <- true
 						return
 					}
 				default:
-					break
+					break filterLoop
 				}
 			}
 		}
@@ -388,7 +358,7 @@ func (engine *Engine) filterStreamsOnly() {
 func (engine *Engine) Start() error {
 	var openError error
 	if engine.NetworkInterface != "" {
-		engine.handle, openError = pcap.OpenLive(engine.NetworkInterface, defaultSnapLen, engine.Promiscuous, 0)
+		engine.handle, openError = pcap.OpenLive(engine.NetworkInterface, 65536, engine.Promiscuous, 0)
 	} else if engine.PcapFile != nil {
 		engine.handle, openError = pcap.OpenOfflineFile(engine.PcapFile)
 	}
@@ -431,7 +401,13 @@ func (engine *Engine) DumpPcap() []byte {
 }
 
 func (engine *Engine) Close() {
-	defer recoverFromChannelClosedWhenWriting()
+	defer tools.RecoverFromChannelClosedWhenWriting()
+
+	engine.stopChannel <- true
+	engine.stopChannel <- true
+	engine.stopChannel <- true
+	engine.stopChannel <- true
+
 	_ = engine.pcapDumpFile.Close()
 	_ = os.Remove(engine.pcapDumpFile.Name())
 	engine.handle.Close()
@@ -613,6 +589,7 @@ func newEngine() *Engine {
 		TCPStreamFilter: nil,
 		Packets:         make(chan gopacket.Packet, 1000),
 		TCPStreams:      make(chan Data, 1000),
+		stopChannel:     make(chan bool, 100),
 		pcapContents:    nil,
 		VirtualMachine:  nil,
 		Promiscuous:     false,
@@ -622,12 +599,15 @@ func newEngine() *Engine {
 	engine.packetsToFilter = engine.Packets
 	engine.tcpStreamsToFilter = engine.TCPStreams
 	engine.VirtualMachine = gplasma.NewVirtualMachine()
-	engine.VirtualMachine.LoadFeature(engineFeatures(engine))
+	engine.VirtualMachine.Stdin = &bytes.Buffer{}
+	engine.VirtualMachine.Stdout = &bytes.Buffer{}
+	engine.VirtualMachine.Stderr = &bytes.Buffer{}
+	engine.VirtualMachine.LoadFeature(engine.loadVMFeatures())
 	importer := importlib.NewImporter()
 	importer.LoadModule(json.JSON)
 	importer.LoadModule(base64.Base64)
 	importer.LoadModule(regex.Regex)
-	engine.VirtualMachine.LoadFeature(importer.Result(&securedFileSystem{}, &securedFileSystem{}))
+	engine.VirtualMachine.LoadFeature(importer.Result(&tools.SecuredFileSystem{}, &tools.SecuredFileSystem{}))
 	engine.machineContext = engine.VirtualMachine.NewContext()
 
 	tempPcapFile, createError := os.CreateTemp("", "*.pcap")
