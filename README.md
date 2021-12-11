@@ -29,7 +29,7 @@ capitan memory -h
 capitan help
 ```
 
-![login](docs/images/login.PNG)
+![login](docs/images/login.png)
 
 The default credentials to login in the memory mode are:
 
@@ -42,19 +42,19 @@ Password: `admin`
 #### Listing old captures
 
 <div style="border: 1px solid black;">
-    <img src="docs/images/listing-old-captures.PNG" alt="listing-old-captures"/>
+    <img src="docs/images/listing-old-captures.png" alt="listing-old-captures"/>
 </div>
 
 #### Creating new captures
 
 <div style="border: 1px solid black;">
-    <img src="docs/images/capture-setup.PNG" alt="starting-capture"  />
+    <img src="docs/images/capture-setup.png" alt="starting-capture"  />
 </div>
 
 #### Importing pcap files
 
 <div style="border: 1px solid black;">
-    <img src="docs/images/import-capture.PNG" alt="starting-capture"  />
+    <img src="docs/images/import-capture.png" alt="starting-capture"  />
 </div>
 
 #### Looking at results
@@ -62,37 +62,37 @@ Password: `admin`
 ##### TCP streams
 
 <div style="border: 1px solid black;">
-    <img src="docs/images/tcp-streams-results.PNG" alt="starting-capture"  />
+    <img src="docs/images/tcp-streams-results.png" alt="starting-capture"  />
 </div>
 
 ##### Packets captured
 
 <div style="border: 1px solid black;">
-    <img src="docs/images/packets-results.PNG" alt="starting-capture"  />
+    <img src="docs/images/packets-results.png" alt="starting-capture"  />
 </div>
 
 ##### Topology
 
 <div style="border: 1px solid black;">
-    <img src="docs/images/network-topology.PNG" alt="starting-capture"  />
+    <img src="docs/images/network-topology.png" alt="starting-capture"  />
 </div>
 
 ##### Packets send per host count
 
 <div style="border: 1px solid black;">
-    <img src="docs/images/packets-send-per-host.PNG" alt="starting-capture"  />
+    <img src="docs/images/packets-send-per-host.png" alt="starting-capture"  />
 </div>
 
 ##### Layer 4 type count
 
 <div style="border: 1px solid black;">
-    <img src="docs/images/layer-4-count.PNG" alt="starting-capture"  />
+    <img src="docs/images/layer-4-count.png" alt="starting-capture"  />
 </div>
 
 ##### TCP stream content types
 
 <div style="border: 1px solid black;">
-    <img src="docs/images/tcp-stream-type-count.PNG" alt="starting-capture"  />
+    <img src="docs/images/tcp-stream-type-count.png" alt="starting-capture"  />
 </div>
 
 ### ARP Scanner
@@ -100,19 +100,19 @@ Password: `admin`
 ##### List old scans
 
 <div style="border: 1px solid black;">
-    <img src="docs/images/arp-scan.PNG" alt="starting-capture"  />
+    <img src="docs/images/arp-scan.png" alt="starting-capture"  />
 </div>
 
 ##### Start new scan
 
 <div style="border: 1px solid black;">
-    <img src="docs/images/arp-scan-results.PNG" alt="starting-capture"  />
+    <img src="docs/images/arp-scan-results.png" alt="starting-capture"  />
 </div>
 
 ### ARP Spoofing
 
 <div style="border: 1px solid black;">
-    <img src="docs/images/arp-spoof.PNG" alt="starting-capture"  />
+    <img src="docs/images/arp-spoof.png" alt="starting-capture"  />
 </div>
 
 ### Documentation
