@@ -119,9 +119,9 @@ Password: `admin`
 
 You can check the documentation of the scripting language [plasma](https://shoriwe.github.io/documentation/docs.html).
 
-Then for the scripting functionality of the Network packet sniffer you can check [here]().
+Then for the scripting functionality of the Network packet sniffer you can check [here](https://github.com/shoriwe/CAPitan/wiki/Sniffer-scripting).
 
-For the scripting functionality of the ARP scanner check [here]().
+For the scripting functionality of the ARP scanner check [here](https://github.com/shoriwe/CAPitan/wiki/ARP-scanner-scripting).
 
 ### Important note
 
