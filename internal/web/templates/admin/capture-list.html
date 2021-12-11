@@ -27,8 +27,10 @@
                     </form>
                     <span style="width: 1%;"></span>
                     <form action="/admin/captures?action=view" method="post">
-                        <label for="capture-id-{{$capture.Session.Id}}" style="display: none;">{{$capture.Session.Id}}</label>
-                        <input id="capture-id-{{$capture.Session.Id}}" name="capture-name" readonly style="display: none;"
+                        <label for="capture-id-{{$capture.Session.Id}}"
+                               style="display: none;">{{$capture.Session.Id}}</label>
+                        <input id="capture-id-{{$capture.Session.Id}}" name="capture-name" readonly
+                               style="display: none;"
                                type="text"
                                value="{{$capture.Session.Name}}">
                         <label for="capture-id-{{$capture.User.Username}}" style="display: none;">{{$capture.User.Username}}</label>
