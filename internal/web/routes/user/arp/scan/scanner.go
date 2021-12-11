@@ -2,6 +2,7 @@ package scan
 
 import (
 	"bytes"
+	"encoding/json"
 	"github.com/gorilla/websocket"
 	arp_scanner "github.com/shoriwe/CAPitan/internal/arp-scanner"
 	"github.com/shoriwe/CAPitan/internal/data/objects"
@@ -10,6 +11,7 @@ import (
 	"github.com/shoriwe/CAPitan/internal/web/middleware"
 	"github.com/shoriwe/CAPitan/internal/web/symbols"
 	"github.com/shoriwe/CAPitan/internal/web/symbols/actions"
+	"html"
 	"html/template"
 	"time"
 )
@@ -307,12 +309,53 @@ func renderController(mw *middleware.Middleware, context *middleware.Context) bo
 		go mw.LogError(context.Request, templateExecutionError)
 		return false
 	}
-	context.Body = base.NewPage("View Packet", context.NavigationBar, output.String())
+	context.Body = base.NewPage("New Scan", context.NavigationBar, output.String())
 	return false
 }
 
 func viewScan(mw *middleware.Middleware, context *middleware.Context) bool {
-	// TODO: Implement me
+	scanName := context.Request.PostFormValue(symbols.ScanName)
+	succeed, scanSession := mw.UserGetARPScan(context.Request, context.User.Username, scanName)
+	if !succeed {
+		context.Redirect = symbols.UserARPScan
+		return false
+	}
+
+	var hosts []struct {
+		IP  string
+		MAC string
+	}
+	unmarshalError := json.Unmarshal(scanSession.Hosts, &hosts)
+	if unmarshalError != nil {
+		go mw.LogError(context.Request, unmarshalError)
+		context.Redirect = symbols.UserARPScan
+		return false
+	}
+
+	templateContents, _ := mw.Templates.ReadFile("templates/user/arp/view-scan.html")
+	var body bytes.Buffer
+	err := template.Must(template.New("ARP scan view").Parse(string(templateContents))).Execute(
+		&body,
+		struct {
+			ScanName      string
+			InterfaceName string
+			Script        string
+			Hosts         []struct {
+				IP  string
+				MAC string
+			}
+		}{
+			ScanName:      html.EscapeString(scanSession.Name),
+			InterfaceName: html.EscapeString(scanSession.Interface),
+			Script:        html.EscapeString(string(scanSession.Script)),
+			Hosts:         hosts,
+		},
+	)
+	if err != nil {
+		context.Redirect = symbols.Dashboard
+		go mw.LogError(context.Request, err)
+	}
+	context.Body = base.NewPage("View ARP scan", context.NavigationBar, body.String())
 	return false
 }
 
@@ -324,7 +367,7 @@ func listScans(mw *middleware.Middleware, context *middleware.Context) bool {
 	}
 	templateContents, _ := mw.Templates.ReadFile("templates/user/arp/scan-list.html")
 	var body bytes.Buffer
-	err := template.Must(template.New("Packet").Parse(string(templateContents))).Execute(
+	err := template.Must(template.New("ARP scan list").Parse(string(templateContents))).Execute(
 		&body,
 		struct {
 			Scans []*objects.ARPScanSession

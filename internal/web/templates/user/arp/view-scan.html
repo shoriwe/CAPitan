@@ -1,0 +1,41 @@
+<link href="/static/vendor/css/prism.css" rel="stylesheet"/>
+<div class="master-container">
+    <div class="page-container">
+        <div class="centered-flex-container">
+            <h3 class="black-text">{{$.ScanName}}</h3>
+            <span style="width: 1%;"></span>
+            <h3 class="blue-text">{{$.InterfaceName}}</h3>
+        </div>
+        <div>
+            <button class="green-button" onclick="showHosts();">Hosts</button>
+            <button class="green-button" onclick="showScript();">Script</button>
+        </div>
+        <div class="list-container" id="hosts">
+            {{range $host := $.Hosts}}
+            <div class="list-entry">
+                <h3 class="blue-text">{{.IP}}</h3>
+                <span style="width: 1%;"></span>
+                <h3 class="black-text">{{.MAC}}</h3>
+            </div>
+            {{end}}
+        </div>
+        <div class="centered-container" id="script" style="display: none;">
+            <pre><code class="language-ruby line-numbers copy">{{$.Script}}</code></pre>
+        </div>
+    </div>
+</div>
+<script src="/static/vendor/js/prism.js"></script>
+<script>
+    let hosts = document.getElementById("hosts");
+    let script = document.getElementById("script");
+
+    function showHosts() {
+        hosts.style.display = "block";
+        script.style.display = "none";
+    }
+
+    function showScript() {
+        hosts.style.display = "none";
+        script.style.display = "block";
+    }
+</script>
