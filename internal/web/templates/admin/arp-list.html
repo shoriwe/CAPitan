@@ -1,0 +1,48 @@
+<div class="master-container">
+    <div class="master-container">
+        <div class="page-container">
+            <div class="list-container">
+                {{range $scan := .Scans}}
+                <div class="list-entry">
+                    <h3 class="green-text">{{$scan.User.Username}}</h3>
+                    <span style="width: 1vw;"></span>
+                    <h3 class="purple-text">{{$scan.Session.Name}}</h3>
+                    <span style="width: 1vw;"></span>
+                    <h3 class="blue-text">{{$scan.Session.Started.Format "2006 Jan 02 15:04:05 UTC"}}</h3>
+                    <span style="width: 1vw;"></span>
+                    <h3 class="green-text">{{$scan.Session.Ended.Format "2006 Jan 02 15:04:05 UTC"}}</h3>
+                    <span style="width: 1vw;"></span>
+                    <form action="/admin/arp?action=download" method="post">
+                        <label for="scan-id-download-{{$scan.Session.Id}}"
+                               style="display: none;">{{$scan.Session.Id}}</label>
+                        <input id="scan-id-download-{{$scan.Session.Id}}" name="scan-name" readonly
+                               style="display: none;"
+                               type="text"
+                               value="{{$scan.Session.Name}}">
+                        <label for="scan-id-download-{{$scan.User.Username}}" style="display: none;">{{$scan.User.Username}}</label>
+                        <input id="scan-id-download-{{$scan.User.Username}}" name="username" readonly
+                               style="display: none;"
+                               type="text"
+                               value="{{$scan.User.Username}}">
+                        <button class="green-button" type="submit">Download</button>
+                    </form>
+                    <span style="width: 1%;"></span>
+                    <form action="/admin/arp?action=view" method="post">
+                        <label for="scan-id-{{$scan.Session.Id}}" style="display: none;">{{$scan.Session.Id}}</label>
+                        <input id="scan-id-{{$scan.Session.Id}}" name="scan-name" readonly style="display: none;"
+                               type="text"
+                               value="{{$scan.Session.Name}}">
+                        <label for="scan-id-{{$scan.User.Username}}"
+                               style="display: none;">{{$scan.User.Username}}</label>
+                        <input id="scan-id-{{$scan.User.Username}}" name="username" readonly
+                               style="display: none;"
+                               type="text"
+                               value="{{$scan.User.Username}}">
+                        <button class="green-button" type="submit">View</button>
+                    </form>
+                </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+</div>

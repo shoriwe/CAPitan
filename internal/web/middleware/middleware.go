@@ -577,3 +577,25 @@ func (middleware *Middleware) UserGetARPScan(request *http.Request, username str
 	go middleware.LogQueryUserARPScan(request, username, scanName, succeed)
 	return succeed, scanSession
 }
+
+func (middleware *Middleware) AdminListAllARPScans(request *http.Request, username string) (bool, []*objects.ARPScanSessionAdminView) {
+	succeed, scanSessions, listError := middleware.Database.ListAllARPScans()
+	if listError != nil {
+		go middleware.LogError(request, listError)
+		go middleware.LogListAllARPScans(request, username, false)
+		return false, nil
+	}
+	go middleware.LogListAllARPScans(request, username, succeed)
+	return succeed, scanSessions
+}
+
+func (middleware *Middleware) AdminListAllCaptures(request *http.Request, username string) (bool, []*objects.CaptureSessionAdminView) {
+	succeed, scanSessions, listError := middleware.Database.ListAllCaptures()
+	if listError != nil {
+		go middleware.LogError(request, listError)
+		go middleware.LogListAllCaptures(request, username, false)
+		return false, nil
+	}
+	go middleware.LogListAllCaptures(request, username, succeed)
+	return succeed, scanSessions
+}

@@ -42,6 +42,10 @@ type (
 		Script    []byte
 		Hosts     []byte
 	}
+	ARPScanSessionAdminView struct {
+		User    *User
+		Session *ARPScanSession
+	}
 	CaptureSession struct {
 		Id                  uint
 		UserId              uint
@@ -57,6 +61,10 @@ type (
 		HostCountJson       []byte
 		LayerCountJson      []byte
 		StreamTypeCountJson []byte
+	}
+	CaptureSessionAdminView struct {
+		User    *User
+		Session *CaptureSession
 	}
 	TCPStreamType struct {
 		Id         uint
