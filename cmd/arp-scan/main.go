@@ -55,10 +55,6 @@ func main() {
 		panic(engineCreationError)
 	}
 
-	// engine.VirtualMachine.Stdout = os.Stdout
-	// engine.VirtualMachine.Stderr = os.Stderr
-	// engine.VirtualMachine.Stdin = os.Stdin
-
 	engine.Start()
 	defer engine.Close()
 
