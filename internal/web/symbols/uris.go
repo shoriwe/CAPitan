@@ -13,4 +13,8 @@ const (
 	UpdateSecurityQuestion = "/settings/update/security/question"
 	AdminPanel             = "/admin"
 	AdminEditUsers         = "/admin/user"
+	UserPacketCaptures     = "/packet"
+	UserARP                = "/arp"
+	UserARPSpoof           = "/arp/spoof"
+	UserARPScan            = "/arp/scan"
 )

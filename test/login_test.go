@@ -2,6 +2,7 @@ package test
 
 import (
 	"github.com/shoriwe/CAPitan/internal/web/symbols"
+	"github.com/shoriwe/CAPitan/internal/web/symbols/actions"
 	"io"
 	"net/http"
 	"net/http/cookiejar"
@@ -147,7 +148,7 @@ func TestResetPassword(t *testing.T) {
 	}
 	// Reset password
 	response, err := client.PostForm(
-		server.URL+"/reset?action=get-question",
+		server.URL+symbols.ResetPassword+"?action="+actions.GetQuestion,
 		url.Values{
 			"username": []string{"admin"},
 		},
@@ -170,7 +171,7 @@ func TestResetPassword(t *testing.T) {
 	key := string(rawKeyEntry)[7:]
 
 	response, err = client.PostForm(
-		server.URL+"/reset?action=answer-question",
+		server.URL+symbols.ResetPassword+"?action="+actions.AnswerQuestion,
 		url.Values{
 			"key":    []string{key},
 			"answer": []string{"admin"},

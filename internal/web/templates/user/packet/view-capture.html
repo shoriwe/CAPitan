@@ -1,0 +1,112 @@
+<link href="/static/vendor/css/prism.css" rel="stylesheet"/>
+<link href="/static/vendor/css/prism-live.css" rel="stylesheet"/>
+<div class="master-container">
+    <div id="capture-session-container">
+        <div class="master-container">
+            <div class="page-container">
+                <div class="centered-flex-container">
+                    <h3 class="black-text" id="title">{{$.CaptureName}}</h3>
+                </div>
+                <div class="master-container">
+                    <div class="centered-flex-container">
+                        <button class="green-button"
+                                onclick="document.getElementById('details-menu').style.display = 'none'; tcpStreamMenu();">
+                            TCP streams
+                        </button>
+                        <button class="green-button"
+                                onclick="document.getElementById('details-menu').style.display = 'none'; packetMenu();">
+                            Packets
+                        </button>
+                        <button class="green-button"
+                                onclick="document.getElementById('details-menu').style.display = 'none'; dataAnalysisMenu();">
+                            Data analysis
+                        </button>
+                        <button class="green-button" onclick="detailsMenu();">Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="tcp-stream-menu" style="display: none;">
+            <div class="master-container">
+                <div id="streams-container" style="display: flex; flex-wrap: wrap;">
+                </div>
+            </div>
+        </div>
+        <div id="packet-menu" style="display: none;">
+            <div class="master-container">
+                <div class="dialog-container" id="packet-dialog" role="dialog"
+                     style="display: none; width: 70vw; height: 75vh;">
+                    <pre class="language-json" style="height: 60vh;">
+                        <code id="packet-as-json"></code>
+                    </pre>
+                    <div class="centered-container">
+                        <button class="red-button"
+                                onclick="(function() {document.getElementById('packet-dialog').style.display = 'none';})()">
+                            Close
+                        </button>
+                    </div>
+                </div>
+                <div class="list-container" id="packets-list">
+
+                </div>
+            </div>
+        </div>
+        <div id="data-analysis-menu" style="display: none;">
+            <div class="master-container">
+                <div class="page-container">
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+                        <div class="round-border-container">
+                            <div id="topology-graph" style="width:75vw; height: 80vh;">
+
+                            </div>
+                        </div>
+                        <div class="round-border-container">
+                            <div id="number-of-packets-send-per-host" style="width:75vw; height: 80vh;">
+
+                            </div>
+                        </div>
+                        <div class="round-border-container">
+                            <div id="layer-4" style="width:75vw; height: 80vh;">
+
+                            </div>
+                        </div>
+                        <div class="round-border-container">
+                            <div id="streams-type" style="width:75vw; height: 80vh;">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="details-menu" style="display: none;">
+            <div class="master-container">
+                <div class="page-container">
+                    <div class="centered-container">
+                        <h3 class="purple-text"> Description</h3>
+                        <div>
+                            <pre class="language-plaintext" style="width: 50vw; height: 80vh;"><code
+                                    id="description">{{$.Description}}</code></pre>
+                        </div>
+                        <br><br>
+                        <h3 class="purple-text">Filter Script</h3>
+                        <div>
+                            <pre class="language-ruby copy" style="width: 50vw; height: 80vh;"><code
+                                    id="filterScript">{{$.Script}}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/vendor/js/prism.js"></script>
+<script src="/static/vendor/js/prism-live.js?load=ruby"></script>
+<script src="/static/vendor/echarts-5.2.2/dist/echarts.js"></script>
+<script src="/static/js/user/packet.js"></script>
+<script>
+    window.onload = function (event) {
+        const captureName = "{{$.RawCaptureName}}";
+        viewCapture(captureName);
+    }
+</script>

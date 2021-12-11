@@ -13,6 +13,10 @@ import (
 	"net/http"
 )
 
+type succeedResponse struct {
+	Succeed bool
+}
+
 func listUsers(mw *middleware.Middleware, context *middleware.Context) bool {
 	t, _ := mw.Templates.ReadFile("templates/admin/users.html")
 	users, succeed := mw.AdminListUsers(context.Request, context.User.Username)
@@ -35,8 +39,10 @@ func listUsers(mw *middleware.Middleware, context *middleware.Context) bool {
 
 func newUser(mw *middleware.Middleware, context *middleware.Context) bool {
 	username := context.Request.PostFormValue(symbols.Username)
-	mw.AdminCreateUser(context.Request, username)
-	context.Redirect = symbols.AdminEditUsers
+	succeed := mw.AdminCreateUser(context.Request, username)
+	responseBody, _ := json.Marshal(succeedResponse{succeed})
+	context.Headers["Content-Type"] = "application/json"
+	context.Body = string(responseBody)
 	return false
 }
 
@@ -68,6 +74,7 @@ func testUser(mw *middleware.Middleware, context *middleware.Context) bool {
 			Found: found,
 		},
 	)
+	context.Headers["Content-Type"] = "application/json"
 	context.Body = string(responseBody)
 	return false
 }
@@ -85,18 +92,15 @@ func editUser(mw *middleware.Middleware, context *middleware.Context) bool {
 	}
 	var data struct {
 		*objects.User
-		CaptureInterfaces       map[string]struct{}
-		CaptureUnsetInterfaces  []string
-		ARPScanInterfaces       map[string]struct{}
-		ARPScanUnsetInterfaces  []string
-		ARPSpoofInterfaces      map[string]struct{}
-		ARPSpoofUnsetInterfaces []string
+		CaptureInterfaces       []objects.InterfaceInformation
+		CaptureUnsetInterfaces  []objects.InterfaceInformation
+		ARPScanInterfaces       []objects.InterfaceInformation
+		ARPScanUnsetInterfaces  []objects.InterfaceInformation
+		ARPSpoofInterfaces      []objects.InterfaceInformation
+		ARPSpoofUnsetInterfaces []objects.InterfaceInformation
 	}
 
 	data.User = user
-	data.CaptureInterfaces = captureInterfaces
-	data.ARPScanInterfaces = arpScanInterfaces
-	data.ARPSpoofInterfaces = arpSpoofInterfaces
 
 	connectedInterfaces := mw.ListNetInterfaces(context.Request)
 	if connectedInterfaces == nil {
@@ -104,15 +108,29 @@ func editUser(mw *middleware.Middleware, context *middleware.Context) bool {
 		return false
 	}
 
-	for interfaceName := range connectedInterfaces {
+	for interfaceName, networkInterface := range connectedInterfaces {
+		var iAddress string
+		for _, address := range networkInterface.Addresses {
+			iAddress = address.IP.String()
+		}
+		information := objects.InterfaceInformation{
+			Name:    interfaceName,
+			Address: iAddress,
+		}
 		if _, found := captureInterfaces[interfaceName]; !found {
-			data.CaptureUnsetInterfaces = append(data.CaptureUnsetInterfaces, interfaceName)
+			data.CaptureUnsetInterfaces = append(data.CaptureUnsetInterfaces, information)
+		} else {
+			data.CaptureInterfaces = append(data.CaptureInterfaces, information)
 		}
 		if _, found := arpScanInterfaces[interfaceName]; !found {
-			data.ARPScanUnsetInterfaces = append(data.ARPScanUnsetInterfaces, interfaceName)
+			data.ARPScanUnsetInterfaces = append(data.ARPScanUnsetInterfaces, information)
+		} else {
+			data.ARPScanInterfaces = append(data.ARPScanInterfaces, information)
 		}
 		if _, found := arpSpoofInterfaces[interfaceName]; !found {
-			data.ARPSpoofUnsetInterfaces = append(data.ARPSpoofUnsetInterfaces, interfaceName)
+			data.ARPSpoofUnsetInterfaces = append(data.ARPSpoofUnsetInterfaces, information)
+		} else {
+			data.ARPSpoofInterfaces = append(data.ARPSpoofInterfaces, information)
 		}
 	}
 	rawTemplate, _ := mw.Templates.ReadFile("templates/admin/user-edit.html")
@@ -125,8 +143,10 @@ func editUser(mw *middleware.Middleware, context *middleware.Context) bool {
 func updatePassword(mw *middleware.Middleware, context *middleware.Context) bool {
 	username := context.Request.PostFormValue(symbols.Username)
 	password := context.Request.PostFormValue(symbols.Password)
-	mw.AdminUpdatePassword(context.Request, username, password)
-	context.Redirect = symbols.AdminPanel
+	succeed := mw.AdminUpdatePassword(context.Request, username, password)
+	responseBody, _ := json.Marshal(succeedResponse{succeed})
+	context.Headers["Content-Type"] = "application/json"
+	context.Body = string(responseBody)
 	return false
 }
 
@@ -134,67 +154,81 @@ func updateStatus(mw *middleware.Middleware, context *middleware.Context) bool {
 	username := context.Request.PostFormValue(symbols.Username)
 	isAdmin := context.Request.PostFormValue(symbols.IsAdmin) == "on"
 	isEnabled := context.Request.PostFormValue(symbols.IsEnabled) == "on"
-	mw.AdminUpdateStatus(context.Request, username, isAdmin, isEnabled)
-	context.Redirect = symbols.AdminPanel
+	succeed := mw.AdminUpdateStatus(context.Request, username, isAdmin, isEnabled)
+	responseBody, _ := json.Marshal(succeedResponse{succeed})
+	context.Headers["Content-Type"] = "application/json"
+	context.Body = string(responseBody)
 	return false
 }
 
 func deleteARPSpoofInterface(mw *middleware.Middleware, context *middleware.Context) bool {
 	username := context.Request.PostFormValue(symbols.Username)
 	i := context.Request.PostFormValue(symbols.Interface)
-	mw.AdminDeleteARPSpoofInterfacePrivilege(context.Request, username, i)
-	context.Redirect = symbols.AdminPanel
+	succeed := mw.AdminDeleteARPSpoofInterfacePrivilege(context.Request, username, i)
+	responseBody, _ := json.Marshal(succeedResponse{succeed})
+	context.Headers["Content-Type"] = "application/json"
+	context.Body = string(responseBody)
 	return false
 }
 
 func addARPSpoofInterface(mw *middleware.Middleware, context *middleware.Context) bool {
 	username := context.Request.PostFormValue(symbols.Username)
 	i := context.Request.PostFormValue(symbols.Interface)
-	mw.AdminAddARPSpoofInterfacePrivilege(context.Request, username, i)
-	context.Redirect = symbols.AdminPanel
+	succeed := mw.AdminAddARPSpoofInterfacePrivilege(context.Request, username, i)
+	responseBody, _ := json.Marshal(succeedResponse{succeed})
+	context.Headers["Content-Type"] = "application/json"
+	context.Body = string(responseBody)
 	return false
 }
 
 func deleteARPScanInterface(mw *middleware.Middleware, context *middleware.Context) bool {
 	username := context.Request.PostFormValue(symbols.Username)
 	i := context.Request.PostFormValue(symbols.Interface)
-	mw.AdminDeleteARPScanInterfacePrivilege(context.Request, username, i)
-	context.Redirect = symbols.AdminPanel
+	succeed := mw.AdminDeleteARPScanInterfacePrivilege(context.Request, username, i)
+	responseBody, _ := json.Marshal(succeedResponse{succeed})
+	context.Headers["Content-Type"] = "application/json"
+	context.Body = string(responseBody)
 	return false
 }
 
 func addARPScanInterface(mw *middleware.Middleware, context *middleware.Context) bool {
 	username := context.Request.PostFormValue(symbols.Username)
 	i := context.Request.PostFormValue(symbols.Interface)
-	mw.AdminAddARPScanInterfacePrivilege(context.Request, username, i)
-	context.Redirect = symbols.AdminPanel
+	succeed := mw.AdminAddARPScanInterfacePrivilege(context.Request, username, i)
+	responseBody, _ := json.Marshal(succeedResponse{succeed})
+	context.Headers["Content-Type"] = "application/json"
+	context.Body = string(responseBody)
 	return false
 }
 
 func deleteCaptureInterface(mw *middleware.Middleware, context *middleware.Context) bool {
 	username := context.Request.PostFormValue(symbols.Username)
 	i := context.Request.PostFormValue(symbols.Interface)
-	mw.AdminDeleteCaptureInterfacePrivilege(context.Request, username, i)
-	context.Redirect = symbols.AdminPanel
+	succeed := mw.AdminDeleteCaptureInterfacePrivilege(context.Request, username, i)
+	responseBody, _ := json.Marshal(succeedResponse{succeed})
+	context.Headers["Content-Type"] = "application/json"
+	context.Body = string(responseBody)
 	return false
 }
 
 func addCaptureInterface(mw *middleware.Middleware, context *middleware.Context) bool {
 	username := context.Request.PostFormValue(symbols.Username)
 	i := context.Request.PostFormValue(symbols.Interface)
-	mw.AdminAddCaptureInterfacePrivilege(context.Request, username, i)
-	context.Redirect = symbols.AdminPanel
+	succeed := mw.AdminAddCaptureInterfacePrivilege(context.Request, username, i)
+	responseBody, _ := json.Marshal(succeedResponse{succeed})
+	context.Headers["Content-Type"] = "application/json"
+	context.Body = string(responseBody)
 	return false
 }
 
 func EditUsers(mw *middleware.Middleware, context *middleware.Context) bool {
 	if context.Request.Method == http.MethodPost {
 		switch context.Request.URL.Query().Get(actions.Action) {
-		case actions.TestUser:
+		case actions.Test:
 			return testUser(mw, context)
-		case actions.EditUser:
+		case actions.Edit:
 			return editUser(mw, context)
-		case actions.NewUser:
+		case actions.New: // New User
 			return newUser(mw, context)
 		case actions.UpdatePassword:
 			return updatePassword(mw, context)

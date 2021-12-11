@@ -4,13 +4,19 @@ import (
 	"bytes"
 	"embed"
 	"github.com/shoriwe/CAPitan/internal/data"
+	"github.com/shoriwe/CAPitan/internal/data/memory"
 	"github.com/shoriwe/CAPitan/internal/logs"
 	"github.com/shoriwe/CAPitan/internal/web/middleware"
 	"github.com/shoriwe/CAPitan/internal/web/routes/admin"
 	"github.com/shoriwe/CAPitan/internal/web/routes/dashboard"
 	login2 "github.com/shoriwe/CAPitan/internal/web/routes/login"
 	settings2 "github.com/shoriwe/CAPitan/internal/web/routes/settings"
+	"github.com/shoriwe/CAPitan/internal/web/routes/user/arp"
+	"github.com/shoriwe/CAPitan/internal/web/routes/user/arp/scan"
+	"github.com/shoriwe/CAPitan/internal/web/routes/user/arp/spoof"
+	"github.com/shoriwe/CAPitan/internal/web/routes/user/packet"
 	"github.com/shoriwe/CAPitan/internal/web/symbols"
+	"html"
 	"html/template"
 	"net/http"
 	"time"
@@ -86,7 +92,7 @@ func setNavigationBar(mw *middleware.Middleware, context *middleware.Context) bo
 		struct {
 			Username string
 		}{
-			Username: context.User.Username,
+			Username: html.EscapeString(context.User.Username),
 		},
 	)
 	context.NavigationBar = output.String()
@@ -104,15 +110,32 @@ func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 			},
 		),
 	)
+	// Anyone
 	handler.Handle(symbols.Static, http.FileServer(http.FS(staticFS)))
 	handler.HandleFunc(symbols.Login, mw.Handle(logVisit, loadCredentials, login2.Login))
 	handler.HandleFunc(symbols.Logout, mw.Handle(logVisit, loadCredentials, requiresLogin, login2.Logout))
 	handler.HandleFunc(symbols.ResetPassword, mw.Handle(logVisit, loadCredentials, login2.ResetPassword))
+	// Any loged user
 	handler.HandleFunc(symbols.Dashboard, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, dashboard.Dashboard))
 	handler.HandleFunc(symbols.Settings, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings2.Settings))
 	handler.HandleFunc(symbols.UpdatePassword, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings2.UpdatePassword))
 	handler.HandleFunc(symbols.UpdateSecurityQuestion, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, settings2.UpdateSecurityQuestion))
+	// Admin
 	handler.HandleFunc(symbols.AdminPanel, mw.Handle(logVisit, loadCredentials, requiresLogin, requiresAdminPrivilege, setNavigationBar, admin.Panel))
 	handler.HandleFunc(symbols.AdminEditUsers, mw.Handle(logVisit, loadCredentials, requiresLogin, requiresAdminPrivilege, setNavigationBar, admin.EditUsers))
+	// User
+	handler.HandleFunc(symbols.UserPacketCaptures, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, packet.Captures))
+	handler.HandleFunc(symbols.UserARP, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, arp.ARP))
+	handler.HandleFunc(symbols.UserARPSpoof, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, spoof.ARPSpoof))
+	handler.HandleFunc(symbols.UserARPScan, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, scan.ARPScan))
+
+	if _, ok := database.(*memory.Memory); ok {
+		request, _ := http.NewRequest(http.MethodGet, "/", nil)
+		for netInterface := range mw.ListNetInterfaces(request) {
+			mw.AdminAddCaptureInterfacePrivilege(request, "admin", netInterface)
+			mw.AdminAddARPScanInterfacePrivilege(request, "admin", netInterface)
+			mw.AdminAddARPSpoofInterfacePrivilege(request, "admin", netInterface)
+		}
+	}
 	return handler
 }

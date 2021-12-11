@@ -1,0 +1,43 @@
+<div class="master-container">
+    <div class="page-container" id="setup-container">
+        <div class="centered-container" id="error-message-container" style="display: none;">
+            <h3 class="red-text" id="error-message"></h3>
+        </div>
+        <div class="centered-flex-container">
+            <div class="dropdown">
+                <button class="dropbtn" id="spoof" onclick="showMenu(this.id)"
+                        style="padding: 0.6vh 1vw; height: 5.5vh;">Interface
+                </button>
+                <div class="dropdown-content" id="dropDownMenu-spoof">
+                    {{range $interface := .ARPSpoofInterfaces}}
+                    <form onsubmit="return false;">
+                        <a id="{{$interface.Name}}" onclick="selectARPSpoofInterface(this.id)"
+                           onsubmit="selectARPSpoofInterface(this.id)"
+                           type="submit">{{$interface.Name}} {{$interface.Address}}</a>
+                    </form>
+                    {{end}}
+                </div>
+            </div>
+            <span style="width: 1%;"></span>
+            <label for="ip"></label>
+            <input class="basic-text-input" id="ip" name="ip" placeholder="Target IP" type="text">
+            <span style="width: 1%;"></span>
+            <label for="gateway"></label>
+            <input class="basic-text-input" id="gateway" name="gateway" placeholder="Target gateway" type="text">
+            <span style="width: 1%;"></span>
+            <button class="green-button" onclick="startSpoof();">Start</button>
+        </div>
+    </div>
+    <div class="page-container" id="spoof-container" style="display: none;">
+        <div class="centered-flex-container">
+            <h3 class="purple-text" id="spoofed-interface"></h3>
+            <span style="width: 1%;"></span>
+            <h3 class="black-text" id="spoofed-ip"></h3>
+            <span style="width: 1%;"></span>
+            <h3 class="black-text" id="spoofed-gateway"></h3>
+            <span style="width: 1%;"></span>
+            <button class="red-button" onclick="closeConnection();">Stop</button>
+        </div>
+    </div>
+</div>
+<script src="/static/js/user/arp-spoof.js"></script>

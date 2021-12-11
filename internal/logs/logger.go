@@ -155,6 +155,106 @@ func (logger *Logger) LogAdminDeleteARPSpoofPrivilege(request *http.Request, use
 	}
 }
 
+func (logger *Logger) LogListUserCaptures(request *http.Request, username string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully listed captures for user %s by %s", username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to list captures for user %s by %s", username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogReserveCaptureNameForUser(request *http.Request, username, captureName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully reserved capture name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to reserve capture name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogRemoveReservedCaptureNameForUser(request *http.Request, username, captureName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully removed reserved capture name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed removed reserved capture name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogSaveInterfaceCapture(request *http.Request, username, captureName, interfaceName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully saved capture with name \"%s\" targeting the interface %s started by user %s in %s", captureName, interfaceName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to save capture with name \"%s\" targeting the interface %s started by user %s in %s", captureName, interfaceName, username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogSaveImportCapture(request *http.Request, username, captureName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully saved capture with name \"%s\" imported by user %s in %s", captureName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to save capture with name \"%s\" imported by user %s in %s", captureName, username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogQueryUserCapture(request *http.Request, username, captureName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully queried %s for user %s at %s", captureName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to query %s for user %s at %s", captureName, username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogARPSpoofStarted(request *http.Request, username, ip, gateway string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully started ARP spoof by %s to IP %s and gateway %s at %s", username, ip, gateway, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to start ARP spoof by %s to IP %s and gateway %s at %s", username, ip, gateway, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogARPSpoofStopped(request *http.Request, username, ip, gateway string) {
+	logger.debugLogger.Printf("Successfully stopped ARP spoof by %s to IP %s and gateway %s at %s", username, ip, gateway, request.RemoteAddr)
+}
+
+func (logger *Logger) LogReserveARPScanNameForUser(request *http.Request, username, captureName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully reserved arp scan name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to reserve arp scan name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogRemoveReservedARPScanNameForUser(request *http.Request, username, captureName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully removed reserved arp scan name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed removed reserved arp scan name \"%s\" for user %s by %s", captureName, username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogListUserARPScans(request *http.Request, username string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully listed arp scans for user %s at %s", username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to list arp scans for user %s at %s", username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogSaveARPScan(request *http.Request, username, scanName, interfaceName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully saved arp scan with name \"%s\" targeting the interface %s started by user %s in %s", scanName, interfaceName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to save arp scan with name \"%s\" targeting the interface %s started by user %s in %s", scanName, interfaceName, username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogQueryUserARPScan(request *http.Request, username, scanName string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully queried %s for user %s at %s", scanName, username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to query %s for user %s at %s", scanName, username, request.RemoteAddr)
+	}
+}
+
 func NewLogger(logWriter io.Writer) *Logger {
 	return &Logger{
 		errorLogger: log.New(logWriter, "ERROR: ", log.Ldate|log.Ltime),

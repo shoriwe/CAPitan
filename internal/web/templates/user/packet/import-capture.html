@@ -1,0 +1,44 @@
+<link href="/static/vendor/css/prism.css" rel="stylesheet"/>
+<link href="/static/vendor/css/prism-live.css" rel="stylesheet"/>
+<form enctype="multipart/form-data" method="post">
+    <div class="master-container">
+        <div class="page-container" id="new-config-container">
+            <h3 class="error-block"
+                id="error-message" style="display: none;"></h3>
+            <div class="centered-flex-container">
+                <label for="capture-name"></label>
+                <input class="basic-text-input" id="capture-name" name="capture-name" placeholder="Capture name"
+                       required type="text">
+                <button class="green-button" type="submit">Import</button>
+            </div>
+            <div class="master-container">
+                <div class="centered-flex-container">
+                    <div style="width: 45%; margin-right: 1%;">
+                        <div class="align-right-container">
+                            <label>
+                                <input class="purple-button" name="file" required title="Pcap file" type="file">
+                            </label>
+                        </div>
+                        <br>
+                        <br>
+                        <label for="description"></label>
+                        <textarea class="basic-text-input" id="description" maxlength="1000" name="description"
+                                  placeholder="Description" required
+                                  style="resize: none; width: 90%; height: 50%;"></textarea>
+                    </div>
+                    <div style="width: 55%;">
+                        <pre>
+                            <label for="filter-script"></label>
+                            <textarea class="prism-live language-ruby line-numbers fill prism-live-source"
+                                      id="filter-script"
+                                      name="script"
+                                      style="height: 65vh;border: 1px solid gray; border-radius: 2px;"></textarea>
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script src="/static/vendor/js/prism.js"></script>
+<script src="/static/vendor/js/prism-live.js?load=ruby"></script>

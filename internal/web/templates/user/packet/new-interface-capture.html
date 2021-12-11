@@ -1,0 +1,127 @@
+<link href="/static/vendor/css/prism.css" rel="stylesheet"/>
+<link href="/static/vendor/css/prism-live.css" rel="stylesheet"/>
+<div class="master-container">
+    <div class="page-container" id="new-config-container">
+        <h3 class="error-block"
+            id="error-message" style="display: none;"></h3>
+        <div class="centered-flex-container">
+            <label for="capture-name"></label>
+            <input class="basic-text-input" id="capture-name" placeholder="Capture name" type="text">
+            <button class="green-button" onclick="newCapture();">New</button>
+        </div>
+        <div class="master-container">
+            <div class="centered-flex-container">
+                <div style="width: 45%; margin-right: 1%;">
+                    <div class="align-right-container">
+                        <label for="promiscuous"></label>
+                        <input checked id="promiscuous" name="promiscuous" readonly style="display: none;"
+                               type="checkbox">
+                        <button class="checked-checkbox" id="promiscuous-checkbox" onclick="togglePromiscuous()"
+                                type="button">Promiscuous
+                        </button>
+                        <div class="dropdown">
+                            <button class="dropbtn" id="capture" onclick="showMenu(this.id)"
+                                    style="padding: 0.6vh 1vw;">Interface
+                            </button>
+                            <div class="dropdown-content" id="dropDownMenu-capture">
+                                {{range $interface := .CaptureInterfaces}}
+                                <form onsubmit="return false;">
+                                    <a id="{{$interface.Name}}" onclick="selectCaptureInterface(this.id)"
+                                       onsubmit="selectCaptureInterface(this.id)"
+                                       type="submit">{{$interface.Name}} {{$interface.Address}}</a>
+                                </form>
+                                {{end}}
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+                    <label for="description"></label>
+                    <textarea class="basic-text-input" id="description" maxlength="1000"
+                              placeholder="Description" style="resize: none; width: 90%; height: 50%;"></textarea>
+                </div>
+                <div style="width: 55%;">
+                <pre>
+                    <label for="filter-script"></label>
+                    <textarea class="prism-live language-ruby line-numbers fill prism-live-source" id="filter-script"
+                              style="height: 65vh;border: 1px solid gray; border-radius: 2px;"></textarea>
+                </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="capture-session-container" style="display: none;">
+        <div class="master-container">
+            <div class="page-container">
+                <div class="centered-flex-container">
+                    <h3 class="black-text" id="title"></h3>
+                    <button class="red-button" onclick="stopCapture();">Stop</button>
+                </div>
+                <div class="master-container">
+                    <div class="centered-flex-container">
+                        <button class="green-button" onclick="tcpStreamMenu()">TCP streams</button>
+                        <button class="green-button" onclick="packetMenu()">Packets</button>
+                        <button class="green-button" onclick="dataAnalysisMenu()">Data analysis</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="tcp-stream-menu" style="display: none;">
+            <div class="master-container">
+                <div id="streams-container" style="display: flex; flex-wrap: wrap;">
+                </div>
+            </div>
+        </div>
+        <div id="packet-menu" style="display: none;">
+            <div class="master-container">
+                <div class="dialog-container" id="packet-dialog" role="dialog"
+                     style="display: none; width: 70vw; height: 75vh;">
+                    <pre class="language-json" style="height: 60vh;">
+                        <code id="packet-as-json"></code>
+                    </pre>
+                    <div class="centered-container">
+                        <button class="red-button"
+                                onclick="(function() {document.getElementById('packet-dialog').style.display = 'none';})()">
+                            Close
+                        </button>
+                    </div>
+                </div>
+                <div class="list-container" id="packets-list">
+
+                </div>
+            </div>
+        </div>
+        <div id="data-analysis-menu" style="display: none;">
+            <div class="master-container">
+                <div class="page-container">
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+                        <div class="round-border-container">
+                            <div id="topology-graph" style="width:75vw; height: 80vh;">
+
+                            </div>
+                        </div>
+                        <div class="round-border-container">
+                            <div id="number-of-packets-send-per-host" style="width:75vw; height: 80vh;">
+
+                            </div>
+                        </div>
+                        <div class="round-border-container">
+                            <div id="layer-4" style="width:75vw; height: 80vh;">
+
+                            </div>
+                        </div>
+                        <div class="round-border-container">
+                            <div id="streams-type" style="width:75vw; height: 80vh;">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/vendor/js/prism.js"></script>
+<script src="/static/vendor/js/prism-live.js?load=ruby"></script>
+<script src="/static/vendor/echarts-5.2.2/dist/echarts.js"></script>
+<script src="/static/js/user/packet.js"></script>

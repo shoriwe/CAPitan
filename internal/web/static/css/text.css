@@ -1,0 +1,55 @@
+.home-page-title {
+    margin-left: 5%;
+    text-decoration: none;
+    color: #e74c3c;
+    font-family: "Arial Black", serif;
+}
+
+.black-text {
+    font-family: Arial, serif;
+    text-decoration: none;
+}
+
+.green-text {
+    text-decoration: none;
+    font-family: Arial, serif;
+    color: #2ecc71;
+}
+
+.red-text {
+    text-decoration: none;
+    font-family: Arial, serif;
+    color: #e74c3c;
+}
+
+.blue-text {
+    text-decoration: none;
+    font-family: Arial, serif;
+    color: #3498db;
+}
+
+.purple-text {
+    text-decoration: none;
+    font-family: Arial, serif;
+    color: #9b59b6;
+}
+
+.error-block {
+    text-decoration: none;
+    font-family: Arial, serif;
+    color: white;
+    background: #e74c3c;
+    padding: 2.5vh 2.5vw;
+}
+
+.basic-text-input {
+    font-family: Arial, serif;
+    font-size: large;
+    padding: 2vh 2vw;
+    border: 0 solid gray;
+    border-radius: 2px;
+}
+
+.basic-text-input:hover {
+    background: #f1f2f6;
+}
