@@ -7,6 +7,8 @@ to config.
 
 ## Installation
 
+First install `libpcap` if you are on Linux or `npcap` if your are on windows. Then...
+
 ```shell
 go install github.com/shoriwe/CAPitan/cmd/capitan@latest
 ```
