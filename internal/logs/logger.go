@@ -255,6 +255,22 @@ func (logger *Logger) LogQueryUserARPScan(request *http.Request, username, scanN
 	}
 }
 
+func (logger *Logger) LogListAllARPScans(request *http.Request, username string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully listed all arp scans by user %s at %s", username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to list all arp scans by user %s at %s", username, request.RemoteAddr)
+	}
+}
+
+func (logger *Logger) LogListAllCaptures(request *http.Request, username string, succeed bool) {
+	if succeed {
+		logger.debugLogger.Printf("Successfully listed all captures by user %s at %s", username, request.RemoteAddr)
+	} else {
+		logger.debugLogger.Printf("Failed to list all captures by user %s at %s", username, request.RemoteAddr)
+	}
+}
+
 func NewLogger(logWriter io.Writer) *Logger {
 	return &Logger{
 		errorLogger: log.New(logWriter, "ERROR: ", log.Ldate|log.Ltime),

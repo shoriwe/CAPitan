@@ -123,6 +123,8 @@ func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 	// Admin
 	handler.HandleFunc(symbols.AdminPanel, mw.Handle(logVisit, loadCredentials, requiresLogin, requiresAdminPrivilege, setNavigationBar, admin.Panel))
 	handler.HandleFunc(symbols.AdminEditUsers, mw.Handle(logVisit, loadCredentials, requiresLogin, requiresAdminPrivilege, setNavigationBar, admin.EditUsers))
+	handler.HandleFunc(symbols.AdminARPScans, mw.Handle(logVisit, loadCredentials, requiresLogin, requiresAdminPrivilege, setNavigationBar, admin.ListUserARPScans))
+	handler.HandleFunc(symbols.AdminPacketCaptures, mw.Handle(logVisit, loadCredentials, requiresLogin, requiresAdminPrivilege, setNavigationBar, admin.PacketCaptures))
 	// User
 	handler.HandleFunc(symbols.UserPacketCaptures, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, packet.Captures))
 	handler.HandleFunc(symbols.UserARP, mw.Handle(logVisit, loadCredentials, requiresLogin, setNavigationBar, arp.ARP))

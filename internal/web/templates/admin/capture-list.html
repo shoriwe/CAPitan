@@ -1,0 +1,48 @@
+<div class="master-container">
+    <div class="master-container">
+        <div class="page-container">
+            <div class="list-container">
+                {{range $capture := .Captures}}
+                <div class="list-entry">
+                    <h3 class="green-text">{{$capture.User.Username}}</h3>
+                    <span style="width: 1vw;"></span>
+                    <h3 class="purple-text">{{$capture.Session.Name}}</h3>
+                    <span style="width: 1vw;"></span>
+                    <h3 class="blue-text">{{$capture.Session.Started.Format "2006 Jan 02 15:04:05 UTC"}}</h3>
+                    <span style="width: 1vw;"></span>
+                    <h3 class="green-text">{{$capture.Session.Ended.Format "2006 Jan 02 15:04:05 UTC"}}</h3>
+                    <span style="width: 1vw;"></span>
+                    <form action="/admin/captures?action=download" method="post">
+                        <label for="capture-id-download-{{$capture.Session.Id}}" style="display: none;">{{$capture.Session.Id}}</label>
+                        <input id="capture-id-download-{{$capture.Session.Id}}" name="capture-name" readonly
+                               style="display: none;"
+                               type="text"
+                               value="{{$capture.Session.Name}}">
+                        <label for="capture-id-download-{{$capture.User.Username}}" style="display: none;">{{$capture.User.Username}}</label>
+                        <input id="capture-id-download-{{$capture.User.Username}}" name="username" readonly
+                               style="display: none;"
+                               type="text"
+                               value="{{$capture.User.Username}}">
+                        <button class="green-button" type="submit">Download</button>
+                    </form>
+                    <span style="width: 1%;"></span>
+                    <form action="/admin/captures?action=view" method="post">
+                        <label for="capture-id-{{$capture.Session.Id}}"
+                               style="display: none;">{{$capture.Session.Id}}</label>
+                        <input id="capture-id-{{$capture.Session.Id}}" name="capture-name" readonly
+                               style="display: none;"
+                               type="text"
+                               value="{{$capture.Session.Name}}">
+                        <label for="capture-id-{{$capture.User.Username}}" style="display: none;">{{$capture.User.Username}}</label>
+                        <input id="capture-id-{{$capture.User.Username}}" name="username" readonly
+                               style="display: none;"
+                               type="text"
+                               value="{{$capture.User.Username}}">
+                        <button class="green-button" type="submit">View</button>
+                    </form>
+                </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+</div>

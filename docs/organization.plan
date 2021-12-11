@@ -1,10 +1,10 @@
 {
   "version": "0.8.0-alpha.3",
   "pan": {
-    "X": 1101.7236,
-    "Y": 333.99084
+    "X": -142.11342,
+    "Y": 307.20944
   },
-  "zoom": 0.7048723697662354,
+  "zoom": 0.6071504354476929,
   "root": {
     "pagecontenttype": "PageContentFolder",
     "name": "New Folder",
@@ -55,52 +55,21 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Ideas for the functionalities and deployment features the app should have",
-              "filepath": ""
+              "description": "Ideas for the functionalities and deployment features the app should have"
             }
           },
           {
-            "id": 129,
+            "id": 169,
             "rect": {
-              "X": 2400,
-              "Y": -640,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": true,
-              "description": "Network captures",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 130,
-            "rect": {
-              "X": 2432,
-              "Y": -608,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": true,
-              "description": "Started",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 131,
-            "rect": {
-              "X": 2432,
+              "X": 3456,
               "Y": -576,
               "W": 288,
               "H": 32
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": true,
-              "description": "Completed",
+              "checked": false,
+              "description": "Deplyment",
               "filepath": ""
             }
           },
@@ -137,17 +106,17 @@
             ]
           },
           {
-            "id": 132,
+            "id": 170,
             "rect": {
-              "X": 2432,
+              "X": 3488,
               "Y": -544,
               "W": 288,
               "H": 32
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": true,
-              "description": "By who",
+              "checked": false,
+              "description": "Docker container",
               "filepath": ""
             }
           },
@@ -214,6 +183,21 @@
             ]
           },
           {
+            "id": 173,
+            "rect": {
+              "X": 3488,
+              "Y": -512,
+              "W": 288,
+              "H": 64
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": false,
+              "description": "Standalone executable",
+              "filepath": ""
+            }
+          },
+          {
             "id": 99,
             "rect": {
               "X": 1472,
@@ -226,6 +210,19 @@
               "checked": true,
               "description": "Errors",
               "filepath": ""
+            }
+          },
+          {
+            "id": 172,
+            "rect": {
+              "X": 3488,
+              "Y": -448,
+              "W": 256,
+              "H": 224
+            },
+            "contents": "Note",
+            "properties": {
+              "description": "This one should be powered by mariadb and the network interfaces are configured for the container it self"
             }
           },
           {
@@ -253,7 +250,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "ARP scans",
               "filepath": ""
             }
@@ -283,7 +280,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Started",
               "filepath": ""
             }
@@ -345,23 +342,8 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Completed",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 169,
-            "rect": {
-              "X": 3456,
-              "Y": -288,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Deplyment",
               "filepath": ""
             }
           },
@@ -375,7 +357,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "User module",
               "filepath": ""
             },
@@ -415,7 +397,7 @@
           {
             "id": 52,
             "rect": {
-              "X": 384,
+              "X": 608,
               "Y": -256,
               "W": 288,
               "H": 32
@@ -437,30 +419,15 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "By who",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 170,
-            "rect": {
-              "X": 3488,
-              "Y": -256,
-              "W": 288,
-              "H": 32
-            },
-            "contents": "Checkbox",
-            "properties": {
-              "checked": false,
-              "description": "Docker container",
               "filepath": ""
             }
           },
           {
             "id": 53,
             "rect": {
-              "X": 416,
+              "X": 640,
               "Y": -224,
               "W": 288,
               "H": 32
@@ -503,24 +470,37 @@
             }
           },
           {
-            "id": 173,
+            "id": 129,
             "rect": {
-              "X": 3488,
+              "X": 2880,
               "Y": -224,
               "W": 288,
-              "H": 64
+              "H": 32
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
-              "description": "Standalone executable",
+              "checked": true,
+              "description": "Network captures",
               "filepath": ""
+            }
+          },
+          {
+            "id": 174,
+            "rect": {
+              "X": 3488,
+              "Y": -224,
+              "W": 256,
+              "H": 128
+            },
+            "contents": "Note",
+            "properties": {
+              "description": "This one is powered a by a custom JSON database"
             }
           },
           {
             "id": 180,
             "rect": {
-              "X": 448,
+              "X": 672,
               "Y": -192,
               "W": 288,
               "H": 64
@@ -529,6 +509,21 @@
             "properties": {
               "checked": true,
               "description": "Username and Password based",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 130,
+            "rect": {
+              "X": 2912,
+              "Y": -192,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": true,
+              "description": "Started",
               "filepath": ""
             }
           },
@@ -578,23 +573,24 @@
             }
           },
           {
-            "id": 172,
+            "id": 131,
             "rect": {
-              "X": 3488,
+              "X": 2912,
               "Y": -160,
-              "W": 256,
-              "H": 224
+              "W": 288,
+              "H": 32
             },
-            "contents": "Note",
+            "contents": "Checkbox",
             "properties": {
-              "description": "This one should be powered by mariadb and the network interfaces are configured for the container it self",
+              "checked": true,
+              "description": "Completed",
               "filepath": ""
             }
           },
           {
             "id": 181,
             "rect": {
-              "X": 448,
+              "X": 672,
               "Y": -128,
               "W": 288,
               "H": 96
@@ -648,6 +644,21 @@
             "properties": {
               "checked": true,
               "description": "Disabled user",
+              "filepath": ""
+            }
+          },
+          {
+            "id": 132,
+            "rect": {
+              "X": 2912,
+              "Y": -128,
+              "W": 288,
+              "H": 32
+            },
+            "contents": "Checkbox",
+            "properties": {
+              "checked": true,
+              "description": "By who",
               "filepath": ""
             }
           },
@@ -744,7 +755,7 @@
           {
             "id": 182,
             "rect": {
-              "X": 416,
+              "X": 640,
               "Y": -32,
               "W": 288,
               "H": 32
@@ -796,8 +807,7 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Shared with me captures are read only",
-              "filepath": ""
+              "description": "Shared with me captures are read only"
             }
           },
           {
@@ -825,7 +835,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Old ARP scans manipulation",
               "filepath": ""
             }
@@ -842,20 +852,6 @@
             "properties": {
               "checked": false,
               "description": "Opened",
-              "filepath": ""
-            }
-          },
-          {
-            "id": 174,
-            "rect": {
-              "X": 3488,
-              "Y": 64,
-              "W": 256,
-              "H": 128
-            },
-            "contents": "Note",
-            "properties": {
-              "description": "This one is powered a by a custom JSON database",
               "filepath": ""
             }
           },
@@ -884,7 +880,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Opened",
               "filepath": ""
             }
@@ -959,7 +955,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "By who",
               "filepath": ""
             }
@@ -1094,7 +1090,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Existing ARP scans manipulations",
               "filepath": ""
             }
@@ -1229,7 +1225,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "View everyones ARP scans results",
               "filepath": ""
             }
@@ -1349,7 +1345,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "ARP scans",
               "filepath": ""
             }
@@ -1364,7 +1360,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Old ARP scans",
               "filepath": ""
             }
@@ -1394,7 +1390,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Targets",
               "filepath": ""
             }
@@ -1409,7 +1405,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Show IPs with MAC discovered",
               "filepath": ""
             }
@@ -1469,7 +1465,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "IP range",
               "filepath": ""
             }
@@ -1499,7 +1495,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "IP + Mask",
               "filepath": ""
             }
@@ -1514,7 +1510,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Export to JSON",
               "filepath": ""
             }
@@ -1544,7 +1540,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "All IPs in the interface network",
               "filepath": ""
             }
@@ -1559,8 +1555,7 @@
             },
             "contents": "Note",
             "properties": {
-              "description": "Shared with me captures are read only",
-              "filepath": ""
+              "description": "Shared with me captures are read only"
             }
           },
           {
@@ -1603,7 +1598,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Export result to JSON",
               "filepath": ""
             }
@@ -1663,7 +1658,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "ARP scan session controls",
               "filepath": ""
             }
@@ -1693,7 +1688,7 @@
             },
             "contents": "Checkbox",
             "properties": {
-              "checked": false,
+              "checked": true,
               "description": "Stop",
               "filepath": ""
             }

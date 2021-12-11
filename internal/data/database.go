@@ -20,6 +20,8 @@ type DatabaseAdminFeatures interface {
 	AddCaptureInterfacePrivilege(username, i string) (bool, error)
 	AddARPScanInterfacePrivilege(username, i string) (bool, error)
 	AddARPSpoofInterfacePrivilege(username, i string) (bool, error)
+	ListAllARPScans() (bool, []*objects.ARPScanSessionAdminView, error)
+	ListAllCaptures() (bool, []*objects.CaptureSessionAdminView, error)
 }
 
 type DatabaseUserFeatures interface {

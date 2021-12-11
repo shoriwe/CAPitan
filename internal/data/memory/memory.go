@@ -41,6 +41,58 @@ type Memory struct {
 	nextARPSpoofPermissionId          uint
 }
 
+func (memory *Memory) ListAllCaptures() (bool, []*objects.CaptureSessionAdminView, error) {
+	memory.captureSessionsMutex.Lock()
+	defer memory.captureSessionsMutex.Unlock()
+	memory.usersMutex.Lock()
+	defer memory.usersMutex.Unlock()
+	var result []*objects.CaptureSessionAdminView
+	idOrderedUsers := map[uint]*objects.User{}
+	for _, session := range memory.captureSessions {
+		user, found := idOrderedUsers[session.UserId]
+		if !found {
+			for _, u := range memory.users {
+				if u.Id == session.UserId {
+					idOrderedUsers[u.Id] = u
+					break
+				}
+			}
+			user = idOrderedUsers[session.UserId]
+		}
+		result = append(result, &objects.CaptureSessionAdminView{
+			User:    user,
+			Session: session,
+		})
+	}
+	return true, result, nil
+}
+
+func (memory *Memory) ListAllARPScans() (bool, []*objects.ARPScanSessionAdminView, error) {
+	memory.arpScanSessionsMutex.Lock()
+	defer memory.arpScanSessionsMutex.Unlock()
+	memory.usersMutex.Lock()
+	defer memory.usersMutex.Unlock()
+	var result []*objects.ARPScanSessionAdminView
+	idOrderedUsers := map[uint]*objects.User{}
+	for _, session := range memory.arpScanSessions {
+		user, found := idOrderedUsers[session.UserId]
+		if !found {
+			for _, u := range memory.users {
+				if u.Id == session.UserId {
+					idOrderedUsers[u.Id] = u
+					break
+				}
+			}
+			user = idOrderedUsers[session.UserId]
+		}
+		result = append(result, &objects.ARPScanSessionAdminView{
+			User:    user,
+			Session: session,
+		})
+	}
+	return true, result, nil
+}
+
 func (memory *Memory) QueryARPScan(username, scanName string) (bool, *objects.ARPScanSession, error) {
 	memory.usersMutex.Lock()
 	user, found := memory.users[username]
