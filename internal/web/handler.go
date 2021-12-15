@@ -99,6 +99,11 @@ func setNavigationBar(mw *middleware.Middleware, context *middleware.Context) bo
 	return true
 }
 
+func redirectToLogin(mw *middleware.Middleware, context *middleware.Context) bool {
+	context.Redirect = symbols.Login
+	return false
+}
+
 func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 	mw := middleware.New(database, logger, templatesFS)
 	handler := http.NewServeMux()
@@ -110,6 +115,9 @@ func NewServerMux(database data.Database, logger *logs.Logger) http.Handler {
 			},
 		),
 	)
+	// The most important: Redirect the index.html to login.html
+	handler.HandleFunc("/", mw.Handle(logVisit, loadCredentials, redirectToLogin))
+	handler.HandleFunc("/index.html", mw.Handle(logVisit, loadCredentials, redirectToLogin))
 	// Anyone
 	handler.Handle(symbols.Static, http.FileServer(http.FS(staticFS)))
 	handler.HandleFunc(symbols.Login, mw.Handle(logVisit, loadCredentials, login2.Login))
