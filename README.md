@@ -21,6 +21,12 @@ To start **CAPitan** in memory mode at `127.0.0.1:8080` execute:
 capitan memory
 ```
 
+Then you can visit it from the url
+
+```
+http://127.0.0.1:8080
+```
+
 For more options check:
 
 ```shell
