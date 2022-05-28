@@ -125,7 +125,7 @@ Password: `admin`
 
 ### Documentation
 
-You can check the documentation of the scripting language [plasma](https://shoriwe.github.io/documentation/docs.html).
+You can check the documentation of the scripting language [plasma](https://shoriwe.github.io/plasma/index.html).
 
 Then for the scripting functionality of the Network packet sniffer you can check [here](https://github.com/shoriwe/CAPitan/wiki/Sniffer-scripting).
 
